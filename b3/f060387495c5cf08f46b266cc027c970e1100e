@@ -1,0 +1,21 @@
+.github/workflows/ci.yml
+  s_b5227510c4b557::t_ebc4aa3876d737 1-26
+.github/workflows/eval.yml
+  s_b5227510c4b557::t_f0f3d3c5d16ea2 1-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b3f060387495c5cf08f46b266cc027c970e1100e",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
