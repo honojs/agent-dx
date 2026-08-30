@@ -1,0 +1,65 @@
+# Runs real agent evals against a model API.
+#
+# This workflow is intentionally NOT triggered by pull requests: model runs
+# cost money. It runs on demand (workflow_dispatch) or on a schedule, and
+# uploads the JSON report as an artifact.
+#
+# Planned modes (see README):
+#   - PR experiments driven by labels / repository_dispatch from other repos
+#   - scheduled benchmarks that commit results/ and update the website
+name: Agent Eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Suite to run'
+        type: choice
+        options: [adoption, proficiency]
+        default: adoption
+      runs:
+        description: 'Number of runs'
+        default: '10'
+      model:
+        description: 'Model id'
+        default: 'anthropic/claude-haiku-4-5'
+  schedule:
+    # Weekly benchmark (Monday 03:00 UTC).
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Run eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # For cloudflare-ai-gateway/* models (unified billing).
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_GATEWAY_ID: ${{ secrets.CLOUDFLARE_GATEWAY_ID }}
+          SUITE: ${{ inputs.suite || 'adoption' }}
+          RUNS: ${{ inputs.runs || '10' }}
+          MODEL: ${{ inputs.model || 'anthropic/claude-haiku-4-5' }}
+        run: |
+          node packages/agent-dx/dist/cli.js \
+            --suite "$SUITE" \
+            --runs "$RUNS" \
+            --model "$MODEL" \
+            --report "eval-report.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval-report.json
