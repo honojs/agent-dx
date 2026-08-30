@@ -1,0 +1,27 @@
+AGENTS.md
+  s_b5227510c4b557::t_b21c655167be0d 1-64
+.github/pull_request_template.md
+  s_b5227510c4b557::t_8dfa932facd2ca 1-6
+CLAUDE.md
+  s_b5227510c4b557::t_e64e37b1abbaa4 1
+README.md
+  s_b5227510c4b557::t_68006fc5683284 1-124
+results/README.md
+  s_b5227510c4b557::t_52175faac53299 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7f6914075951c2c0e504ca220d5e97a0f9058748",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
