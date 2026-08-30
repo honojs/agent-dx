@@ -1,0 +1,27 @@
+.oxlintrc.json
+  s_b5227510c4b557::t_d0777c8d936d10 1-8
+pnpm-lock.yaml
+  s_b5227510c4b557::t_54c7ce0e9081d2 1-3409
+.oxfmtrc.json
+  s_b5227510c4b557::t_b9085a2146a6de 1-15
+package.json
+  s_b5227510c4b557::t_2e8070d7a5ecb5 1-27
+pnpm-workspace.yaml
+  s_b5227510c4b557::t_c61f4de03d74a0 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c924fd1e32f9db9fd7583c7b95f4c0619618ca6d",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
