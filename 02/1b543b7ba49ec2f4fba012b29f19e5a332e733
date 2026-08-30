@@ -1,0 +1,31 @@
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_3bc5837e4bed55 1-232
+apps/web/src/results.ts
+  s_b5227510c4b557::t_75de9148e4fc9e 1-37
+apps/web/wrangler.jsonc
+  s_b5227510c4b557::t_fe9fcd78c4a0b2 1-9
+apps/web/package.json
+  s_b5227510c4b557::t_c54c2455767faf 1-23
+apps/web/src/build.ts
+  s_b5227510c4b557::t_744cb994e8f76c 1-10
+apps/web/src/dev.ts
+  s_b5227510c4b557::t_c1df88a291524c 1-7
+apps/web/tsconfig.json
+  s_b5227510c4b557::t_b61dcb18189b5f 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "021b543b7ba49ec2f4fba012b29f19e5a332e733",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
