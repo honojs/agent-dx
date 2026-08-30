@@ -1,0 +1,79 @@
+packages/agent-dx/package.json
+  s_b5227510c4b557::t_170be3b66d0030 1-46
+packages/agent-dx/src/exec.ts
+  s_b5227510c4b557::t_dbe1e5abd5d334 1-30
+packages/agent-dx/src/index.ts
+  s_b5227510c4b557::t_5b85aa5e127927 1-20
+packages/agent-dx/src/report/compare.ts
+  s_b5227510c4b557::t_ccd0a0d31860b1 1-155
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_83ae91c3f9970b 1-117
+packages/agent-dx/src/runner/flue-runner.ts
+  s_74469d32e351d4::t_38c5e2d5f389ba 1-151
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_8e9e0fb1f065ba 1-137
+packages/agent-dx/src/suites/adoption/detect.ts
+  s_b5227510c4b557::t_68ca43efc17461 1-280
+packages/agent-dx/src/suites/adoption/index.ts
+  s_b5227510c4b557::t_755c4ab8193359 1-156
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_fbe304c346e55f 1-152
+packages/agent-dx/src/suites/proficiency/tasks/add-user-route.ts
+  s_b5227510c4b557::t_3825ca9ffb1370 1-99
+packages/agent-dx/src/version.ts
+  s_b5227510c4b557::t_84064de6c66edd 1-16
+packages/agent-dx/src/workspace.ts
+  s_b5227510c4b557::t_fee1afb64eeb77 1-22
+packages/agent-dx/test/compare.test.ts
+  s_b5227510c4b557::t_732a66f532014e 1-91
+packages/agent-dx/test/detect.test.ts
+  s_b5227510c4b557::t_5faddaa4f43522 1-118
+packages/agent-dx/README.md
+  s_b5227510c4b557::t_f18f3364fdfb70 1-13
+packages/agent-dx/fixtures/hono-basic/AGENTS.md
+  s_b5227510c4b557::t_f057afd55de803 1-7
+packages/agent-dx/fixtures/hono-basic/package.json
+  s_b5227510c4b557::t_e37c1d8421c94f 1-17
+packages/agent-dx/fixtures/hono-basic/src/index.ts
+  s_b5227510c4b557::t_4c73322229acae 1-11
+packages/agent-dx/fixtures/hono-basic/tsconfig.json
+  s_b5227510c4b557::t_c6aef11d406557 1-12
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_6b713e4720a1f0 1-241
+packages/agent-dx/src/fixtures.ts
+  s_b5227510c4b557::t_4faaadc36e4afb 1-10
+packages/agent-dx/src/stats.ts
+  s_b5227510c4b557::t_e0e7a3799a2ce8 1-22
+packages/agent-dx/src/suites/proficiency/task.ts
+  s_b5227510c4b557::t_f8fa5faf8255b1 1-17
+packages/agent-dx/test/stats.test.ts
+  s_b5227510c4b557::t_e7c7dc34759c31 1-26
+packages/agent-dx/tsconfig.build.json
+  s_b5227510c4b557::t_7e285e79c11f93 1-10
+packages/agent-dx/tsconfig.json
+  s_b5227510c4b557::t_1192490be17343 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "3ee0d57f9c93fada66e0b1ed0f38c0c647eb2ada",
+  "prompts": {},
+  "sessions": {
+    "s_74469d32e351d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a27673c4-c805-4a2e-997d-b6ee20ed00c4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    },
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
