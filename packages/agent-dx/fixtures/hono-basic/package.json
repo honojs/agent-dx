@@ -4,14 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "hono": "^4.13.5"
   },
   "devDependencies": {
-    "tsx": "^4.23.13",
     "typescript": "^5.9.3"
   }
 }

@@ -1,5 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { exec } from '../../../exec.js'
 import type { ProficiencyCheck } from '../../../schema.js'
 import type { ProficiencyTask } from '../task.js'
@@ -71,9 +73,14 @@ async function grade(workspace: string): Promise<ProficiencyCheck[]> {
   const graderDir = join(workspace, '.agent-dx')
   await mkdir(graderDir, { recursive: true })
   await writeFile(join(graderDir, 'check.mjs'), CHECK_SCRIPT)
+  // Run the check with our own tsx loader so the fixture does not need a
+  // TypeScript runner among its dependencies.
+  const tsxLoader = pathToFileURL(
+    createRequire(import.meta.url).resolve('tsx'),
+  ).href
   const run = await exec(
-    join(workspace, 'node_modules', '.bin', 'tsx'),
-    [join(graderDir, 'check.mjs')],
+    process.execPath,
+    ['--import', tsxLoader, join(graderDir, 'check.mjs')],
     { cwd: workspace },
   )
   const behavior = parseChecks(run.stdout)
