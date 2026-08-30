@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker name = subdomain: agent-dx.hono.dev
+  "name": "agent-dx",
+  "compatibility_date": "2026-08-30",
+  "assets": {
+    "directory": "./dist",
+  },
+}
