@@ -1,0 +1,15 @@
+{
+  "name": "hono-basic-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.13.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
