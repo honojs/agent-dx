@@ -12,12 +12,19 @@
   "bin": {
     "agent-dx": "dist/cli.js"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
     }
   },
   "files": [
@@ -32,11 +39,11 @@
     "dev": "tsx src/cli.ts"
   },
   "dependencies": {
-    "@flue/runtime": "^2.0.3"
+    "@flue/runtime": "^2.0.3",
+    "tsx": "^4.23.13"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",
-    "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11"
   },
