@@ -119,6 +119,10 @@ See [AGENTS.md](./AGENTS.md) for development conventions and the pull request wo
 - `ci.yml` runs format check, lint, typecheck, tests, and builds on every push and pull request. No model APIs are called.
 - `eval.yml` runs real agent evals. It is manual (`workflow_dispatch`) or scheduled — never triggered automatically by pull requests — and uploads the JSON report as an artifact.
 
+## Author
+
+Yusuke Wada <https://github.com/yusukebe>
+
 ## License
 
 MIT
