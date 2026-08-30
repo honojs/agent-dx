@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/dev.ts",
+    "dev": "pnpm build && wrangler dev",
     "build": "tsx src/build.ts",
     "typecheck": "tsc --noEmit",
     "deploy": "pnpm build && wrangler deploy"
@@ -14,7 +14,6 @@
     "hono": "^4.13.5"
   },
   "devDependencies": {
-    "@hono/node-server": "^2.1.1",
     "@types/node": "^22.18.0",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",

@@ -24,9 +24,6 @@ importers:
         specifier: ^4.13.5
         version: 4.13.5
     devDependencies:
-      '@hono/node-server':
-        specifier: ^2.1.1
-        version: 2.1.1(hono@4.13.5)
       '@types/node':
         specifier: ^22.18.0
         version: 22.20.1
@@ -45,13 +42,13 @@ importers:
       '@flue/runtime':
         specifier: ^2.0.3
         version: 2.0.3(typescript@5.9.3)(ws@8.21.3)(zod@4.5.4)
+      tsx:
+        specifier: ^4.23.13
+        version: 4.23.13
     devDependencies:
       '@types/node':
         specifier: ^22.18.0
         version: 22.20.1
-      tsx:
-        specifier: ^4.23.13
-        version: 4.23.13
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
