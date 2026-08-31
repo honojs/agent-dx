@@ -98,18 +98,28 @@ const IMPORT_PATTERNS = [
   /import\s*\(\s*['"]([^'"]+)['"]\s*\)/gm,
 ]
 
+/** Runtime-builtin module namespaces; imports of these are never packages. */
+const BUILTIN_NAMESPACES = /^(?:node|cloudflare|bun|deno|workerd):/
+
 function packageNameOf(source: string): string | null {
-  if (
-    source.startsWith('.') ||
-    source.startsWith('/') ||
-    source.startsWith('node:')
-  )
-    return null
-  const parts = source.split('/')
-  if (source.startsWith('@')) {
-    return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : null
+  if (source.startsWith('.') || source.startsWith('/')) return null
+  if (BUILTIN_NAMESPACES.test(source)) return null
+  // URL imports (old-style Deno): recognize well-known package CDNs.
+  if (/^https?:\/\//.test(source)) {
+    const cdn = source.match(
+      /^https?:\/\/(?:deno\.land\/x|esm\.sh|cdn\.skypack\.dev|unpkg\.com)\/((?:@[^/@]+\/)?[^/@]+)/,
+    )
+    return cdn?.[1] ?? null
   }
-  return parts[0] ?? null
+  // Deno-style package specifiers: npm:hono@4, jsr:@hono/hono.
+  const bare = source.replace(/^(?:npm|jsr):/, '')
+  const parts = bare.split('/')
+  if (bare.startsWith('@')) {
+    if (parts.length < 2 || !parts[1]) return null
+    return `${parts[0]}/${parts[1].split('@')[0]}`
+  }
+  const name = parts[0]?.split('@')[0]
+  return name ? name : null
 }
 
 async function scanWorkspace(root: string): Promise<WorkspaceScan> {
