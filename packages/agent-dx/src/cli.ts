@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises'
+import { join, relative } from 'node:path'
 import { parseArgs } from 'node:util'
 import { compareReports, renderComparison } from './report/compare.js'
 import { frameworkLabel, renderReport } from './report/console.js'
@@ -22,6 +23,10 @@ Usage:
 Options:
   --suite <name>      Suite to run: adoption | proficiency (default: adoption)
   --runs <n>          Number of runs, each in a fresh conversation (default: 5)
+  --concurrency <n>   Runs to execute in parallel (default: 5)
+  --quiet             Hide per-tool-call progress output
+  --keep              Keep each run's workspace under agent-dx-runs/ for
+                      inspecting the code the agent produced
   --model <id>        Model id, e.g. anthropic/claude-haiku-4-5 or
                       cloudflare-ai-gateway/claude-haiku-4-5
   --runtime <id>      Adoption runtime: ${Object.keys(ADOPTION_RUNTIMES).join(' | ')}
@@ -46,7 +51,7 @@ Environment:
   CLOUDFLARE_GATEWAY_ID    With unified billing, no provider key is needed.
 
 Examples:
-  agent-dx --suite adoption --runs 20
+  agent-dx --suite adoption --runs 20 --concurrency 10
   agent-dx --suite proficiency --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
   agent-dx compare baseline.json candidate.json
@@ -63,6 +68,19 @@ const PROVIDER_ENV_KEYS: Record<string, string[]> = {
     'CLOUDFLARE_ACCOUNT_ID',
     'CLOUDFLARE_GATEWAY_ID',
   ],
+}
+
+/**
+ * Flue's runtime uses node:sqlite, which prints an ExperimentalWarning on
+ * every invocation. Filter just that warning; keep everything else.
+ */
+function suppressExperimentalWarnings(): void {
+  const defaults = process.listeners('warning')
+  process.removeAllListeners('warning')
+  process.on('warning', (warning) => {
+    if (warning.name === 'ExperimentalWarning') return
+    for (const listener of defaults) listener.call(process, warning)
+  })
 }
 
 function fail(message: string): never {
@@ -109,6 +127,9 @@ async function main(): Promise<void> {
     options: {
       suite: { type: 'string' },
       runs: { type: 'string' },
+      concurrency: { type: 'string' },
+      quiet: { type: 'boolean' },
+      keep: { type: 'boolean' },
       model: { type: 'string' },
       runtime: { type: 'string' },
       task: { type: 'string' },
@@ -177,6 +198,12 @@ async function main(): Promise<void> {
   if (!Number.isInteger(runs) || runs < 1) {
     fail(`--runs must be a positive integer, got "${values.runs}"`)
   }
+  const concurrency = Number.parseInt(values.concurrency ?? '5', 10)
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    fail(
+      `--concurrency must be a positive integer, got "${values.concurrency}"`,
+    )
+  }
   const model = values.model ?? 'anthropic/claude-haiku-4-5'
 
   const provider = model.split('/')[0] ?? ''
@@ -189,20 +216,75 @@ async function main(): Promise<void> {
     )
   }
 
-  console.error(`Running ${suite} suite (model: ${model}, runs: ${runs})...`)
+  const runtimeId = values.runtime ?? 'cloudflare-workers'
+  const taskId = values.task ?? 'add-user-route'
+  const keepDir = values.keep
+    ? join(
+        process.cwd(),
+        'agent-dx-runs',
+        `${suite}-${new Date().toISOString().replaceAll(':', '-').slice(0, 19)}`,
+      )
+    : undefined
+
+  suppressExperimentalWarnings()
+  console.error(
+    `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
+  )
+  const promptText =
+    suite === 'adoption'
+      ? ADOPTION_RUNTIMES[runtimeId]?.prompt
+      : PROFICIENCY_TASKS[taskId]?.prompt
+  if (promptText) {
+    console.error('Prompt:')
+    for (const line of promptText.split('\n')) {
+      console.error(`  ${line}`)
+    }
+    console.error('')
+  }
+
+  // Colorize per run so interleaved parallel logs stay readable: each run
+  // gets a stable color, tool calls are dimmed, and done lines stand out.
+  const useColor = process.stderr.isTTY === true && !process.env.NO_COLOR
+  const RUN_COLORS = [36, 33, 35, 32, 34, 91]
+  const paint = (code: number, text: string) =>
+    useColor ? `\u001b[${code}m${text}\u001b[0m` : text
+  const runLabel = (index: number) =>
+    paint(
+      RUN_COLORS[(index - 1) % RUN_COLORS.length] ?? 36,
+      `run ${String(index).padStart(String(runs).length)}/${runs}`,
+    )
+  const onRunStarted = (index: number) => {
+    console.error(`  ${runLabel(index)} started`)
+  }
+  const onRunProgress = values.quiet
+    ? undefined
+    : (index: number, progress: { toolName: string; detail?: string }) => {
+        const detail = progress.detail ? ` ${progress.detail}` : ''
+        console.error(
+          `  ${runLabel(index)} ${paint(2, `${progress.toolName}${detail}`)}`,
+        )
+      }
+
+  const keptSuffix = (workspace: string | undefined) =>
+    workspace ? ` → ${relative(process.cwd(), workspace)}` : ''
 
   let report: AgentDxReport
   if (suite === 'adoption') {
     report = await runAdoptionSuite({
       model,
       runs,
-      runtime: values.runtime ?? 'cloudflare-workers',
+      concurrency,
+      keepDir,
+      runtime: runtimeId,
+      onRunStarted,
+      onRunProgress,
       onRunFinished: (run) => {
         const label =
           run.outcome === 'failed' ? 'failed' : frameworkLabel(run.framework)
         console.error(
-          `  run ${run.index}/${runs}: ${label} ` +
-            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
+          `  ${runLabel(run.index)} done: ${label} ` +
+            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
+            keptSuffix(run.workspace),
         )
       },
     })
@@ -210,13 +292,18 @@ async function main(): Promise<void> {
     report = await runProficiencySuite({
       model,
       runs,
-      task: values.task ?? 'add-user-route',
+      concurrency,
+      keepDir,
+      task: taskId,
+      onRunStarted,
+      onRunProgress,
       onRunFinished: (run) => {
         const label =
           run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
         console.error(
-          `  run ${run.index}/${runs}: ${label} ` +
-            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
+          `  ${runLabel(run.index)} done: ${label} ` +
+            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
+            keptSuffix(run.workspace),
         )
       },
     })
@@ -226,6 +313,9 @@ async function main(): Promise<void> {
 
   console.log('')
   console.log(renderReport(report))
+  if (keepDir) {
+    console.error(`\nWorkspaces kept in ${relative(process.cwd(), keepDir)}`)
+  }
 
   if (values.report) {
     await writeFile(values.report, `${JSON.stringify(report, null, 2)}\n`)
