@@ -1,0 +1,19 @@
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_e59b22d1c2ed6b 62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e5e3be8d96cf9d69b3e7a6ab4fc8022f5baf8126",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
