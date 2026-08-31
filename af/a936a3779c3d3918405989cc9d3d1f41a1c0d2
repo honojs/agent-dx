@@ -1,0 +1,39 @@
+README.md
+  s_b5227510c4b557::t_a8559019093e7b 52
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/.gitignore
+  s_b5227510c4b557::t_b6a441839e5350 1-37
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/ARCHITECTURE.md
+  s_b5227510c4b557::t_4f8b4dc5b618b0 1-280
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/EXAMPLES.md
+  s_b5227510c4b557::t_fea53df738bad3 1-271
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/QUICKSTART.md
+  s_b5227510c4b557::t_5e3d93d5a74f95 1-145
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/README.md
+  s_b5227510c4b557::t_cfe28314b22b93 1-277
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/package.json
+  s_b5227510c4b557::t_3e7d9399947ba5 1-20
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/src/index.ts
+  s_b5227510c4b557::t_d9d4d91e92a7f6 1-260
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/tsconfig.json
+  s_b5227510c4b557::t_11ce27b1333966 1-29
+agent-dx-runs/adoption-2026-08-31T11-58-29/run-1/wrangler.toml
+  s_b5227510c4b557::t_e19fbe499e0052 1-12
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_9712e2622cee62 25,51,197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "afa936a3779c3d3918405989cc9d3d1f41a1c0d2",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
