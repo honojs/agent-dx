@@ -141,3 +141,6 @@ out
 # Claude Code local files
 CLAUDE.local.md
 settings.local.json
+
+# Kept eval workspaces (agent-dx --keep)
+agent-dx-runs/
