@@ -106,6 +106,43 @@ describe('detectFramework', () => {
     expect(result.evidence).toEqual(['no source files were generated'])
   })
 
+  it('ignores runtime-builtin namespaces like cloudflare:test', async () => {
+    const dir = await workspace({
+      'src/index.ts': [
+        "import { env } from 'cloudflare:test'",
+        "import { test } from 'bun:test'",
+        'export default {',
+        '  async fetch(): Promise<Response> {',
+        '    return Response.json({ ok: true })',
+        '  },',
+        '}',
+      ].join('\n'),
+    })
+    const result = await detectFramework(dir)
+    expect(result.framework).toBe('raw-handler')
+    expect(result.unknownPackages).toEqual([])
+  })
+
+  it('resolves Deno-style npm: and jsr: specifiers', async () => {
+    const dir = await workspace({
+      'src/index.ts': "import { Hono } from 'npm:hono@4'\n",
+    })
+    expect((await detectFramework(dir)).framework).toBe('hono')
+
+    const jsrDir = await workspace({
+      'src/index.ts': "import { Router } from 'npm:itty-router@5'\n",
+    })
+    expect((await detectFramework(jsrDir)).framework).toBe('itty-router')
+  })
+
+  it('resolves deno.land/x URL imports', async () => {
+    const dir = await workspace({
+      'src/index.ts':
+        "import { Hono } from 'https://deno.land/x/hono/mod.ts'\n",
+    })
+    expect((await detectFramework(dir)).framework).toBe('hono')
+  })
+
   it('ignores node_modules', async () => {
     const dir = await workspace({
       'node_modules/express/index.js':
