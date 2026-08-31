@@ -1,0 +1,21 @@
+packages/agent-dx/src/suites/proficiency/grading.ts
+  s_b5227510c4b557::t_ab61dd6327186b 1-66
+packages/agent-dx/src/suites/proficiency/tasks/add-user-route.ts
+  s_b5227510c4b557::t_c445c2ce141613 2,7,41-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1eb2390b968d6fe61ec57bf23e4f0ce115014527",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
