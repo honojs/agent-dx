@@ -1,0 +1,19 @@
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_86b9b3be6308c3 220-225,227-230,238-240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4c3f76dc900dabfa5abd7d30b77acc13193a8ff7",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
