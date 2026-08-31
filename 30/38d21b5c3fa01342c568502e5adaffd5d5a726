@@ -1,0 +1,23 @@
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_ce082f1041f46e 70-82,215,220-221,223,229,245,262
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_e34a9084da360b 108-126,185-188
+packages/agent-dx/test/progress.test.ts
+  s_b5227510c4b557::t_666384be38b417 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "3038d21b5c3fa01342c568502e5adaffd5d5a726",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
