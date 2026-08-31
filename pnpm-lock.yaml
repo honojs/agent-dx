@@ -24,9 +24,6 @@ importers:
         specifier: ^4.13.5
         version: 4.13.5
     devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^5.20260831.1
-        version: 5.20260831.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -2106,7 +2103,8 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260828.1':
     optional: true
 
-  '@cloudflare/workers-types@5.20260831.1': {}
+  '@cloudflare/workers-types@5.20260831.1':
+    optional: true
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:

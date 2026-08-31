@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run --outdir dist",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "wrangler types && tsc --noEmit",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
@@ -14,7 +14,6 @@
     "hono": "^4.13.5"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260831.1",
     "typescript": "^5.9.3",
     "wrangler": "^4.127.1"
   }

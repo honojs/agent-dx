@@ -2,11 +2,8 @@ import { Hono } from 'hono'
 import { Page } from './app.js'
 import { loadReports } from './reports.js'
 
-type Bindings = {
-  RESULTS: R2Bucket
-}
-
-const app = new Hono<{ Bindings: Bindings }>()
+// `Env` is generated from wrangler.jsonc by `wrangler types`.
+const app = new Hono<{ Bindings: Env }>()
 
 app.get('/', async (c) => {
   const reports = await loadReports(c.env.RESULTS)
