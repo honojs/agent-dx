@@ -1,0 +1,47 @@
+.github/workflows/eval.yml
+  s_449966fc5983c0::t_55545e146bcf8e 5-7,67-82
+apps/web/package.json
+  s_449966fc5983c0::t_ff53bce3fe1482 7-8,10,17
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_524edf0015f3d1 1,8,191
+apps/web/src/index.tsx
+  s_b5227510c4b557::t_d648e87c9c7601 1-17
+pnpm-lock.yaml
+  s_b5227510c4b557::t_3c6620f57df4de 27-29,35,211-213,2109-2110,3369,3380
+AGENTS.md
+  s_b5227510c4b557::t_749a63b06ca696 7,18-19,28-29
+README.md
+  s_b5227510c4b557::t_aae39d0a92c6db 73,101,112,122
+apps/web/src/reports.ts
+  s_b5227510c4b557::t_35d6c7d760eb67 1,4-7,9,11-23,25-26
+apps/web/tsconfig.json
+  s_b5227510c4b557::t_878d4e2d61f009 7
+apps/web/wrangler.jsonc
+  s_b5227510c4b557::t_a46151540bb474 5,7-12
+results/README.md
+  s_b5227510c4b557::t_cb21f99891b4c9 3,5-7,9-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "95d62ce3b38d02237b2781695a6adad7fd0ed210",
+  "prompts": {},
+  "sessions": {
+    "s_449966fc5983c0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2f17bb4f-880e-4e5a-a9db-77bbb1298819",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    },
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
