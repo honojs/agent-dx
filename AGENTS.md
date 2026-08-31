@@ -61,5 +61,5 @@ One PR = one concern. Do not force-push a branch under review.
 - Agents are run with Flue (`@flue/runtime`, https://github.com/withastro/flue) through the single runner in `packages/agent-dx/src/runner/`. Additional runners (e.g. Cloudflare Sandbox) implement the same `AgentRunOutcome` contract.
 - Eval fixtures live in `packages/agent-dx/fixtures/` and are excluded from lint and workspace installs; their dependencies are installed at eval time.
 - Do not hard-wrap prose in Markdown files — write each paragraph and list item on a single line.
-- Documentation, code comments, CLI output, and commit messages are in English.
+- Documentation, code comments, CLI output, and commit messages are in English. The one exception is `README.ja.md`, the Japanese translation of `README.md`: every change to `README.md` must update `README.ja.md` in the same PR, and vice versa.
 - The web site deploys to `agent-dx.hono.dev`.
