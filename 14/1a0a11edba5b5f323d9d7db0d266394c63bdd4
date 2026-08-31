@@ -1,0 +1,21 @@
+packages/agent-dx/src/suites/adoption/detect.ts
+  s_b5227510c4b557::t_211f8b0f7caf3d 101-103,105-119,121-122
+packages/agent-dx/test/detect.test.ts
+  s_b5227510c4b557::t_874860cbc653b3 109-145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "141a0a11edba5b5f323d9d7db0d266394c63bdd4",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
