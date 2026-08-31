@@ -4,18 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm build && wrangler dev",
-    "build": "tsx src/build.ts",
-    "typecheck": "tsc --noEmit",
-    "deploy": "pnpm build && wrangler deploy"
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@hono/agent-dx": "workspace:*",
     "hono": "^4.13.5"
   },
   "devDependencies": {
-    "@types/node": "^22.18.0",
-    "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "wrangler": "^4.127.1"
   }

@@ -2,11 +2,12 @@
 #
 # This workflow is intentionally NOT triggered by pull requests: model runs
 # cost money. It runs on demand (workflow_dispatch) or on a schedule, and
-# uploads the JSON report as an artifact.
+# uploads the JSON report as a workflow artifact plus to the
+# agent-dx-results R2 bucket, which agent-dx.hono.dev renders directly —
+# results are never committed to git.
 #
 # Planned modes (see README):
 #   - PR experiments driven by labels / repository_dispatch from other repos
-#   - scheduled benchmarks that commit results/ and update the website
 name: Agent Eval
 
 on:
@@ -63,3 +64,19 @@ jobs:
         with:
           name: eval-report
           path: eval-report.json
+      - name: Upload result to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SUITE: ${{ inputs.suite || 'adoption' }}
+          MODEL: ${{ inputs.model || 'anthropic/claude-haiku-4-5' }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "CLOUDFLARE_API_TOKEN not set; skipping R2 upload."
+            exit 0
+          fi
+          KEY="$SUITE/$(date -u +%Y-%m-%dT%H-%M-%S)-$(echo "$MODEL" | tr '/' '-').json"
+          pnpm --dir apps/web exec wrangler r2 object put \
+            "agent-dx-results/$KEY" \
+            --file "$GITHUB_WORKSPACE/eval-report.json" --remote
+          echo "Uploaded to r2://agent-dx-results/$KEY"

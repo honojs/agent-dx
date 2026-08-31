@@ -1,15 +1,12 @@
+import { compareReports, frameworkLabel } from '@hono/agent-dx/report'
 import {
   type AdoptionReport,
   type AgentDxReport,
   type ProficiencyReport,
-  compareReports,
-  frameworkLabel,
   isAdoptionReport,
   isProficiencyReport,
-} from '@hono/agent-dx'
-import { Hono } from 'hono'
+} from '@hono/agent-dx/schema'
 import type { FC } from 'hono/jsx'
-import { loadReports } from './results.js'
 
 const STYLE = `
 :root { color-scheme: light dark; }
@@ -191,7 +188,7 @@ const ExperimentsSection: FC<{ reports: AgentDxReport[] }> = ({ reports }) => {
   )
 }
 
-const Page: FC<{ reports: AgentDxReport[] }> = ({ reports }) => (
+export const Page: FC<{ reports: AgentDxReport[] }> = ({ reports }) => (
   <html lang="en">
     <head>
       <meta charset="utf-8" />
@@ -221,12 +218,3 @@ const Page: FC<{ reports: AgentDxReport[] }> = ({ reports }) => (
     </body>
   </html>
 )
-
-const app = new Hono()
-
-app.get('/', async (c) => {
-  const reports = await loadReports()
-  return c.html(`<!DOCTYPE html>${<Page reports={reports} />}`)
-})
-
-export default app

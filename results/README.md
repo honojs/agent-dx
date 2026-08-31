@@ -1,7 +1,15 @@
 # Results
 
-Machine-readable eval results rendered at [agent-dx.hono.dev](https://agent-dx.hono.dev).
+Eval results are **not stored in git**. They live in the `agent-dx-results` R2 bucket and are rendered at [agent-dx.hono.dev](https://agent-dx.hono.dev).
 
-Each `*.json` file in this directory is a report produced by the `@hono/agent-dx` CLI (`--report` flag) and validated against the schema in `packages/agent-dx/src/schema.ts`.
+- The CLI writes a report with `--report result.json`; the schema lives in `packages/agent-dx/src/schema.ts` and is shared by the CLI, CI, and the website.
+- The eval workflow (`.github/workflows/eval.yml`) uploads its report to R2 as `<suite>/<timestamp>-<model>.json`. Keys are never overwritten, so the bucket keeps the full history.
+- The website (`apps/web`) is a Worker with an R2 binding that lists and renders every report in the bucket.
 
-Suggested file naming: `<suite>-<runtime-or-task>-<date>.json`, e.g. `adoption-cloudflare-workers-2026-08-30.json`.
+To upload a locally produced report:
+
+```sh
+pnpm --dir apps/web exec wrangler r2 object put \
+  "agent-dx-results/adoption/$(date -u +%Y-%m-%dT%H-%M-%S)-local.json" \
+  --file ../../result.json --remote
+```

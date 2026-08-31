@@ -4,7 +4,7 @@ Guidance for AI coding agents (and humans) working on this repository.
 
 ## What is Hono Agent DX?
 
-Hono Agent DX measures and improves the developer experience of coding agents using [Hono](https://hono.dev). It runs agent evals in two suites — **adoption** (does an agent choose Hono given a neutral prompt?) and **proficiency** (can an agent correctly modify an existing Hono project?) — and compares baseline vs candidate variants of the Hono CLI, Skills, Docs, or Core to answer "did this change actually improve Agent DX?". Results are machine-readable JSON in `results/`, rendered at [agent-dx.hono.dev](https://agent-dx.hono.dev).
+Hono Agent DX measures and improves the developer experience of coding agents using [Hono](https://hono.dev). It runs agent evals in two suites — **adoption** (does an agent choose Hono given a neutral prompt?) and **proficiency** (can an agent correctly modify an existing Hono project?) — and compares baseline vs candidate variants of the Hono CLI, Skills, Docs, or Core to answer "did this change actually improve Agent DX?". Results are machine-readable JSON stored in the `agent-dx-results` R2 bucket, rendered at [agent-dx.hono.dev](https://agent-dx.hono.dev).
 
 ## Current status
 
@@ -15,8 +15,8 @@ v0. The CLI runs both suites locally via Flue with deterministic grading (static
 | Path                | Package          | Purpose                                                         |
 | ------------------- | ---------------- | --------------------------------------------------------------- |
 | `packages/agent-dx` | `@hono/agent-dx` | CLI, Flue runner, eval suites, graders, reporters (publishable) |
-| `apps/web`          | `agent-dx-web`   | agent-dx.hono.dev — renders `results/*.json` (Hono + SSG)       |
-| `results/`          | —                | Machine-readable eval results (not a workspace package)         |
+| `apps/web`          | `agent-dx-web`   | agent-dx.hono.dev — Worker rendering reports from R2            |
+| `results/`          | —                | Docs for result storage (R2); result data is never in git       |
 
 ## Architecture rules (do not violate)
 
@@ -25,7 +25,8 @@ v0. The CLI runs both suites locally via Flue with deterministic grading (static
 3. Proficiency graders are hidden. The agent under evaluation must never see check scripts or grading criteria.
 4. The result schema (`packages/agent-dx/src/schema.ts`) is shared by the CLI, CI, and the web app. Change it in one place and bump `schemaVersion` on breaking changes.
 5. Model APIs are never called from PR CI. Evals run manually (`workflow_dispatch`) or on a schedule only.
-6. Keep packages minimal. No speculative abstractions; do not split packages until it is actually needed. Do not add Turborepo, Nx, or similar — plain package.json scripts with `pnpm -r` are enough.
+6. Result data lives in the `agent-dx-results` R2 bucket (append-only keys, uploaded by `eval.yml`, rendered by the website). Never commit result JSON to git, and never let CI commit to the repository.
+7. Keep packages minimal. No speculative abstractions; do not split packages until it is actually needed. Do not add Turborepo, Nx, or similar — plain package.json scripts with `pnpm -r` are enough.
 
 ## Pull Request Workflow
 
