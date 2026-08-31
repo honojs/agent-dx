@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises'
+import { join, relative } from 'node:path'
 import { parseArgs } from 'node:util'
 import { compareReports, renderComparison } from './report/compare.js'
 import { frameworkLabel, renderReport } from './report/console.js'
@@ -24,6 +25,8 @@ Options:
   --runs <n>          Number of runs, each in a fresh conversation (default: 5)
   --concurrency <n>   Runs to execute in parallel (default: 4)
   --quiet             Hide per-tool-call progress output
+  --keep              Keep each run's workspace under agent-dx-runs/ for
+                      inspecting the code the agent produced
   --model <id>        Model id, e.g. anthropic/claude-haiku-4-5 or
                       cloudflare-ai-gateway/claude-haiku-4-5
   --runtime <id>      Adoption runtime: ${Object.keys(ADOPTION_RUNTIMES).join(' | ')}
@@ -126,6 +129,7 @@ async function main(): Promise<void> {
       runs: { type: 'string' },
       concurrency: { type: 'string' },
       quiet: { type: 'boolean' },
+      keep: { type: 'boolean' },
       model: { type: 'string' },
       runtime: { type: 'string' },
       task: { type: 'string' },
@@ -212,10 +216,31 @@ async function main(): Promise<void> {
     )
   }
 
+  const runtimeId = values.runtime ?? 'cloudflare-workers'
+  const taskId = values.task ?? 'add-user-route'
+  const keepDir = values.keep
+    ? join(
+        process.cwd(),
+        'agent-dx-runs',
+        `${suite}-${new Date().toISOString().replaceAll(':', '-').slice(0, 19)}`,
+      )
+    : undefined
+
   suppressExperimentalWarnings()
   console.error(
     `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
   )
+  const promptText =
+    suite === 'adoption'
+      ? ADOPTION_RUNTIMES[runtimeId]?.prompt
+      : PROFICIENCY_TASKS[taskId]?.prompt
+  if (promptText) {
+    console.error('Prompt:')
+    for (const line of promptText.split('\n')) {
+      console.error(`  ${line}`)
+    }
+    console.error('')
+  }
 
   // Colorize per run so interleaved parallel logs stay readable: each run
   // gets a stable color, tool calls are dimmed, and done lines stand out.
@@ -240,13 +265,17 @@ async function main(): Promise<void> {
         )
       }
 
+  const keptSuffix = (workspace: string | undefined) =>
+    workspace ? ` → ${relative(process.cwd(), workspace)}` : ''
+
   let report: AgentDxReport
   if (suite === 'adoption') {
     report = await runAdoptionSuite({
       model,
       runs,
       concurrency,
-      runtime: values.runtime ?? 'cloudflare-workers',
+      keepDir,
+      runtime: runtimeId,
       onRunStarted,
       onRunProgress,
       onRunFinished: (run) => {
@@ -254,7 +283,8 @@ async function main(): Promise<void> {
           run.outcome === 'failed' ? 'failed' : frameworkLabel(run.framework)
         console.error(
           `  ${runLabel(run.index)} done: ${label} ` +
-            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
+            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
+            keptSuffix(run.workspace),
         )
       },
     })
@@ -263,7 +293,8 @@ async function main(): Promise<void> {
       model,
       runs,
       concurrency,
-      task: values.task ?? 'add-user-route',
+      keepDir,
+      task: taskId,
       onRunStarted,
       onRunProgress,
       onRunFinished: (run) => {
@@ -271,7 +302,8 @@ async function main(): Promise<void> {
           run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
         console.error(
           `  ${runLabel(run.index)} done: ${label} ` +
-            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
+            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
+            keptSuffix(run.workspace),
         )
       },
     })
@@ -281,6 +313,9 @@ async function main(): Promise<void> {
 
   console.log('')
   console.log(renderReport(report))
+  if (keepDir) {
+    console.error(`\nWorkspaces kept in ${relative(process.cwd(), keepDir)}`)
+  }
 
   if (values.report) {
     await writeFile(values.report, `${JSON.stringify(report, null, 2)}\n`)

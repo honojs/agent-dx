@@ -1,10 +1,15 @@
+import { join } from 'node:path'
 import { runPool } from '../../pool.js'
 import type { AgentRunProgress } from '../../runner/flue-runner.js'
 import { runAgent, shutdownRunner } from '../../runner/flue-runner.js'
 import type { AdoptionReport, AdoptionRun } from '../../schema.js'
 import { SCHEMA_VERSION } from '../../schema.js'
 import { TOOL_VERSION } from '../../version.js'
-import { createWorkspace, removeWorkspace } from '../../workspace.js'
+import {
+  createWorkspace,
+  persistWorkspace,
+  removeWorkspace,
+} from '../../workspace.js'
 import { detectFramework } from './detect.js'
 
 /**
@@ -79,6 +84,8 @@ export interface AdoptionSuiteOptions {
   timeoutMs?: number
   /** How many runs to execute in parallel (default 1). */
   concurrency?: number
+  /** Keep each run's generated workspace under this directory. */
+  keepDir?: string
   onRunStarted?: (index: number) => void
   onRunProgress?: (index: number, progress: AgentRunProgress) => void
   onRunFinished?: (run: AdoptionRun) => void
@@ -165,6 +172,10 @@ async function runAllRuns(
               unknownPackages: detection.unknownPackages,
               metrics: outcome.metrics,
             }
+          }
+          if (options.keepDir) {
+            run.workspace = join(options.keepDir, `run-${index}`)
+            await persistWorkspace(workspace, run.workspace)
           }
           options.onRunFinished?.(run)
           return run

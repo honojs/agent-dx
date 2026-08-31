@@ -51,7 +51,7 @@ pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
 
 Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--task add-user-route`, `--variant baseline`, `--concurrency 5` (runs execute in parallel, 4 by default). Run `agent-dx --list` to see everything available.
 
-Each run is an agentic loop with many model round-trips, so a single run takes one to a few minutes; tool calls are streamed to stderr as they happen (`--quiet` hides them).
+Each run is an agentic loop with many model round-trips, so a single run takes one to a few minutes; the prompt is printed at the start and tool calls are streamed to stderr as they happen (`--quiet` hides them). Pass `--keep` to keep every run's workspace under `agent-dx-runs/` so you can read the code the agent actually produced.
 
 ### Using Cloudflare AI Gateway (unified billing)
 

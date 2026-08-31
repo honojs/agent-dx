@@ -1,6 +1,6 @@
-import { cp, mkdtemp, rm } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 
 /** Create an empty temporary workspace directory for one agent run. */
 export async function createWorkspace(prefix: string): Promise<string> {
@@ -19,4 +19,21 @@ export async function createWorkspaceFrom(
 
 export async function removeWorkspace(workspace: string): Promise<void> {
   await rm(workspace, { recursive: true, force: true })
+}
+
+const PERSIST_SKIP = new Set(['node_modules', '.agent-dx', '.git'])
+
+/**
+ * Copy a finished workspace to a durable location for inspection,
+ * leaving out installed dependencies and grader files.
+ */
+export async function persistWorkspace(
+  workspace: string,
+  dest: string,
+): Promise<void> {
+  await mkdir(dirname(dest), { recursive: true })
+  await cp(workspace, dest, {
+    recursive: true,
+    filter: (source) => !PERSIST_SKIP.has(basename(source)),
+  })
 }

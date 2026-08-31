@@ -50,6 +50,8 @@ export interface AdoptionRun {
   unknownPackages: string[]
   metrics: RunMetrics
   error?: string
+  /** Where the generated workspace was kept, when the run kept it. */
+  workspace?: string
 }
 
 export interface ProficiencyCheck {
@@ -65,6 +67,8 @@ export interface ProficiencyRun {
   checks: ProficiencyCheck[]
   metrics: RunMetrics
   error?: string
+  /** Where the modified workspace was kept, when the run kept it. */
+  workspace?: string
 }
 
 interface ReportBase {
