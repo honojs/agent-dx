@@ -23,7 +23,7 @@ Usage:
 Options:
   --suite <name>      Suite to run: adoption | proficiency (default: adoption)
   --runs <n>          Number of runs, each in a fresh conversation (default: 5)
-  --concurrency <n>   Runs to execute in parallel (default: 4)
+  --concurrency <n>   Runs to execute in parallel (default: 5)
   --quiet             Hide per-tool-call progress output
   --keep              Keep each run's workspace under agent-dx-runs/ for
                       inspecting the code the agent produced
@@ -51,7 +51,7 @@ Environment:
   CLOUDFLARE_GATEWAY_ID    With unified billing, no provider key is needed.
 
 Examples:
-  agent-dx --suite adoption --runs 20 --concurrency 5
+  agent-dx --suite adoption --runs 20 --concurrency 10
   agent-dx --suite proficiency --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
   agent-dx compare baseline.json candidate.json
@@ -198,7 +198,7 @@ async function main(): Promise<void> {
   if (!Number.isInteger(runs) || runs < 1) {
     fail(`--runs must be a positive integer, got "${values.runs}"`)
   }
-  const concurrency = Number.parseInt(values.concurrency ?? '4', 10)
+  const concurrency = Number.parseInt(values.concurrency ?? '5', 10)
   if (!Number.isInteger(concurrency) || concurrency < 1) {
     fail(
       `--concurrency must be a positive integer, got "${values.concurrency}"`,
