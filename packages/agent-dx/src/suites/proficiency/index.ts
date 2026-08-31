@@ -16,6 +16,7 @@ import {
 } from '../../workspace.js'
 import type { ProficiencyTask } from './task.js'
 import { addUserRouteTask } from './tasks/add-user-route.js'
+import { fix404Task } from './tasks/fix-404.js'
 
 /**
  * Proficiency suite: hand the agent an existing Hono project and a small
@@ -28,6 +29,7 @@ import { addUserRouteTask } from './tasks/add-user-route.js'
 
 export const PROFICIENCY_TASKS: Record<string, ProficiencyTask> = {
   [addUserRouteTask.id]: addUserRouteTask,
+  [fix404Task.id]: fix404Task,
 }
 
 const INSTRUCTIONS = [
