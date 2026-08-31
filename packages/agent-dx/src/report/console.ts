@@ -47,6 +47,7 @@ export function renderAdoptionReport(report: AdoptionReport): string {
   lines.push('')
   lines.push(`Suite: adoption`)
   lines.push(`Runtime: ${report.runtime}`)
+  if (report.scenario) lines.push(`Scenario: ${report.scenario}`)
   lines.push(`Model: ${report.model}`)
   lines.push(`Runs: ${report.runs}`)
   if (report.variant) lines.push(`Variant: ${report.variant}`)

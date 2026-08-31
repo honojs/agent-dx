@@ -55,7 +55,10 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
       <p>Do coding agents choose Hono?</p>
       {latest ? (
         <>
-          <h3>Latest: {latest.runtime}</h3>
+          <h3>
+            Latest: {latest.runtime}
+            {latest.scenario ? ` · ${latest.scenario}` : ''}
+          </h3>
           <ReportMeta report={latest} />
           <table>
             <thead>
