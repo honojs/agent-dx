@@ -2,8 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   // Worker name = subdomain: agent-dx.hono.dev
   "name": "agent-dx",
+  "main": "src/index.tsx",
   "compatibility_date": "2026-08-30",
-  "assets": {
-    "directory": "./dist",
-  },
+  "r2_buckets": [
+    {
+      "binding": "RESULTS",
+      "bucket_name": "agent-dx-results",
+    },
+  ],
 }

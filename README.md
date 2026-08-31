@@ -70,7 +70,7 @@ pnpm dlx @hono/agent-dx --suite adoption --model cloudflare-ai-gateway/claude-ha
 pnpm dlx @hono/agent-dx --suite adoption --runs 20 --report result.json
 ```
 
-The JSON report uses a schema shared by the CLI, CI, and the website. Reports checked into `results/` are rendered at agent-dx.hono.dev.
+The JSON report uses a schema shared by the CLI, CI, and the website. Reports are stored in the `agent-dx-results` R2 bucket (the eval workflow uploads them automatically; see `results/README.md` for manual uploads), and agent-dx.hono.dev renders everything in the bucket. Result data is never committed to git.
 
 To compare two runs (an experiment):
 
@@ -98,7 +98,7 @@ Median duration          51s         39s     -24%
 ```text
 agent-dx/
 ├── apps/
-│   └── web/            # agent-dx.hono.dev — renders results/*.json (Hono + SSG)
+│   └── web/            # agent-dx.hono.dev — Worker rendering reports from R2
 ├── packages/
 │   └── agent-dx/       # @hono/agent-dx — CLI, Flue runner, suites, graders, reporters
 │       ├── src/
@@ -109,7 +109,7 @@ agent-dx/
 │       │   ├── suites/proficiency/   # fixture tasks + hidden graders
 │       │   └── report/               # console/JSON reporters, experiment compare
 │       └── fixtures/                 # existing Hono projects given to the agent
-├── results/            # machine-readable eval results (rendered by the website)
+├── results/            # where results live (R2) — no data in git
 ├── pnpm-workspace.yaml
 └── package.json
 ```
@@ -119,7 +119,7 @@ See [AGENTS.md](./AGENTS.md) for development conventions and the pull request wo
 ## CI
 
 - `ci.yml` runs format check, lint, typecheck, tests, and builds on every push and pull request. No model APIs are called.
-- `eval.yml` runs real agent evals. It is manual (`workflow_dispatch`) or scheduled — never triggered automatically by pull requests — and uploads the JSON report as an artifact.
+- `eval.yml` runs real agent evals. It is manual (`workflow_dispatch`) or scheduled — never triggered automatically by pull requests — and uploads the JSON report as a workflow artifact and to the `agent-dx-results` R2 bucket.
 
 ## Author
 
