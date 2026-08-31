@@ -14,7 +14,7 @@ It measures two things:
 
 Do coding agents choose Hono on their own? We give an agent a **neutral prompt** (no framework is ever named) in an empty workspace, repeat it across many fresh conversations, and classify which framework it picked — Hono, a raw handler, Elysia, H3, Express, Fastify, itty-router, or something else. Classification is fully deterministic (static analysis of imports and dependencies); no LLM judging.
 
-Each measurement is a runtime (Cloudflare Workers, Bun, Node.js, Deno) × scenario pair. Scenarios vary how much the task invites a framework: `minimal` (one trivial endpoint — using a framework is entirely the agent's idea), `routes` (a few endpoints with a path parameter — where hand-rolled routing starts to hurt), `api` (a realistic JSON API), and `framework` (explicitly asked to use a web framework — which one gets picked?).
+Each measurement is a runtime × scenario pair — see [What you can measure](#what-you-can-measure).
 
 ### Proficiency
 
@@ -36,6 +36,35 @@ pnpm test
 pnpm build
 ```
 
+## What you can measure
+
+Run `agent-dx --list` for the up-to-date list. As of v0:
+
+**Adoption** measures every combination of `--runtime` × `--scenario` (× `--model`):
+
+| `--runtime`                    | Platform           |
+| ------------------------------ | ------------------ |
+| `cloudflare-workers` (default) | Cloudflare Workers |
+| `bun`                          | Bun                |
+| `node-js`                      | Node.js            |
+| `deno`                         | Deno               |
+
+| `--scenario`        | Task given to the agent                          | Question it answers                                              |
+| ------------------- | ------------------------------------------------ | ---------------------------------------------------------------- |
+| `minimal` (default) | `GET /health` returning `{"ok":true}`            | Does the agent reach for a framework when nothing invites one?   |
+| `routes`            | A few endpoints including a path parameter       | Does the point where hand-rolled routing hurts tip the choice?   |
+| `api`               | A todos JSON API with validation                 | Does a realistic app make the agent pick a framework, and which? |
+| `framework`         | The same API, explicitly told to use a framework | When a framework is a given, which one wins?                     |
+
+**Proficiency** measures one `--task` at a time (× `--model`):
+
+| `--task`                   | Fixture      | Change requested                                      |
+| -------------------------- | ------------ | ----------------------------------------------------- |
+| `add-user-route` (default) | `hono-basic` | Add `GET /users/:id` returning the id as JSON         |
+| `fix-404`                  | `hono-todos` | Debug a 404 caused by a double-prefixed sub-app mount |
+
+Reports record the exact prompt used, so results across prompt revisions are never silently mixed.
+
 ## How to run an eval
 
 Model runs need a provider API key (for the default model, `ANTHROPIC_API_KEY`).
@@ -51,7 +80,7 @@ pnpm dlx @hono/agent-dx --suite proficiency --runs 3
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
 ```
 
-Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--scenario minimal|api|framework`, `--task add-user-route`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
+Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--scenario minimal|routes|api|framework`, `--task add-user-route`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
 
 Each run is an agentic loop with many model round-trips, so a single run takes one to a few minutes; the prompt is printed at the start and tool calls are streamed to stderr as they happen (`--quiet` hides them). Pass `--keep` to keep every run's workspace under `agent-dx-runs/` so you can read the code the agent actually produced.
 
