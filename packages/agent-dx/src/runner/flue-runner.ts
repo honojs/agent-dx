@@ -1,10 +1,22 @@
-import { init, useModel, useResponseFinish, useSandbox } from '@flue/runtime'
+import {
+  init,
+  useInitialData,
+  useModel,
+  useResponseFinish,
+  useSandbox,
+} from '@flue/runtime'
+import type { Flue } from '@flue/runtime/node'
 import { local, start } from '@flue/runtime/node'
 import type { RunMetrics, TokenUsage } from '../schema.js'
 
 /**
  * Runs one agent turn with Flue in a fresh conversation, attached to a
  * local sandbox rooted at the given workspace directory.
+ *
+ * Flue allows exactly one runtime per process, so a single shared runtime
+ * serves every run; per-run configuration (model, instructions, sandbox
+ * root) travels in the conversation's initialData. This is what makes
+ * concurrent runs possible.
  *
  * This is the single code path used for every suite, locally and in CI.
  * Additional runners (e.g. Cloudflare Sandbox) can be added later behind
@@ -21,6 +33,14 @@ export interface AgentRunOptions {
   /** Directory the agent can read/write/execute in. */
   workspace: string
   timeoutMs?: number
+  /** Called on every tool invocation, for live progress output. */
+  onProgress?: (progress: AgentRunProgress) => void
+}
+
+export interface AgentRunProgress {
+  toolName: string
+  /** Short human-readable hint, e.g. a file path or a command. */
+  detail?: string
 }
 
 export interface AgentRunOutcome {
@@ -31,6 +51,43 @@ export interface AgentRunOutcome {
 }
 
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000
+
+interface RunnerInit {
+  model: string
+  instructions: string
+  cwd: string
+}
+
+function AgentDxRunner(): string {
+  const config = useInitialData<RunnerInit>()
+  useModel(config.model)
+  useSandbox(local({ cwd: config.cwd }))
+  // Attach aggregate token usage to the reply metadata so the harness
+  // can report it without any provider-specific plumbing.
+  useResponseFinish(({ response }) => ({
+    usage: {
+      input: response.usage.input,
+      output: response.usage.output,
+      totalTokens: response.usage.totalTokens,
+    },
+  }))
+  return config.instructions
+}
+
+let runtime: Promise<Flue> | null = null
+
+function acquireRuntime(): Promise<Flue> {
+  runtime ??= start({ agents: [AgentDxRunner] })
+  return runtime
+}
+
+/** Stop the shared Flue runtime. Call once after all runs have finished. */
+export async function shutdownRunner(): Promise<void> {
+  if (!runtime) return
+  const started = runtime
+  runtime = null
+  await (await started).stop()
+}
 
 function extractTokenUsage(
   metadata: Record<string, unknown> | undefined,
@@ -78,21 +135,6 @@ export async function runAgent(
   const { model, instructions, prompt, workspace } = options
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
 
-  const agent = () => {
-    useModel(model)
-    useSandbox(local({ cwd: workspace }))
-    // Attach aggregate token usage to the reply metadata so the harness
-    // can report it without any provider-specific plumbing.
-    useResponseFinish(({ response }) => ({
-      usage: {
-        input: response.usage.input,
-        output: response.usage.output,
-        totalTokens: response.usage.totalTokens,
-      },
-    }))
-    return instructions
-  }
-
   const startedAt = Date.now()
   const toolCallCounts: Record<string, number> = {}
   let toolCalls = 0
@@ -103,10 +145,12 @@ export async function runAgent(
     tokens = extractTokenUsage(metadata as Record<string, unknown>) ?? tokens
   }
 
-  const flue = await start({ agents: [{ agent, name: 'agent-dx-runner' }] })
+  await acquireRuntime()
   try {
-    const handle = init(agent)
-    const receipt = await handle.dispatch(prompt)
+    // A fresh conversation per run: init() without an id mints a new one.
+    const handle = init(AgentDxRunner)
+    const initialData: RunnerInit = { model, instructions, cwd: workspace }
+    const receipt = await handle.dispatch({ message: prompt, initialData })
     const reply = await handle.read(receipt, {
       signal: AbortSignal.timeout(timeoutMs),
       onEvent: (chunk) => {
@@ -114,6 +158,14 @@ export async function runAgent(
           toolCalls += 1
           toolCallCounts[chunk.toolName] =
             (toolCallCounts[chunk.toolName] ?? 0) + 1
+          if (options.onProgress) {
+            const input = chunk.input as Record<string, unknown> | null
+            const hint = input?.path ?? input?.file_path ?? input?.command
+            options.onProgress({
+              toolName: chunk.toolName,
+              detail: typeof hint === 'string' ? hint.slice(0, 100) : undefined,
+            })
+          }
         } else if (
           chunk.type === 'message-metadata' ||
           chunk.type === 'message-started'
@@ -145,7 +197,5 @@ export async function runAgent(
       },
       error: errorMessage(error),
     }
-  } finally {
-    await flue.stop()
   }
 }

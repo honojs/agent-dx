@@ -22,6 +22,8 @@ Usage:
 Options:
   --suite <name>      Suite to run: adoption | proficiency (default: adoption)
   --runs <n>          Number of runs, each in a fresh conversation (default: 5)
+  --concurrency <n>   Runs to execute in parallel (default: 4)
+  --quiet             Hide per-tool-call progress output
   --model <id>        Model id, e.g. anthropic/claude-haiku-4-5 or
                       cloudflare-ai-gateway/claude-haiku-4-5
   --runtime <id>      Adoption runtime: ${Object.keys(ADOPTION_RUNTIMES).join(' | ')}
@@ -46,7 +48,7 @@ Environment:
   CLOUDFLARE_GATEWAY_ID    With unified billing, no provider key is needed.
 
 Examples:
-  agent-dx --suite adoption --runs 20
+  agent-dx --suite adoption --runs 20 --concurrency 5
   agent-dx --suite proficiency --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
   agent-dx compare baseline.json candidate.json
@@ -109,6 +111,8 @@ async function main(): Promise<void> {
     options: {
       suite: { type: 'string' },
       runs: { type: 'string' },
+      concurrency: { type: 'string' },
+      quiet: { type: 'boolean' },
       model: { type: 'string' },
       runtime: { type: 'string' },
       task: { type: 'string' },
@@ -177,6 +181,12 @@ async function main(): Promise<void> {
   if (!Number.isInteger(runs) || runs < 1) {
     fail(`--runs must be a positive integer, got "${values.runs}"`)
   }
+  const concurrency = Number.parseInt(values.concurrency ?? '4', 10)
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    fail(
+      `--concurrency must be a positive integer, got "${values.concurrency}"`,
+    )
+  }
   const model = values.model ?? 'anthropic/claude-haiku-4-5'
 
   const provider = model.split('/')[0] ?? ''
@@ -189,19 +199,34 @@ async function main(): Promise<void> {
     )
   }
 
-  console.error(`Running ${suite} suite (model: ${model}, runs: ${runs})...`)
+  console.error(
+    `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
+  )
+
+  const onRunStarted = (index: number) => {
+    console.error(`  run ${index}/${runs} started`)
+  }
+  const onRunProgress = values.quiet
+    ? undefined
+    : (index: number, progress: { toolName: string; detail?: string }) => {
+        const detail = progress.detail ? ` ${progress.detail}` : ''
+        console.error(`  run ${index}/${runs}: ${progress.toolName}${detail}`)
+      }
 
   let report: AgentDxReport
   if (suite === 'adoption') {
     report = await runAdoptionSuite({
       model,
       runs,
+      concurrency,
       runtime: values.runtime ?? 'cloudflare-workers',
+      onRunStarted,
+      onRunProgress,
       onRunFinished: (run) => {
         const label =
           run.outcome === 'failed' ? 'failed' : frameworkLabel(run.framework)
         console.error(
-          `  run ${run.index}/${runs}: ${label} ` +
+          `  run ${run.index}/${runs} done: ${label} ` +
             `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
         )
       },
@@ -210,12 +235,15 @@ async function main(): Promise<void> {
     report = await runProficiencySuite({
       model,
       runs,
+      concurrency,
       task: values.task ?? 'add-user-route',
+      onRunStarted,
+      onRunProgress,
       onRunFinished: (run) => {
         const label =
           run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
         console.error(
-          `  run ${run.index}/${runs}: ${label} ` +
+          `  run ${run.index}/${runs} done: ${label} ` +
             `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
         )
       },
