@@ -49,7 +49,7 @@ pnpm dlx @hono/agent-dx --suite proficiency --runs 3
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
 ```
 
-Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--task add-user-route`, `--variant baseline`, `--concurrency 5` (runs execute in parallel, 4 by default). Run `agent-dx --list` to see everything available.
+Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--task add-user-route`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
 
 Each run is an agentic loop with many model round-trips, so a single run takes one to a few minutes; tool calls are streamed to stderr as they happen (`--quiet` hides them).
 

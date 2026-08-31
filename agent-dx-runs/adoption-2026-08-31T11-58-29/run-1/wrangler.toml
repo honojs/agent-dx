@@ -1,0 +1,12 @@
+name = "cloudflare-workers-api"
+type = "javascript"
+main = "dist/index.js"
+compatibility_date = "2023-12-01"
+
+[env.development]
+name = "cloudflare-workers-api-dev"
+routes = [{ pattern = "localhost:8787/*", zone_name = "example.com" }]
+
+[env.production]
+name = "cloudflare-workers-api-prod"
+routes = [{ pattern = "api.example.com/*", zone_name = "example.com" }]
