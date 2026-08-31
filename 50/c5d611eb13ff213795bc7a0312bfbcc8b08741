@@ -1,0 +1,20 @@
+README.md
+  s_b5227510c4b557::t_3e8d050c5edb25 17,39-67
+  s_b5227510c4b557::t_94dedbbde46e56 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "50c5d611eb13ff213795bc7a0312bfbcc8b08741",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
