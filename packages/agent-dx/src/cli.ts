@@ -67,6 +67,19 @@ const PROVIDER_ENV_KEYS: Record<string, string[]> = {
   ],
 }
 
+/**
+ * Flue's runtime uses node:sqlite, which prints an ExperimentalWarning on
+ * every invocation. Filter just that warning; keep everything else.
+ */
+function suppressExperimentalWarnings(): void {
+  const defaults = process.listeners('warning')
+  process.removeAllListeners('warning')
+  process.on('warning', (warning) => {
+    if (warning.name === 'ExperimentalWarning') return
+    for (const listener of defaults) listener.call(process, warning)
+  })
+}
+
 function fail(message: string): never {
   console.error(`agent-dx: ${message}`)
   process.exit(1)
@@ -199,18 +212,21 @@ async function main(): Promise<void> {
     )
   }
 
+  suppressExperimentalWarnings()
   console.error(
     `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
   )
 
+  const runLabel = (index: number) =>
+    `run ${String(index).padStart(String(runs).length)}/${runs}`
   const onRunStarted = (index: number) => {
-    console.error(`  run ${index}/${runs} started`)
+    console.error(`  ${runLabel(index)} started`)
   }
   const onRunProgress = values.quiet
     ? undefined
     : (index: number, progress: { toolName: string; detail?: string }) => {
         const detail = progress.detail ? ` ${progress.detail}` : ''
-        console.error(`  run ${index}/${runs}: ${progress.toolName}${detail}`)
+        console.error(`  ${runLabel(index)}: ${progress.toolName}${detail}`)
       }
 
   let report: AgentDxReport
@@ -226,7 +242,7 @@ async function main(): Promise<void> {
         const label =
           run.outcome === 'failed' ? 'failed' : frameworkLabel(run.framework)
         console.error(
-          `  run ${run.index}/${runs} done: ${label} ` +
+          `  ${runLabel(run.index)} done: ${label} ` +
             `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
         )
       },
@@ -243,7 +259,7 @@ async function main(): Promise<void> {
         const label =
           run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
         console.error(
-          `  run ${run.index}/${runs} done: ${label} ` +
+          `  ${runLabel(run.index)} done: ${label} ` +
             `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})`,
         )
       },

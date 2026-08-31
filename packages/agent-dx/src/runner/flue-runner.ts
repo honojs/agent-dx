@@ -105,6 +105,25 @@ function extractTokenUsage(
   return { input: input ?? 0, output: output ?? 0, total }
 }
 
+/**
+ * Compress a tool-input hint for one-line progress output: make paths
+ * workspace-relative, keep only the first line, and cap the length.
+ */
+export function formatProgressDetail(
+  hint: string,
+  workspace: string,
+): string | undefined {
+  const detail = hint
+    .replaceAll(`/private${workspace}/`, '')
+    .replaceAll(`/private${workspace}`, '.')
+    .replaceAll(`${workspace}/`, '')
+    .replaceAll(workspace, '.')
+    .split('\n')[0]
+    ?.trim()
+    .slice(0, 80)
+  return detail === '' ? undefined : detail
+}
+
 /** Flatten an error's cause chain so run reports carry the real reason. */
 function errorMessage(error: unknown): string {
   const parts: string[] = []
@@ -163,7 +182,10 @@ export async function runAgent(
             const hint = input?.path ?? input?.file_path ?? input?.command
             options.onProgress({
               toolName: chunk.toolName,
-              detail: typeof hint === 'string' ? hint.slice(0, 100) : undefined,
+              detail:
+                typeof hint === 'string'
+                  ? formatProgressDetail(hint, workspace)
+                  : undefined,
             })
           }
         } else if (
