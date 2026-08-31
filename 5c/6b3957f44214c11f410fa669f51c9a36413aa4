@@ -1,0 +1,39 @@
+apps/web/src/app.tsx
+  s_449966fc5983c0::t_90b759e3187919 58-61
+packages/agent-dx/src/cli.ts
+  s_449966fc5983c0::t_1624616f7a0db0 10-15,39-40,112-116,147,233,247-248,251,295
+packages/agent-dx/src/report/console.ts
+  s_449966fc5983c0::t_660a1e99e5fc7d 50
+packages/agent-dx/src/schema.ts
+  s_449966fc5983c0::t_c03bcea70cc127 99-102
+packages/agent-dx/src/suites/adoption/index.ts
+  s_449966fc5983c0::t_16ad3bef7e4bb3 16-21,27-28,31-34,39,44,49,54,58-96,109,130-136,140,157-158,169,184
+packages/agent-dx/test/adoption-prompts.test.ts
+  s_449966fc5983c0::t_1df764a024c0b7 1-27
+README.md
+  s_b5227510c4b557::t_1c8ee7d50295ad 15-17,54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "5c6b3957f44214c11f410fa669f51c9a36413aa4",
+  "prompts": {},
+  "sessions": {
+    "s_449966fc5983c0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2f17bb4f-880e-4e5a-a9db-77bbb1298819",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    },
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
