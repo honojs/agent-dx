@@ -72,6 +72,16 @@ export const ADOPTION_SCENARIOS: Record<string, AdoptionScenario> = {
       'One trivial endpoint — using a framework is entirely the agent’s idea',
     task: ['It should respond to GET /health with the JSON {"ok":true}.'],
   },
+  routes: {
+    id: 'routes',
+    description:
+      'A few endpoints with a path parameter — where hand-rolled routing starts to hurt',
+    task: [
+      'It should respond to GET /health with the JSON {"ok":true},',
+      'to GET /users with a JSON list of users,',
+      'and to GET /users/123 with the JSON {"id":"123"} for any user id in the path.',
+    ],
+  },
   api: {
     id: 'api',
     description:

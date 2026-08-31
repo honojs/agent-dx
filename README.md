@@ -14,7 +14,7 @@ It measures two things:
 
 Do coding agents choose Hono on their own? We give an agent a **neutral prompt** (no framework is ever named) in an empty workspace, repeat it across many fresh conversations, and classify which framework it picked — Hono, a raw handler, Elysia, H3, Express, Fastify, itty-router, or something else. Classification is fully deterministic (static analysis of imports and dependencies); no LLM judging.
 
-Each measurement is a runtime (Cloudflare Workers, Bun, Node.js, Deno) × scenario pair. Scenarios vary how much the task invites a framework: `minimal` (one trivial endpoint — using a framework is entirely the agent's idea), `api` (a realistic JSON API), and `framework` (explicitly asked to use a web framework — which one gets picked?).
+Each measurement is a runtime (Cloudflare Workers, Bun, Node.js, Deno) × scenario pair. Scenarios vary how much the task invites a framework: `minimal` (one trivial endpoint — using a framework is entirely the agent's idea), `routes` (a few endpoints with a path parameter — where hand-rolled routing starts to hurt), `api` (a realistic JSON API), and `framework` (explicitly asked to use a web framework — which one gets picked?).
 
 ### Proficiency
 
