@@ -1,4 +1,5 @@
 import { rm } from 'node:fs/promises'
+import { join } from 'node:path'
 import { exec } from '../../exec.js'
 import { fixtureDir } from '../../fixtures.js'
 import { runPool } from '../../pool.js'
@@ -8,7 +9,11 @@ import type { ProficiencyReport, ProficiencyRun } from '../../schema.js'
 import { SCHEMA_VERSION } from '../../schema.js'
 import { median } from '../../stats.js'
 import { TOOL_VERSION } from '../../version.js'
-import { createWorkspaceFrom, removeWorkspace } from '../../workspace.js'
+import {
+  createWorkspaceFrom,
+  persistWorkspace,
+  removeWorkspace,
+} from '../../workspace.js'
 import type { ProficiencyTask } from './task.js'
 import { addUserRouteTask } from './tasks/add-user-route.js'
 
@@ -39,6 +44,8 @@ export interface ProficiencySuiteOptions {
   timeoutMs?: number
   /** How many runs to execute in parallel (default 1). */
   concurrency?: number
+  /** Keep each run's modified workspace under this directory. */
+  keepDir?: string
   onRunStarted?: (index: number) => void
   onRunProgress?: (index: number, progress: AgentRunProgress) => void
   onRunFinished?: (run: ProficiencyRun) => void
@@ -129,6 +136,10 @@ export async function runProficiencySuite(
               checks,
               metrics: outcome.metrics,
             }
+          }
+          if (options.keepDir) {
+            run.workspace = join(options.keepDir, `run-${index}`)
+            await persistWorkspace(workspace, run.workspace)
           }
           options.onRunFinished?.(run)
           return run
