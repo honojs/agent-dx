@@ -217,8 +217,17 @@ async function main(): Promise<void> {
     `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
   )
 
+  // Colorize per run so interleaved parallel logs stay readable: each run
+  // gets a stable color, tool calls are dimmed, and done lines stand out.
+  const useColor = process.stderr.isTTY === true && !process.env.NO_COLOR
+  const RUN_COLORS = [36, 33, 35, 32, 34, 91]
+  const paint = (code: number, text: string) =>
+    useColor ? `\u001b[${code}m${text}\u001b[0m` : text
   const runLabel = (index: number) =>
-    `run ${String(index).padStart(String(runs).length)}/${runs}`
+    paint(
+      RUN_COLORS[(index - 1) % RUN_COLORS.length] ?? 36,
+      `run ${String(index).padStart(String(runs).length)}/${runs}`,
+    )
   const onRunStarted = (index: number) => {
     console.error(`  ${runLabel(index)} started`)
   }
@@ -226,7 +235,9 @@ async function main(): Promise<void> {
     ? undefined
     : (index: number, progress: { toolName: string; detail?: string }) => {
         const detail = progress.detail ? ` ${progress.detail}` : ''
-        console.error(`  ${runLabel(index)}: ${progress.toolName}${detail}`)
+        console.error(
+          `  ${runLabel(index)} ${paint(2, `${progress.toolName}${detail}`)}`,
+        )
       }
 
   let report: AgentDxReport
