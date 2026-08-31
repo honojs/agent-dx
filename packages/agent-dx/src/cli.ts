@@ -59,6 +59,7 @@ Environment:
 
 Examples:
   agent-dx --suite adoption --runs 20 --concurrency 10
+  agent-dx --suite adoption --scenario framework --runs 20
   agent-dx --suite proficiency --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
   agent-dx compare baseline.json candidate.json
