@@ -1,0 +1,21 @@
+README.md
+  s_b5227510c4b557::t_9967b9731a6ed7 17
+packages/agent-dx/src/suites/adoption/index.ts
+  s_b5227510c4b557::t_25f48b5f812c70 75-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "3333c798c76b82d48e58ed3dc1d6f97016e4a1e3",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
