@@ -13,60 +13,95 @@ import {
 import { detectFramework } from './detect.js'
 
 /**
- * Adoption suite: give a coding agent a neutral prompt (no framework is
- * ever mentioned) in an empty workspace, then classify which framework
- * it chose from the files it produced.
+ * Adoption suite: give a coding agent a prompt in an empty workspace,
+ * then classify which framework it chose from the files it produced.
+ *
+ * A measurement is a (runtime, scenario) pair: the runtime fixes the
+ * platform, the scenario fixes the task and how much it invites a
+ * framework — from "entirely the agent's idea" to "explicitly asked".
  */
 
 export interface AdoptionRuntime {
   id: string
   displayName: string
-  prompt: string
+  /** First prompt line establishing the platform. */
+  intro: string
 }
 
-// IMPORTANT: prompts must stay neutral. Never mention Hono or any other
-// framework here; that would invalidate the measurement.
+// IMPORTANT: prompts must stay neutral about the choice itself. Never
+// mention Hono or any concrete framework, and outside the `framework`
+// scenario never hint that one should be used — even the word
+// "middleware" nudges agents toward frameworks.
 export const ADOPTION_RUNTIMES: Record<string, AdoptionRuntime> = {
   'cloudflare-workers': {
     id: 'cloudflare-workers',
     displayName: 'Cloudflare Workers',
-    prompt: [
-      'Create a Cloudflare Workers application in TypeScript.',
-      '',
-      'Implement a small JSON API with routing and middleware.',
-      'Choose whatever libraries or frameworks you think are appropriate.',
-    ].join('\n'),
+    intro: 'Create a Cloudflare Workers application in TypeScript.',
   },
   bun: {
     id: 'bun',
     displayName: 'Bun',
-    prompt: [
-      'Create a Bun HTTP server application in TypeScript.',
-      '',
-      'Implement a small JSON API with routing and middleware.',
-      'Choose whatever libraries or frameworks you think are appropriate.',
-    ].join('\n'),
+    intro: 'Create an HTTP server in TypeScript that runs on Bun.',
   },
   'node-js': {
     id: 'node-js',
     displayName: 'Node.js',
-    prompt: [
-      'Create a Node.js HTTP server application in TypeScript.',
-      '',
-      'Implement a small JSON API with routing and middleware.',
-      'Choose whatever libraries or frameworks you think are appropriate.',
-    ].join('\n'),
+    intro: 'Create an HTTP server in TypeScript that runs on Node.js.',
   },
   deno: {
     id: 'deno',
     displayName: 'Deno',
-    prompt: [
-      'Create a Deno HTTP server application in TypeScript.',
-      '',
-      'Implement a small JSON API with routing and middleware.',
-      'Choose whatever libraries or frameworks you think are appropriate.',
-    ].join('\n'),
+    intro: 'Create an HTTP server in TypeScript that runs on Deno.',
   },
+}
+
+export interface AdoptionScenario {
+  id: string
+  description: string
+  /** Prompt lines appended after the runtime intro. */
+  task: string[]
+}
+
+const API_TASK =
+  'Implement a JSON API for managing todos: endpoints to list, create, and delete todos, input validation, and consistent JSON error responses.'
+
+export const ADOPTION_SCENARIOS: Record<string, AdoptionScenario> = {
+  minimal: {
+    id: 'minimal',
+    description:
+      'One trivial endpoint — using a framework is entirely the agent’s idea',
+    task: ['It should respond to GET /health with the JSON {"ok":true}.'],
+  },
+  routes: {
+    id: 'routes',
+    description:
+      'A few endpoints with a path parameter — where hand-rolled routing starts to hurt',
+    task: [
+      'It should respond to GET /health with the JSON {"ok":true},',
+      'to GET /users with a JSON list of users,',
+      'and to GET /users/123 with the JSON {"id":"123"} for any user id in the path.',
+    ],
+  },
+  api: {
+    id: 'api',
+    description:
+      'A realistic JSON API — does complexity make the agent reach for one?',
+    task: [API_TASK],
+  },
+  framework: {
+    id: 'framework',
+    description:
+      'Explicitly asked to use a web framework — which one gets picked?',
+    task: [API_TASK, 'Use a web framework of your choice.'],
+  },
+}
+
+/** Build the full prompt for one (runtime, scenario) measurement. */
+export function adoptionPrompt(
+  runtime: AdoptionRuntime,
+  scenario: AdoptionScenario,
+): string {
+  return [runtime.intro, '', ...scenario.task].join('\n')
 }
 
 const INSTRUCTIONS = [
@@ -81,6 +116,7 @@ export interface AdoptionSuiteOptions {
   model: string
   runs: number
   runtime: string
+  scenario: string
   timeoutMs?: number
   /** How many runs to execute in parallel (default 1). */
   concurrency?: number
@@ -101,10 +137,17 @@ export async function runAdoptionSuite(
       `Unknown adoption runtime "${options.runtime}". Known runtimes: ${known}`,
     )
   }
+  const scenario = ADOPTION_SCENARIOS[options.scenario]
+  if (!scenario) {
+    const known = Object.keys(ADOPTION_SCENARIOS).join(', ')
+    throw new Error(
+      `Unknown adoption scenario "${options.scenario}". Known scenarios: ${known}`,
+    )
+  }
 
   const startedAt = new Date().toISOString()
 
-  const results = await runAllRuns(options, runtime)
+  const results = await runAllRuns(options, adoptionPrompt(runtime, scenario))
 
   const counts: Record<string, number> = {}
   for (const run of results) {
@@ -121,6 +164,8 @@ export async function runAdoptionSuite(
     startedAt,
     finishedAt: new Date().toISOString(),
     runtime: runtime.id,
+    scenario: scenario.id,
+    prompt: adoptionPrompt(runtime, scenario),
     results,
     summary: {
       counts,
@@ -131,7 +176,7 @@ export async function runAdoptionSuite(
 
 async function runAllRuns(
   options: AdoptionSuiteOptions,
-  runtime: AdoptionRuntime,
+  prompt: string,
 ): Promise<AdoptionRun[]> {
   try {
     return await runPool(
@@ -146,7 +191,7 @@ async function runAllRuns(
           const outcome = await runAgent({
             model: options.model,
             instructions: INSTRUCTIONS,
-            prompt: runtime.prompt,
+            prompt,
             workspace,
             timeoutMs: options.timeoutMs,
             onProgress: (progress) => options.onRunProgress?.(index, progress),

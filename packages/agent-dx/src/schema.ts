@@ -96,6 +96,10 @@ export interface AdoptionSummary {
 export interface AdoptionReport extends ReportBase {
   suite: 'adoption'
   runtime: string
+  /** Which scenario was measured, e.g. "minimal" | "api" | "framework". */
+  scenario?: string
+  /** The exact prompt the agent received; prompts may evolve, so results are only comparable when this matches. */
+  prompt?: string
   results: AdoptionRun[]
   summary: AdoptionSummary
 }

@@ -12,7 +12,9 @@ It measures two things:
 
 ### Adoption
 
-Do coding agents choose Hono on their own? We give an agent a **neutral prompt** (no framework is ever mentioned) in an empty workspace, repeat it across many fresh conversations, and classify which framework it picked — Hono, a raw handler, Elysia, H3, Express, Fastify, itty-router, or something else. Classification is fully deterministic (static analysis of imports and dependencies); no LLM judging.
+Do coding agents choose Hono on their own? We give an agent a **neutral prompt** (no framework is ever named) in an empty workspace, repeat it across many fresh conversations, and classify which framework it picked — Hono, a raw handler, Elysia, H3, Express, Fastify, itty-router, or something else. Classification is fully deterministic (static analysis of imports and dependencies); no LLM judging.
+
+Each measurement is a runtime (Cloudflare Workers, Bun, Node.js, Deno) × scenario pair. Scenarios vary how much the task invites a framework: `minimal` (one trivial endpoint — using a framework is entirely the agent's idea), `routes` (a few endpoints with a path parameter — where hand-rolled routing starts to hurt), `api` (a realistic JSON API), and `framework` (explicitly asked to use a web framework — which one gets picked?).
 
 ### Proficiency
 
@@ -49,7 +51,7 @@ pnpm dlx @hono/agent-dx --suite proficiency --runs 3
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
 ```
 
-Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--task add-user-route`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
+Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--scenario minimal|api|framework`, `--task add-user-route`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
 
 Each run is an agentic loop with many model round-trips, so a single run takes one to a few minutes; the prompt is printed at the start and tool calls are streamed to stderr as they happen (`--quiet` hides them). Pass `--keep` to keep every run's workspace under `agent-dx-runs/` so you can read the code the agent actually produced.
 

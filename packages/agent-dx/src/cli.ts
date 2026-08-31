@@ -7,7 +7,12 @@ import { frameworkLabel, renderReport } from './report/console.js'
 import type { AgentDxReport } from './schema.js'
 import { parseReport } from './schema.js'
 import { formatDuration } from './stats.js'
-import { ADOPTION_RUNTIMES, runAdoptionSuite } from './suites/adoption/index.js'
+import {
+  ADOPTION_RUNTIMES,
+  ADOPTION_SCENARIOS,
+  adoptionPrompt,
+  runAdoptionSuite,
+} from './suites/adoption/index.js'
 import {
   PROFICIENCY_TASKS,
   runProficiencySuite,
@@ -31,6 +36,8 @@ Options:
                       cloudflare-ai-gateway/claude-haiku-4-5
   --runtime <id>      Adoption runtime: ${Object.keys(ADOPTION_RUNTIMES).join(' | ')}
                       (default: cloudflare-workers)
+  --scenario <id>     Adoption scenario: ${Object.keys(ADOPTION_SCENARIOS).join(' | ')}
+                      (default: minimal)
   --task <id>         Proficiency task (default: add-user-route)
   --report <path>     Write the JSON report to this file
   --variant <label>   Label this run for experiments (e.g. baseline, candidate)
@@ -52,6 +59,7 @@ Environment:
 
 Examples:
   agent-dx --suite adoption --runs 20 --concurrency 10
+  agent-dx --suite adoption --scenario framework --runs 20
   agent-dx --suite proficiency --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
   agent-dx compare baseline.json candidate.json
@@ -102,6 +110,11 @@ function printList(): void {
     console.log(`  ${runtime.id.padEnd(20)} ${runtime.displayName}`)
   }
   console.log('')
+  console.log('Adoption scenarios:')
+  for (const scenario of Object.values(ADOPTION_SCENARIOS)) {
+    console.log(`  ${scenario.id.padEnd(20)} ${scenario.description}`)
+  }
+  console.log('')
   console.log('Proficiency tasks:')
   for (const task of Object.values(PROFICIENCY_TASKS)) {
     console.log(`  ${task.id.padEnd(20)} ${task.description}`)
@@ -132,6 +145,7 @@ async function main(): Promise<void> {
       keep: { type: 'boolean' },
       model: { type: 'string' },
       runtime: { type: 'string' },
+      scenario: { type: 'string' },
       task: { type: 'string' },
       report: { type: 'string' },
       variant: { type: 'string' },
@@ -217,6 +231,7 @@ async function main(): Promise<void> {
   }
 
   const runtimeId = values.runtime ?? 'cloudflare-workers'
+  const scenarioId = values.scenario ?? 'minimal'
   const taskId = values.task ?? 'add-user-route'
   const keepDir = values.keep
     ? join(
@@ -230,9 +245,11 @@ async function main(): Promise<void> {
   console.error(
     `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
   )
+  const runtime = ADOPTION_RUNTIMES[runtimeId]
+  const scenario = ADOPTION_SCENARIOS[scenarioId]
   const promptText =
     suite === 'adoption'
-      ? ADOPTION_RUNTIMES[runtimeId]?.prompt
+      ? runtime && scenario && adoptionPrompt(runtime, scenario)
       : PROFICIENCY_TASKS[taskId]?.prompt
   if (promptText) {
     console.error('Prompt:')
@@ -276,6 +293,7 @@ async function main(): Promise<void> {
       concurrency,
       keepDir,
       runtime: runtimeId,
+      scenario: scenarioId,
       onRunStarted,
       onRunProgress,
       onRunFinished: (run) => {
