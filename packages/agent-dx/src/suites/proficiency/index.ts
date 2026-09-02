@@ -16,6 +16,7 @@ import {
 } from '../../workspace.js'
 import type { ProficiencyTask } from './task.js'
 import { addUserRouteTask } from './tasks/add-user-route.js'
+import { buildEndpointsTask } from './tasks/build-endpoints.js'
 import { fix404Task } from './tasks/fix-404.js'
 import { refactorRoutesTask } from './tasks/refactor-routes.js'
 
@@ -30,6 +31,7 @@ import { refactorRoutesTask } from './tasks/refactor-routes.js'
 
 export const PROFICIENCY_TASKS: Record<string, ProficiencyTask> = {
   [addUserRouteTask.id]: addUserRouteTask,
+  [buildEndpointsTask.id]: buildEndpointsTask,
   [fix404Task.id]: fix404Task,
   [refactorRoutesTask.id]: refactorRoutesTask,
 }
