@@ -3,10 +3,14 @@ import { runCheckScript, typecheckCheck } from '../grading.js'
 import type { ProficiencyTask } from '../task.js'
 
 /**
- * Task: debug a 404 in a ~30-route Hono app split across several router
- * files. Same double-prefix mount bug as `fix-404`, but buried in one of
- * five routers — finding it by reading code is expensive, which is
- * exactly the situation tools like `hono routes` are designed for.
+ * Task: debug a 404 that reading the obvious file cannot explain.
+ *
+ * The orders router in the ~30-route `hono-shop` fixture is completely
+ * correct; a feature-gate middleware on `/api/*` returns 404 because a
+ * leftover flag still marks the orders section as off. The name of the
+ * failing path points at an innocent file, so the run has to reason
+ * about runtime request resolution — the situation `hono routes` and
+ * `hono request --trace` are designed for.
  */
 
 const CHECK_SCRIPT = `
@@ -39,12 +43,6 @@ try {
     add('GET /api/orders/:id works too', false, String(error))
   }
   try {
-    const res = await app.request('/api/orders/orders')
-    add('the double-prefixed path is gone', res.status === 404, 'status ' + res.status)
-  } catch (error) {
-    add('the double-prefixed path is gone', false, String(error))
-  }
-  try {
     const users = await app.request('/api/users')
     const product = await app.request('/api/products/1')
     const health = await app.request('/health')
@@ -55,6 +53,16 @@ try {
     )
   } catch (error) {
     add('other routers are untouched', false, String(error))
+  }
+  try {
+    const res = await app.request('/api/admin/stats')
+    add(
+      'the admin guard still applies',
+      res.status === 403,
+      'status ' + res.status,
+    )
+  } catch (error) {
+    add('the admin guard still applies', false, String(error))
   }
 } catch (error) {
   add('app is importable from src/index.ts', false, String(error))
@@ -69,9 +77,10 @@ async function grade(workspace: string): Promise<ProficiencyCheck[]> {
   ]
 }
 
-export const fix404LargeTask: ProficiencyTask = {
-  id: 'fix-404-large',
-  description: 'Debug a 404 buried in a ~30-route app split across routers',
+export const fix404ShadowTask: ProficiencyTask = {
+  id: 'fix-404-shadow',
+  description:
+    'Debug a 404 the obvious file cannot explain (feature-gate shadowing)',
   fixture: 'hono-shop',
   prompt:
     'GET /api/orders returns 404, but the orders routes exist in the code. Debug the routing and fix it.',

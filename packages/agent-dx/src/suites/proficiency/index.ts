@@ -18,8 +18,8 @@ import type { ProficiencyTask } from './task.js'
 import { addUserRouteTask } from './tasks/add-user-route.js'
 import { buildEndpointsTask } from './tasks/build-endpoints.js'
 import { fix404Task } from './tasks/fix-404.js'
+import { fix404ShadowTask } from './tasks/fix-404-shadow.js'
 import { refactorRoutesTask } from './tasks/refactor-routes.js'
-import { fix404LargeTask } from './tasks/fix-404-large.js'
 
 /**
  * Proficiency suite: hand the agent an existing Hono project and a small
@@ -34,8 +34,8 @@ export const PROFICIENCY_TASKS: Record<string, ProficiencyTask> = {
   [addUserRouteTask.id]: addUserRouteTask,
   [buildEndpointsTask.id]: buildEndpointsTask,
   [fix404Task.id]: fix404Task,
+  [fix404ShadowTask.id]: fix404ShadowTask,
   [refactorRoutesTask.id]: refactorRoutesTask,
-  [fix404LargeTask.id]: fix404LargeTask,
 }
 
 const INSTRUCTIONS = [

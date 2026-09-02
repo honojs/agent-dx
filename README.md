@@ -58,13 +58,15 @@ Run `agent-dx --list` for the up-to-date list. As of v0:
 
 **Proficiency** measures one `--task` at a time (× `--model`):
 
-| `--task`                                                                                                                                                                                                                                   | Fixture          | Change requested                                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- | ---------------------------------------------------------------------- |
-| `add-user-route` (default)                                                                                                                                                                                                                 | `hono-basic`     | Add `GET /users/:id` returning the id as JSON                          |
-| `build-endpoints`                                                                                                                                                                                                                          | `hono-fresh`     | Build a users CRUD from scratch and make sure it works                 |
-| `fix-404`                                                                                                                                                                                                                                  | `hono-todos`     | Debug a 404 caused by a double-prefixed sub-app mount                  |
-| `refactor-routes`                                                                                                                                                                                                                          | `hono-shop-flat` | Split a bloated single-file app into routers without changing behavior |
-| Reports record the exact prompt used and a content hash of the fixture, and `agent-dx compare` refuses runs whose suite, task, fixture revision, runtime, or prompt differ — results from different measurements are never silently mixed. |
+| `--task`                   | Fixture          | Change requested                                                       |
+| -------------------------- | ---------------- | ---------------------------------------------------------------------- |
+| `add-user-route` (default) | `hono-basic`     | Add `GET /users/:id` returning the id as JSON                          |
+| `build-endpoints`          | `hono-fresh`     | Build a users CRUD from scratch and make sure it works                 |
+| `fix-404`                  | `hono-todos`     | Debug a 404 caused by a double-prefixed sub-app mount                  |
+| `fix-404-shadow`           | `hono-shop`      | Debug a 404 the obvious file cannot explain (feature-gate shadowing)   |
+| `refactor-routes`          | `hono-shop-flat` | Split a bloated single-file app into routers without changing behavior |
+
+Reports record the exact prompt used and a content hash of the fixture, and `agent-dx compare` refuses runs whose suite, task, fixture revision, runtime, or prompt differ — results from different measurements are never silently mixed.
 
 ## How to run an eval
 
