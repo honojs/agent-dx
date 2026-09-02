@@ -154,8 +154,12 @@ export interface ProficiencyReport extends ReportBase {
   fixtureHash?: string
   /** npm spec of the Hono CLI injected into the fixture, when one was. */
   honoCli?: string
+  /** Exact version the spec resolved to at run time (specs like "@next" move). */
+  honoCliVersion?: string
   /** Name of the skill injected into the fixture, when one was. */
   skill?: string
+  /** Content hash of the injected skill directory (skills evolve too). */
+  skillHash?: string
   results: ProficiencyRun[]
   summary: ProficiencySummary
 }

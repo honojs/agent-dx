@@ -1,4 +1,4 @@
-import { appendFile, cp, rm } from 'node:fs/promises'
+import { appendFile, cp, readFile, rm } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { exec } from '../../exec.js'
 import { fixtureDir, hashDirectory } from '../../fixtures.js'
@@ -78,10 +78,16 @@ export interface ProficiencySuiteOptions {
 const HONO_CLI_ONBOARDING =
   'Working on this Hono app? Run `hono agent-context` first and follow it.'
 
+interface PreparedFixture {
+  prepared: string
+  /** Exact Hono CLI version installed, when one was. */
+  honoCliVersion?: string
+}
+
 async function prepareFixture(
   task: ProficiencyTask,
   options: ProficiencySuiteOptions,
-): Promise<string> {
+): Promise<PreparedFixture> {
   const prepared = await createWorkspaceFrom(
     'fixture',
     fixtureDir(task.fixture),
@@ -100,6 +106,7 @@ async function prepareFixture(
       `Fixture install failed for "${task.fixture}":\n${install.stderr}`,
     )
   }
+  let honoCliVersion: string | undefined
   if (options.honoCli) {
     // The CLI's designed onboarding path: a devDependency for
     // discoverability in package.json, plus one line in AGENTS.md
@@ -122,6 +129,18 @@ async function prepareFixture(
         `Hono CLI install failed for "${options.honoCli}":\n${cliInstall.stderr}`,
       )
     }
+    // Specs like "@next" move; record the version that actually landed.
+    try {
+      const pkg = JSON.parse(
+        await readFile(
+          join(prepared, 'node_modules', '@hono', 'cli', 'package.json'),
+          'utf8',
+        ),
+      ) as { version?: string }
+      honoCliVersion = pkg.version
+    } catch {
+      // Leave undefined when the CLI package cannot be inspected.
+    }
     if (options.honoCliOnboarding ?? true) {
       await appendFile(
         join(prepared, 'AGENTS.md'),
@@ -135,7 +154,7 @@ async function prepareFixture(
       recursive: true,
     })
   }
-  return prepared
+  return { prepared, honoCliVersion }
 }
 
 export async function runProficiencySuite(
@@ -153,7 +172,10 @@ export async function runProficiencySuite(
   // Hash the pristine fixture (before any injection) so a fixture edit is
   // never silently compared against older results.
   const fixtureHash = await hashDirectory(fixtureDir(task.fixture))
-  const prepared = await prepareFixture(task, options)
+  const skillHash = options.skillDir
+    ? await hashDirectory(options.skillDir)
+    : undefined
+  const { prepared, honoCliVersion } = await prepareFixture(task, options)
 
   let results: ProficiencyRun[]
   try {
@@ -232,7 +254,9 @@ export async function runProficiencySuite(
     task: task.id,
     fixtureHash,
     honoCli: options.honoCli,
+    honoCliVersion,
     skill: options.skillDir ? basename(options.skillDir) : undefined,
+    skillHash,
     results,
     summary: {
       successRate:
