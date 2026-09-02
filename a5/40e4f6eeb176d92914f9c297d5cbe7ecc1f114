@@ -1,0 +1,35 @@
+README.ja.md
+  s_b5227510c4b557::t_9843caea01dc81 63-67
+README.md
+  s_b5227510c4b557::t_3cb40b6d085087 61-65
+packages/agent-dx/fixtures/hono-shop/src/routes/orders.ts
+  s_b5227510c4b557::t_afcb694bbd6a0b 6,14,19,25,40,48
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_0467a541fe21e8 20,34
+packages/agent-dx/fixtures/hono-shop/AGENTS.md
+  s_b5227510c4b557::t_90c27a8ce0e781 6
+packages/agent-dx/fixtures/hono-shop/src/config/flags.ts
+  s_b5227510c4b557::t_360c7b0a7683c0 1-10
+packages/agent-dx/fixtures/hono-shop/src/index.ts
+  s_b5227510c4b557::t_4d52e75de82c08 4,15
+packages/agent-dx/fixtures/hono-shop/src/middleware/feature-gate.ts
+  s_b5227510c4b557::t_32f5f21a3299e2 1-11
+packages/agent-dx/src/suites/proficiency/tasks/fix-404-shadow.ts
+  s_b5227510c4b557::t_93aa25469b0681 6-13,57-66,80-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a540e4f6eeb176d92914f9c297d5cbe7ecc1f114",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
