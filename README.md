@@ -109,6 +109,8 @@ To run a Hono CLI experiment in one command — the same task without and with t
 pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
 ```
 
+Experiment conditions can also be composed per run, e.g. for a full onboarding matrix: `--hono-cli <spec>` installs the CLI into the fixture, `--onboarding none` leaves the AGENTS.md onboarding line out, and `--skill <dir>` injects a skill as `.agents/skills/<name>/` — the workspace-skill path real agent harnesses discover.
+
 To compare two arbitrary runs manually:
 
 ```sh

@@ -47,6 +47,12 @@ export interface HonoCliUsage {
   calls: number
   /** Whether `hono agent-context` was invoked (the designed entry point). */
   agentContext: boolean
+  /** Subcommand -> invocation count (`request --trace` counted separately). */
+  commands: Record<string, number>
+  /** CLI error envelopes (`"ok": false`) received back. */
+  errors: number
+  /** Whether the run kept using the CLI after receiving an error envelope. */
+  recovered: boolean
 }
 
 export interface AdoptionRun {
@@ -122,8 +128,16 @@ export interface ProficiencySummary {
   /** Hono CLI usage across runs. */
   honoCli?: {
     medianCalls: number
+    /** Runs that invoked the CLI at all / total runs, in [0, 1]. */
+    usageRate: number
     /** Runs that invoked `hono agent-context` / total runs, in [0, 1]. */
     agentContextRate: number
+    /** Subcommand -> total invocations across runs. */
+    commands: Record<string, number>
+    /** Runs that received at least one CLI error envelope. */
+    errorRuns: number
+    /** Of those, runs that kept using the CLI afterwards. */
+    recoveredRuns: number
   }
 }
 
@@ -132,6 +146,8 @@ export interface ProficiencyReport extends ReportBase {
   task: string
   /** npm spec of the Hono CLI injected into the fixture, when one was. */
   honoCli?: string
+  /** Name of the skill injected into the fixture, when one was. */
+  skill?: string
   results: ProficiencyRun[]
   summary: ProficiencySummary
 }

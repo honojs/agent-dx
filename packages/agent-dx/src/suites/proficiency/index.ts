@@ -1,5 +1,5 @@
-import { appendFile, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { appendFile, cp, rm } from 'node:fs/promises'
+import { basename, join } from 'node:path'
 import { exec } from '../../exec.js'
 import { fixtureDir } from '../../fixtures.js'
 import { runPool } from '../../pool.js'
@@ -45,10 +45,21 @@ export interface ProficiencySuiteOptions {
   task: string
   /**
    * npm spec of the Hono CLI to inject into the fixture (e.g. "@hono/cli@next"
-   * or a local path). Installed as a devDependency, with the CLI's designed
-   * onboarding line appended to the fixture's AGENTS.md.
+   * or a local path), installed as a devDependency.
    */
   honoCli?: string
+  /**
+   * Whether to append the CLI's designed onboarding line to the fixture's
+   * AGENTS.md (default true when `honoCli` is set). Turn it off to measure
+   * the devDependency alone.
+   */
+  honoCliOnboarding?: boolean
+  /**
+   * Path to a skill directory (containing SKILL.md) to copy into the
+   * fixture as `.agents/skills/<name>/`, where the Flue harness discovers
+   * workspace skills — the same way real agent harnesses do.
+   */
+  skillDir?: string
   timeoutMs?: number
   /** How many runs to execute in parallel (default 1). */
   concurrency?: number
@@ -69,7 +80,7 @@ const HONO_CLI_ONBOARDING =
 
 async function prepareFixture(
   task: ProficiencyTask,
-  honoCli?: string,
+  options: ProficiencySuiteOptions,
 ): Promise<string> {
   const prepared = await createWorkspaceFrom(
     'fixture',
@@ -89,21 +100,40 @@ async function prepareFixture(
       `Fixture install failed for "${task.fixture}":\n${install.stderr}`,
     )
   }
-  if (honoCli) {
+  if (options.honoCli) {
     // The CLI's designed onboarding path: a devDependency for
-    // discoverability in package.json, plus one line in AGENTS.md.
+    // discoverability in package.json, plus one line in AGENTS.md
+    // (unless the experiment turns the line off).
     const cliInstall = await exec(
       'npm',
-      ['install', '-D', honoCli, '--no-audit', '--no-fund', '--loglevel=error'],
+      [
+        'install',
+        '-D',
+        options.honoCli,
+        '--no-audit',
+        '--no-fund',
+        '--loglevel=error',
+      ],
       { cwd: prepared, timeoutMs: 300_000 },
     )
     if (!cliInstall.ok) {
       await removeWorkspace(prepared)
       throw new Error(
-        `Hono CLI install failed for "${honoCli}":\n${cliInstall.stderr}`,
+        `Hono CLI install failed for "${options.honoCli}":\n${cliInstall.stderr}`,
       )
     }
-    await appendFile(join(prepared, 'AGENTS.md'), `\n${HONO_CLI_ONBOARDING}\n`)
+    if (options.honoCliOnboarding ?? true) {
+      await appendFile(
+        join(prepared, 'AGENTS.md'),
+        `\n${HONO_CLI_ONBOARDING}\n`,
+      )
+    }
+  }
+  if (options.skillDir) {
+    const name = basename(options.skillDir)
+    await cp(options.skillDir, join(prepared, '.agents', 'skills', name), {
+      recursive: true,
+    })
   }
   return prepared
 }
@@ -120,7 +150,7 @@ export async function runProficiencySuite(
   }
 
   const startedAt = new Date().toISOString()
-  const prepared = await prepareFixture(task, options.honoCli)
+  const prepared = await prepareFixture(task, options)
 
   let results: ProficiencyRun[]
   try {
@@ -198,6 +228,7 @@ export async function runProficiencySuite(
     finishedAt: new Date().toISOString(),
     task: task.id,
     honoCli: options.honoCli,
+    skill: options.skillDir ? basename(options.skillDir) : undefined,
     results,
     summary: {
       successRate:
@@ -211,11 +242,29 @@ export async function runProficiencySuite(
         medianCalls: median(
           results.map((run) => run.metrics.honoCli?.calls ?? 0),
         ),
+        usageRate:
+          options.runs === 0
+            ? 0
+            : results.filter((run) => (run.metrics.honoCli?.calls ?? 0) > 0)
+                .length / options.runs,
         agentContextRate:
           options.runs === 0
             ? 0
             : results.filter((run) => run.metrics.honoCli?.agentContext)
                 .length / options.runs,
+        commands: results.reduce<Record<string, number>>((totals, run) => {
+          for (const [key, count] of Object.entries(
+            run.metrics.honoCli?.commands ?? {},
+          )) {
+            totals[key] = (totals[key] ?? 0) + count
+          }
+          return totals
+        }, {}),
+        errorRuns: results.filter(
+          (run) => (run.metrics.honoCli?.errors ?? 0) > 0,
+        ).length,
+        recoveredRuns: results.filter((run) => run.metrics.honoCli?.recovered)
+          .length,
       },
     },
   }

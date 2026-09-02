@@ -111,6 +111,8 @@ Hono CLI の experiment はワンコマンドで実行できます — 同じタ
 pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
 ```
 
+実験条件は run ごとに個別に組み合わせることもできます（オンボーディングのフルマトリクスなど）：`--hono-cli <spec>` は fixture に CLI をインストールし、`--onboarding none` は AGENTS.md のオンボーディング行を入れず、`--skill <dir>` はスキルを `.agents/skills/<name>/` として注入します — 実際のエージェントハーネスが発見する workspace skill の経路です。
+
 任意の 2 つの実行を手動で比較するには：
 
 ```sh

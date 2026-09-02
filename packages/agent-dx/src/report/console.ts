@@ -92,8 +92,9 @@ export function renderProficiencyReport(report: ProficiencyReport): string {
   if (report.summary.medianTokens !== undefined) {
     rows.push(['Median tokens', formatTokens(report.summary.medianTokens)])
   }
-  if (report.honoCli || (report.summary.honoCli?.medianCalls ?? 0) > 0) {
+  if (report.honoCli || (report.summary.honoCli?.usageRate ?? 0) > 0) {
     const cli = report.summary.honoCli
+    rows.push(['Hono CLI usage rate', percent(cli?.usageRate ?? 0)])
     rows.push(['Median Hono CLI calls', String(cli?.medianCalls ?? 0)])
     rows.push(['agent-context rate', percent(cli?.agentContextRate ?? 0)])
   }

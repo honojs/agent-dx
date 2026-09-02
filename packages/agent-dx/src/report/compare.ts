@@ -104,7 +104,13 @@ export function compareReports(
     })
     const baseCli = baseline.summary.honoCli
     const candCli = candidate.summary.honoCli
-    if (baseCli && candCli && (baseCli.medianCalls || candCli.medianCalls)) {
+    if (baseCli && candCli && (baseCli.usageRate || candCli.usageRate)) {
+      rows.push({
+        label: 'Hono CLI usage rate',
+        baseline: percent(baseCli.usageRate),
+        candidate: percent(candCli.usageRate),
+        change: pointDelta(baseCli.usageRate, candCli.usageRate),
+      })
       rows.push({
         label: 'Median Hono CLI calls',
         baseline: String(baseCli.medianCalls),
