@@ -40,6 +40,12 @@ export interface RunMetrics {
   tokens?: TokenUsage
   /** Hono CLI usage observed in bash tool calls. */
   honoCli?: HonoCliUsage
+  /**
+   * Bash commands the agent executed, in order (each entry truncated, list
+   * capped). The last entry of a timed-out run is usually the command that
+   * hung — kept for exactly that kind of diagnosis.
+   */
+  commands?: string[]
 }
 
 export interface HonoCliUsage {

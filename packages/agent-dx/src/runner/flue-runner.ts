@@ -51,6 +51,8 @@ export interface AgentRunOutcome {
 }
 
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000
+const MAX_TRANSCRIPT_COMMANDS = 100
+const MAX_TRANSCRIPT_COMMAND_LENGTH = 200
 
 interface RunnerInit {
   model: string
@@ -218,6 +220,7 @@ export async function runAgent(
     recovered: false,
   }
   const honoCliToolCalls = new Set<string>()
+  const commands: string[] = []
 
   const noteMetadata = (metadata: unknown) => {
     if (typeof metadata !== 'object' || metadata === null) return
@@ -239,6 +242,13 @@ export async function runAgent(
             (toolCallCounts[chunk.toolName] ?? 0) + 1
           const input = chunk.input as Record<string, unknown> | null
           if (typeof input?.command === 'string') {
+            if (commands.length < MAX_TRANSCRIPT_COMMANDS) {
+              commands.push(
+                input.command.length > MAX_TRANSCRIPT_COMMAND_LENGTH
+                  ? `${input.command.slice(0, MAX_TRANSCRIPT_COMMAND_LENGTH)}…`
+                  : input.command,
+              )
+            }
             const usage = analyzeHonoCliCommand(input.command)
             if (usage.calls > 0) {
               if (honoCli.errors > 0) honoCli.recovered = true
@@ -288,6 +298,7 @@ export async function runAgent(
         toolCallCounts,
         tokens,
         honoCli: honoCli.calls > 0 ? honoCli : undefined,
+        commands: commands.length > 0 ? commands : undefined,
       },
     }
   } catch (error) {
@@ -300,6 +311,7 @@ export async function runAgent(
         toolCallCounts,
         tokens,
         honoCli: honoCli.calls > 0 ? honoCli : undefined,
+        commands: commands.length > 0 ? commands : undefined,
       },
       error: errorMessage(error),
     }
