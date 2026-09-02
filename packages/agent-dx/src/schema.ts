@@ -144,6 +144,8 @@ export interface ProficiencySummary {
 export interface ProficiencyReport extends ReportBase {
   suite: 'proficiency'
   task: string
+  /** Content hash of the pristine fixture; a changed fixture changes the task, so results are only comparable when this matches. */
+  fixtureHash?: string
   /** npm spec of the Hono CLI injected into the fixture, when one was. */
   honoCli?: string
   /** Name of the skill injected into the fixture, when one was. */

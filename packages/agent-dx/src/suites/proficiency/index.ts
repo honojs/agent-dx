@@ -1,7 +1,7 @@
 import { appendFile, cp, rm } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { exec } from '../../exec.js'
-import { fixtureDir } from '../../fixtures.js'
+import { fixtureDir, hashDirectory } from '../../fixtures.js'
 import { runPool } from '../../pool.js'
 import type { AgentRunProgress } from '../../runner/flue-runner.js'
 import { runAgent, shutdownRunner } from '../../runner/flue-runner.js'
@@ -150,6 +150,9 @@ export async function runProficiencySuite(
   }
 
   const startedAt = new Date().toISOString()
+  // Hash the pristine fixture (before any injection) so a fixture edit is
+  // never silently compared against older results.
+  const fixtureHash = await hashDirectory(fixtureDir(task.fixture))
   const prepared = await prepareFixture(task, options)
 
   let results: ProficiencyRun[]
@@ -227,6 +230,7 @@ export async function runProficiencySuite(
     startedAt,
     finishedAt: new Date().toISOString(),
     task: task.id,
+    fixtureHash,
     honoCli: options.honoCli,
     skill: options.skillDir ? basename(options.skillDir) : undefined,
     results,
