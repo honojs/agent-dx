@@ -39,6 +39,12 @@ Options:
   --scenario <id>     Adoption scenario: ${Object.keys(ADOPTION_SCENARIOS).join(' | ')}
                       (default: minimal)
   --task <id>         Proficiency task (default: add-user-route)
+  --hono-cli <spec>   Install this Hono CLI into the fixture (proficiency),
+                      e.g. @hono/cli@next or a local path
+  --onboarding <m>    agents-md | none — whether the CLI onboarding line is
+                      appended to the fixture's AGENTS.md (default: agents-md)
+  --skill <dir>       Copy this skill directory into the fixture as a
+                      workspace skill (.agents/skills/<name>/)
   --report <path>     Write the JSON report to this file
   --variant <label>   Label this run for experiments (e.g. baseline, candidate)
   --list              List available suites, runtimes, and tasks
@@ -151,6 +157,9 @@ async function main(): Promise<void> {
       runtime: { type: 'string' },
       scenario: { type: 'string' },
       task: { type: 'string' },
+      'hono-cli': { type: 'string' },
+      onboarding: { type: 'string' },
+      skill: { type: 'string' },
       report: { type: 'string' },
       variant: { type: 'string' },
       target: { type: 'string' },
@@ -292,6 +301,11 @@ async function main(): Promise<void> {
   const keptSuffix = (workspace: string | undefined) =>
     workspace ? ` → ${relative(process.cwd(), workspace)}` : ''
 
+  const onboarding = values.onboarding ?? 'agents-md'
+  if (onboarding !== 'agents-md' && onboarding !== 'none') {
+    fail(`--onboarding must be "agents-md" or "none", got "${onboarding}"`)
+  }
+
   const runProficiencyArm = (
     honoCli: string | undefined,
     armKeepDir: string | undefined,
@@ -303,6 +317,8 @@ async function main(): Promise<void> {
       keepDir: armKeepDir,
       task: taskId,
       honoCli,
+      honoCliOnboarding: onboarding === 'agents-md',
+      skillDir: values.skill,
       onRunStarted,
       onRunProgress,
       onRunFinished: (run) => {
@@ -384,7 +400,7 @@ async function main(): Promise<void> {
       },
     })
   } else {
-    report = await runProficiencyArm(undefined, keepDir)
+    report = await runProficiencyArm(values['hono-cli'], keepDir)
   }
 
   if (values.variant) report.variant = values.variant

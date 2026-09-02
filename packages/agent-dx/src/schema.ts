@@ -122,6 +122,8 @@ export interface ProficiencySummary {
   /** Hono CLI usage across runs. */
   honoCli?: {
     medianCalls: number
+    /** Runs that invoked the CLI at all / total runs, in [0, 1]. */
+    usageRate: number
     /** Runs that invoked `hono agent-context` / total runs, in [0, 1]. */
     agentContextRate: number
   }
@@ -132,6 +134,8 @@ export interface ProficiencyReport extends ReportBase {
   task: string
   /** npm spec of the Hono CLI injected into the fixture, when one was. */
   honoCli?: string
+  /** Name of the skill injected into the fixture, when one was. */
+  skill?: string
   results: ProficiencyRun[]
   summary: ProficiencySummary
 }
