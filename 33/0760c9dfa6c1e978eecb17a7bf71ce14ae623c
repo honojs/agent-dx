@@ -1,0 +1,44 @@
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_320b25d5ac6f5d 54-60,74,201-204,206,209,309-313,317-319,326,334-383,388-389,394,402
+  s_b5227510c4b557::t_8e93f283b6b5eb 42-47,160-162,304-308,320-321,403
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_9944a763f0d6c9 46-47,49-50,78-82,84,104,107-108,117-121,123-124,137,230,241-244,250-255
+  s_b5227510c4b557::t_afea6147b9f963 1-2,48,51-62,83,103,105-106,109-116,122,125-136,153,231,245-249
+AGENTS.md
+  s_b5227510c4b557::t_6e25c4ca37191d 11
+README.ja.md
+  s_b5227510c4b557::t_e187bf462aaa1f 108-113,116
+  s_b5227510c4b557::t_c778090c67d06b 114-115
+README.md
+  s_b5227510c4b557::t_192d6fa694f43f 106-111,114
+  s_b5227510c4b557::t_687d3489c7eefa 112-113
+packages/agent-dx/src/report/compare.ts
+  s_b5227510c4b557::t_af34872a6065ca 105-106,114-126
+  s_b5227510c4b557::t_6c76af6290dca8 107-113
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_f493eaa4a6fab9 96,98-100
+  s_b5227510c4b557::t_fbe67d9096ffbe 95,97
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_1ee0fd8a38edb8 10,108-125,179,199-204,232,244
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_89df70ed469f27 41-49,122-124,127-129,135-136
+  s_b5227510c4b557::t_4913ed63828bb9 125-126,137-138
+packages/agent-dx/test/hono-cli-usage.test.ts
+  s_b5227510c4b557::t_f0e11feab9d53e 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "330760c9dfa6c1e978eecb17a7bf71ce14ae623c",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_82a5f32dc3e31d 255-267
+packages/agent-dx/test/hono-cli-usage.test.ts
+  s_b5227510c4b557::t_5f49de0affeaa9 2-5,8,12,17,21,24,28,30-44,51-55,59-79
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_84f4b0af73fbec 112-115,117-124,127-130,132-142,147-159,213-220,243-251,263-272
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_26a24d14133df0 50-55,135-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b08988395bce2a1afb621171a7ec55c27518ee7f",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
