@@ -38,6 +38,15 @@ export interface RunMetrics {
   toolCallCounts: Record<string, number>
   /** Present only when the runner could observe token usage. */
   tokens?: TokenUsage
+  /** Hono CLI usage observed in bash tool calls. */
+  honoCli?: HonoCliUsage
+}
+
+export interface HonoCliUsage {
+  /** Number of bash tool calls invoking the Hono CLI. */
+  calls: number
+  /** Whether `hono agent-context` was invoked (the designed entry point). */
+  agentContext: boolean
 }
 
 export interface AdoptionRun {
@@ -110,11 +119,19 @@ export interface ProficiencySummary {
   medianDurationMs: number
   medianToolCalls: number
   medianTokens?: number
+  /** Hono CLI usage across runs. */
+  honoCli?: {
+    medianCalls: number
+    /** Runs that invoked `hono agent-context` / total runs, in [0, 1]. */
+    agentContextRate: number
+  }
 }
 
 export interface ProficiencyReport extends ReportBase {
   suite: 'proficiency'
   task: string
+  /** npm spec of the Hono CLI injected into the fixture, when one was. */
+  honoCli?: string
   results: ProficiencyRun[]
   summary: ProficiencySummary
 }

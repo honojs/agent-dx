@@ -1,4 +1,4 @@
-import { rm } from 'node:fs/promises'
+import { appendFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { exec } from '../../exec.js'
 import { fixtureDir } from '../../fixtures.js'
@@ -43,6 +43,12 @@ export interface ProficiencySuiteOptions {
   model: string
   runs: number
   task: string
+  /**
+   * npm spec of the Hono CLI to inject into the fixture (e.g. "@hono/cli@next"
+   * or a local path). Installed as a devDependency, with the CLI's designed
+   * onboarding line appended to the fixture's AGENTS.md.
+   */
+  honoCli?: string
   timeoutMs?: number
   /** How many runs to execute in parallel (default 1). */
   concurrency?: number
@@ -58,7 +64,13 @@ export interface ProficiencySuiteOptions {
  * once; each run then clones the prepared workspace so runs stay cheap
  * and identical.
  */
-async function prepareFixture(task: ProficiencyTask): Promise<string> {
+const HONO_CLI_ONBOARDING =
+  'Working on this Hono app? Run `hono agent-context` first and follow it.'
+
+async function prepareFixture(
+  task: ProficiencyTask,
+  honoCli?: string,
+): Promise<string> {
   const prepared = await createWorkspaceFrom(
     'fixture',
     fixtureDir(task.fixture),
@@ -77,6 +89,22 @@ async function prepareFixture(task: ProficiencyTask): Promise<string> {
       `Fixture install failed for "${task.fixture}":\n${install.stderr}`,
     )
   }
+  if (honoCli) {
+    // The CLI's designed onboarding path: a devDependency for
+    // discoverability in package.json, plus one line in AGENTS.md.
+    const cliInstall = await exec(
+      'npm',
+      ['install', '-D', honoCli, '--no-audit', '--no-fund', '--loglevel=error'],
+      { cwd: prepared, timeoutMs: 300_000 },
+    )
+    if (!cliInstall.ok) {
+      await removeWorkspace(prepared)
+      throw new Error(
+        `Hono CLI install failed for "${honoCli}":\n${cliInstall.stderr}`,
+      )
+    }
+    await appendFile(join(prepared, 'AGENTS.md'), `\n${HONO_CLI_ONBOARDING}\n`)
+  }
   return prepared
 }
 
@@ -92,7 +120,7 @@ export async function runProficiencySuite(
   }
 
   const startedAt = new Date().toISOString()
-  const prepared = await prepareFixture(task)
+  const prepared = await prepareFixture(task, options.honoCli)
 
   let results: ProficiencyRun[]
   try {
@@ -169,6 +197,7 @@ export async function runProficiencySuite(
     startedAt,
     finishedAt: new Date().toISOString(),
     task: task.id,
+    honoCli: options.honoCli,
     results,
     summary: {
       successRate:
@@ -178,6 +207,16 @@ export async function runProficiencySuite(
       medianDurationMs: median(results.map((run) => run.metrics.durationMs)),
       medianToolCalls: median(results.map((run) => run.metrics.toolCalls)),
       medianTokens: tokenTotals.length > 0 ? median(tokenTotals) : undefined,
+      honoCli: {
+        medianCalls: median(
+          results.map((run) => run.metrics.honoCli?.calls ?? 0),
+        ),
+        agentContextRate:
+          options.runs === 0
+            ? 0
+            : results.filter((run) => run.metrics.honoCli?.agentContext)
+                .length / options.runs,
+      },
     },
   }
 }

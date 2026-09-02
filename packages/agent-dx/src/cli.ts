@@ -45,10 +45,13 @@ Options:
   --version           Print the version
   --help              Show this help
 
-Experiments (planned):
-  --target <name>     What to evaluate: cli | skill | docs | hono
-  --candidate <path>  The work-in-progress variant
-  --against <ref>     The baseline to compare against (e.g. latest)
+Experiments:
+  --target cli        Run the suite twice — without and with the candidate
+                      Hono CLI injected into the fixture — and diff them
+                      (skill | docs | hono targets are planned)
+  --candidate <spec>  npm spec of the candidate, e.g. @hono/cli@next or a
+                      local path
+  --against <spec>    Baseline CLI spec (default: none — no CLI installed)
 
 Environment:
   ANTHROPIC_API_KEY        Required for anthropic/* models (other providers
@@ -62,6 +65,7 @@ Examples:
   agent-dx --suite adoption --scenario framework --runs 20
   agent-dx --suite proficiency --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
+  agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
   agent-dx compare baseline.json candidate.json
 `
 
@@ -185,12 +189,15 @@ async function main(): Promise<void> {
     fail(`unknown command "${positionals[0]}" — see agent-dx --help`)
   }
 
-  if (values.target || values.candidate || values.against) {
+  if ((values.candidate || values.against) && !values.target) {
+    fail('--candidate / --against require --target (e.g. --target cli)')
+  }
+  if (values.target && values.target !== 'cli') {
     console.error(
-      'Experiment orchestration (--target / --candidate / --against) is not',
+      `Experiment orchestration for --target ${values.target} is not implemented yet`,
     )
     console.error(
-      'implemented yet. For now, run each variant yourself and compare:',
+      '(only "cli" is). For now, run each variant yourself and compare:',
     )
     console.error('')
     console.error(
@@ -285,6 +292,76 @@ async function main(): Promise<void> {
   const keptSuffix = (workspace: string | undefined) =>
     workspace ? ` → ${relative(process.cwd(), workspace)}` : ''
 
+  const runProficiencyArm = (
+    honoCli: string | undefined,
+    armKeepDir: string | undefined,
+  ) =>
+    runProficiencySuite({
+      model,
+      runs,
+      concurrency,
+      keepDir: armKeepDir,
+      task: taskId,
+      honoCli,
+      onRunStarted,
+      onRunProgress,
+      onRunFinished: (run) => {
+        const label =
+          run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
+        console.error(
+          `  ${runLabel(run.index)} done: ${label} ` +
+            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
+            keptSuffix(run.workspace),
+        )
+      },
+    })
+
+  // --target cli: run the same task without and with the candidate Hono
+  // CLI injected into the fixture, then diff the two reports.
+  if (values.target === 'cli') {
+    if (suite !== 'proficiency') {
+      fail('--target cli currently requires --suite proficiency')
+    }
+    const candidateSpec = values.candidate
+    if (!candidateSpec) {
+      fail(
+        '--candidate <npm-spec> is required with --target cli (e.g. --candidate @hono/cli@next)',
+      )
+    }
+    const againstSpec = values.against ?? 'none'
+    const baselineCli = againstSpec === 'none' ? undefined : againstSpec
+
+    console.error(`=== baseline (${baselineCli ?? 'no Hono CLI'}) ===`)
+    const baseline = await runProficiencyArm(
+      baselineCli,
+      keepDir ? join(keepDir, 'baseline') : undefined,
+    )
+    baseline.variant = 'baseline'
+    baseline.target = 'cli'
+
+    console.error(`\n=== candidate (${candidateSpec}) ===`)
+    const candidate = await runProficiencyArm(
+      candidateSpec,
+      keepDir ? join(keepDir, 'candidate') : undefined,
+    )
+    candidate.variant = 'candidate'
+    candidate.target = 'cli'
+
+    console.log('')
+    console.log(renderComparison(compareReports(baseline, candidate)))
+    if (keepDir) {
+      console.error(`\nWorkspaces kept in ${relative(process.cwd(), keepDir)}`)
+    }
+    if (values.report) {
+      const base = values.report.replace(/\.json$/, '')
+      const paths = [`${base}.baseline.json`, `${base}.candidate.json`]
+      await writeFile(paths[0]!, `${JSON.stringify(baseline, null, 2)}\n`)
+      await writeFile(paths[1]!, `${JSON.stringify(candidate, null, 2)}\n`)
+      console.error(`\nReports written to ${paths.join(' and ')}`)
+    }
+    return
+  }
+
   let report: AgentDxReport
   if (suite === 'adoption') {
     report = await runAdoptionSuite({
@@ -307,24 +384,7 @@ async function main(): Promise<void> {
       },
     })
   } else {
-    report = await runProficiencySuite({
-      model,
-      runs,
-      concurrency,
-      keepDir,
-      task: taskId,
-      onRunStarted,
-      onRunProgress,
-      onRunFinished: (run) => {
-        const label =
-          run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
-        console.error(
-          `  ${runLabel(run.index)} done: ${label} ` +
-            `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
-            keptSuffix(run.workspace),
-        )
-      },
-    })
+    report = await runProficiencyArm(undefined, keepDir)
   }
 
   if (values.variant) report.variant = values.variant

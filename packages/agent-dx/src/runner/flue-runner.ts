@@ -7,7 +7,7 @@ import {
 } from '@flue/runtime'
 import type { Flue } from '@flue/runtime/node'
 import { local, start } from '@flue/runtime/node'
-import type { RunMetrics, TokenUsage } from '../schema.js'
+import type { HonoCliUsage, RunMetrics, TokenUsage } from '../schema.js'
 
 /**
  * Runs one agent turn with Flue in a fresh conversation, attached to a
@@ -106,6 +106,24 @@ function extractTokenUsage(
 }
 
 /**
+ * Detect Hono CLI invocations inside one bash command. A command may
+ * chain several invocations (`cd . && npx hono routes | head`), so it is
+ * split on shell separators first. Deterministic by construction.
+ */
+export function analyzeHonoCliCommand(command: string): HonoCliUsage {
+  const usage: HonoCliUsage = { calls: 0, agentContext: false }
+  for (const segment of command.split(/&&|\|\||[;|\n]/)) {
+    const text = segment.trim()
+    if (!/^(?:npx\s+)?(?:\.?\/?node_modules\/\.bin\/)?hono\s/.test(text)) {
+      continue
+    }
+    usage.calls += 1
+    if (/\bagent-context\b/.test(text)) usage.agentContext = true
+  }
+  return usage
+}
+
+/**
  * Compress a tool-input hint for one-line progress output: make paths
  * workspace-relative, keep only the first line, and cap the length.
  */
@@ -158,6 +176,7 @@ export async function runAgent(
   const toolCallCounts: Record<string, number> = {}
   let toolCalls = 0
   let tokens: TokenUsage | undefined
+  const honoCli: HonoCliUsage = { calls: 0, agentContext: false }
 
   const noteMetadata = (metadata: unknown) => {
     if (typeof metadata !== 'object' || metadata === null) return
@@ -177,8 +196,13 @@ export async function runAgent(
           toolCalls += 1
           toolCallCounts[chunk.toolName] =
             (toolCallCounts[chunk.toolName] ?? 0) + 1
+          const input = chunk.input as Record<string, unknown> | null
+          if (typeof input?.command === 'string') {
+            const usage = analyzeHonoCliCommand(input.command)
+            honoCli.calls += usage.calls
+            honoCli.agentContext = honoCli.agentContext || usage.agentContext
+          }
           if (options.onProgress) {
-            const input = chunk.input as Record<string, unknown> | null
             const hint = input?.path ?? input?.file_path ?? input?.command
             options.onProgress({
               toolName: chunk.toolName,
@@ -205,6 +229,7 @@ export async function runAgent(
         toolCalls,
         toolCallCounts,
         tokens,
+        honoCli: honoCli.calls > 0 ? honoCli : undefined,
       },
     }
   } catch (error) {
@@ -216,6 +241,7 @@ export async function runAgent(
         toolCalls,
         toolCallCounts,
         tokens,
+        honoCli: honoCli.calls > 0 ? honoCli : undefined,
       },
       error: errorMessage(error),
     }
