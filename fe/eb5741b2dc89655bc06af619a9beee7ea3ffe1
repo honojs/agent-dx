@@ -1,0 +1,31 @@
+README.ja.md
+  s_b5227510c4b557::t_c778090c67d06b 114-115
+README.md
+  s_b5227510c4b557::t_687d3489c7eefa 112-113
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_8e93f283b6b5eb 42-47,160-162,304-308,320-321,403
+packages/agent-dx/src/report/compare.ts
+  s_b5227510c4b557::t_6c76af6290dca8 107-113
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_fbe67d9096ffbe 95,97
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_4913ed63828bb9 125-126,137-138
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_afea6147b9f963 1-2,48,51-62,83,103,105-106,109-116,122,125-136,153,231,245-249
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "feeb5741b2dc89655bc06af619a9beee7ea3ffe1",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
