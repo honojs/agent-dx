@@ -109,18 +109,52 @@ function extractTokenUsage(
  * Detect Hono CLI invocations inside one bash command. A command may
  * chain several invocations (`cd . && npx hono routes | head`), so it is
  * split on shell separators first. Deterministic by construction.
+ *
+ * Command keys are the subcommand (`routes`, `request`, `agent-context`,
+ * `help` for `--help`/`-h`), with `request --trace` counted as its own
+ * key so the debugging flag is visible in breakdowns.
  */
-export function analyzeHonoCliCommand(command: string): HonoCliUsage {
-  const usage: HonoCliUsage = { calls: 0, agentContext: false }
+export function analyzeHonoCliCommand(
+  command: string,
+): Pick<HonoCliUsage, 'calls' | 'agentContext' | 'commands'> {
+  const usage: Pick<HonoCliUsage, 'calls' | 'agentContext' | 'commands'> = {
+    calls: 0,
+    agentContext: false,
+    commands: {},
+  }
   for (const segment of command.split(/&&|\|\||[;|\n]/)) {
     const text = segment.trim()
-    if (!/^(?:npx\s+)?(?:\.?\/?node_modules\/\.bin\/)?hono\s/.test(text)) {
-      continue
-    }
+    const match = text.match(
+      /^(?:npx\s+)?(?:\.?\/?node_modules\/\.bin\/)?hono\s+(.*)$/,
+    )
+    if (!match) continue
     usage.calls += 1
-    if (/\bagent-context\b/.test(text)) usage.agentContext = true
+    const tokens = (match[1] ?? '').split(/\s+/)
+    const first = tokens[0] ?? ''
+    let key: string
+    if (first === '--help' || first === '-h') key = 'help'
+    else if (first.startsWith('-')) key = first.replace(/^-+/, '')
+    else key = first || 'unknown'
+    if (key === 'request' && tokens.includes('--trace')) {
+      key = 'request --trace'
+    }
+    usage.commands[key] = (usage.commands[key] ?? 0) + 1
+    if (key === 'agent-context') usage.agentContext = true
   }
   return usage
+}
+
+/**
+ * Does a Hono CLI tool result contain an error envelope (`"ok": false`)?
+ * The CLI prints JSON envelopes by design, so this is a stable signal.
+ */
+export function isCliErrorEnvelope(output: unknown): boolean {
+  try {
+    const text = typeof output === 'string' ? output : JSON.stringify(output)
+    return typeof text === 'string' && /"ok"\s*:\s*false/.test(text)
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -176,7 +210,14 @@ export async function runAgent(
   const toolCallCounts: Record<string, number> = {}
   let toolCalls = 0
   let tokens: TokenUsage | undefined
-  const honoCli: HonoCliUsage = { calls: 0, agentContext: false }
+  const honoCli: HonoCliUsage = {
+    calls: 0,
+    agentContext: false,
+    commands: {},
+    errors: 0,
+    recovered: false,
+  }
+  const honoCliToolCalls = new Set<string>()
 
   const noteMetadata = (metadata: unknown) => {
     if (typeof metadata !== 'object' || metadata === null) return
@@ -199,8 +240,15 @@ export async function runAgent(
           const input = chunk.input as Record<string, unknown> | null
           if (typeof input?.command === 'string') {
             const usage = analyzeHonoCliCommand(input.command)
-            honoCli.calls += usage.calls
-            honoCli.agentContext = honoCli.agentContext || usage.agentContext
+            if (usage.calls > 0) {
+              if (honoCli.errors > 0) honoCli.recovered = true
+              honoCli.calls += usage.calls
+              honoCli.agentContext = honoCli.agentContext || usage.agentContext
+              for (const [key, count] of Object.entries(usage.commands)) {
+                honoCli.commands[key] = (honoCli.commands[key] ?? 0) + count
+              }
+              honoCliToolCalls.add(chunk.toolCallId)
+            }
           }
           if (options.onProgress) {
             const hint = input?.path ?? input?.file_path ?? input?.command
@@ -212,6 +260,16 @@ export async function runAgent(
                   : undefined,
             })
           }
+        } else if (
+          chunk.type === 'tool-output' &&
+          honoCliToolCalls.has(chunk.toolCallId)
+        ) {
+          if (isCliErrorEnvelope(chunk.output)) honoCli.errors += 1
+        } else if (
+          chunk.type === 'tool-output-error' &&
+          honoCliToolCalls.has(chunk.toolCallId)
+        ) {
+          honoCli.errors += 1
         } else if (
           chunk.type === 'message-metadata' ||
           chunk.type === 'message-started'

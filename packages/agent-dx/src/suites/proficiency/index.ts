@@ -252,6 +252,19 @@ export async function runProficiencySuite(
             ? 0
             : results.filter((run) => run.metrics.honoCli?.agentContext)
                 .length / options.runs,
+        commands: results.reduce<Record<string, number>>((totals, run) => {
+          for (const [key, count] of Object.entries(
+            run.metrics.honoCli?.commands ?? {},
+          )) {
+            totals[key] = (totals[key] ?? 0) + count
+          }
+          return totals
+        }, {}),
+        errorRuns: results.filter(
+          (run) => (run.metrics.honoCli?.errors ?? 0) > 0,
+        ).length,
+        recoveredRuns: results.filter((run) => run.metrics.honoCli?.recovered)
+          .length,
       },
     },
   }
