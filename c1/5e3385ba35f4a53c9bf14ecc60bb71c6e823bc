@@ -1,0 +1,21 @@
+packages/agent-dx/fixtures/hono-shop/AGENTS.md
+  s_b5227510c4b557::t_965170c5e41cee 6
+packages/agent-dx/fixtures/hono-shop/src/index.ts
+  s_b5227510c4b557::t_b5c40cee7e3947 3,13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c15e3385ba35f4a53c9bf14ecc60bb71c6e823bc",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
