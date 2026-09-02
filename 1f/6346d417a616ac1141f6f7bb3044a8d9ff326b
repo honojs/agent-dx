@@ -1,0 +1,29 @@
+packages/agent-dx/src/schema.ts
+  s_449966fc5983c0::t_44cf11f643d5fe 43-48
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_795873ae86b71e 54-55,223,245-251,301,314
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1f6346d417a616ac1141f6f7bb3044a8d9ff326b",
+  "prompts": {},
+  "sessions": {
+    "s_449966fc5983c0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2f17bb4f-880e-4e5a-a9db-77bbb1298819",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    },
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
