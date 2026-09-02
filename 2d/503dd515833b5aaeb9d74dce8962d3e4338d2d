@@ -1,0 +1,35 @@
+README.ja.md
+  s_b5227510c4b557::t_fbbf525a77f289 63-67
+README.md
+  s_b5227510c4b557::t_39dc9a27e2ca0a 61-65
+packages/agent-dx/fixtures/hono-shop-flat/src/data.ts
+  s_b5227510c4b557::t_77bb720ebf892b 1-27
+packages/agent-dx/fixtures/hono-shop-flat/AGENTS.md
+  s_b5227510c4b557::t_3d521de9bbba16 1-7
+packages/agent-dx/fixtures/hono-shop-flat/package.json
+  s_b5227510c4b557::t_34d6f4d56c2b80 1-15
+packages/agent-dx/fixtures/hono-shop-flat/src/index.ts
+  s_b5227510c4b557::t_589d1cead12149 1-209
+packages/agent-dx/fixtures/hono-shop-flat/tsconfig.json
+  s_b5227510c4b557::t_5db44356210d27 1-12
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_39282295299e0d 20,34
+packages/agent-dx/src/suites/proficiency/tasks/refactor-routes.ts
+  s_b5227510c4b557::t_c8b1df9fbcc0b5 1-154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2d503dd515833b5aaeb9d74dce8962d3e4338d2d",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
