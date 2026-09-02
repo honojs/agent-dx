@@ -74,6 +74,36 @@ describe('compareReports', () => {
     expect(comparison.rows[0]?.change).toBe('+20pt')
   })
 
+  it('refuses to compare different tasks or fixture revisions', () => {
+    expect(() =>
+      compareReports(
+        proficiencyReport({ task: 'fix-404' }),
+        proficiencyReport({ task: 'add-user-route' }),
+      ),
+    ).toThrowError(/different tasks/)
+    expect(() =>
+      compareReports(
+        proficiencyReport({ fixtureHash: 'aaaa000000000000' }),
+        proficiencyReport({ fixtureHash: 'bbbb111111111111' }),
+      ),
+    ).toThrowError(/fixture revisions/)
+  })
+
+  it('refuses to compare different adoption runtimes or prompts', () => {
+    expect(() =>
+      compareReports(
+        { ...adoptionReport(0.5), runtime: 'bun' },
+        adoptionReport(0.5),
+      ),
+    ).toThrowError(/different runtimes/)
+    expect(() =>
+      compareReports(
+        { ...adoptionReport(0.5), prompt: 'old prompt' },
+        { ...adoptionReport(0.5), prompt: 'new prompt' },
+      ),
+    ).toThrowError(/prompt revisions/)
+  })
+
   it('refuses to compare different suites', () => {
     expect(() =>
       compareReports(adoptionReport(0.5), proficiencyReport({})),

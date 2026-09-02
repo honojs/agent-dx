@@ -45,6 +45,42 @@ export function compareReports(
       `Cannot compare different suites: "${baseline.suite}" vs "${candidate.suite}"`,
     )
   }
+  // Refuse comparisons across different measurements: a changed task,
+  // fixture revision, runtime, scenario, or prompt is a different
+  // experiment, and mixing them silently would produce plausible-looking
+  // nonsense.
+  if (baseline.suite === 'proficiency' && candidate.suite === 'proficiency') {
+    if (baseline.task !== candidate.task) {
+      throw new Error(
+        `Cannot compare different tasks: "${baseline.task}" vs "${candidate.task}"`,
+      )
+    }
+    if (
+      baseline.fixtureHash &&
+      candidate.fixtureHash &&
+      baseline.fixtureHash !== candidate.fixtureHash
+    ) {
+      throw new Error(
+        `Cannot compare across fixture revisions: the "${baseline.task}" fixture changed between runs (${baseline.fixtureHash} vs ${candidate.fixtureHash})`,
+      )
+    }
+  }
+  if (baseline.suite === 'adoption' && candidate.suite === 'adoption') {
+    if (baseline.runtime !== candidate.runtime) {
+      throw new Error(
+        `Cannot compare different runtimes: "${baseline.runtime}" vs "${candidate.runtime}"`,
+      )
+    }
+    if (
+      baseline.prompt &&
+      candidate.prompt &&
+      baseline.prompt !== candidate.prompt
+    ) {
+      throw new Error(
+        'Cannot compare across prompt revisions: the adoption prompt changed between runs',
+      )
+    }
+  }
 
   const rows: ComparisonRow[] = []
 

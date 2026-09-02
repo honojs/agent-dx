@@ -65,7 +65,7 @@ pnpm build
 | `add-user-route`（デフォルト） | `hono-basic` | id を JSON で返す `GET /users/:id` の追加          |
 | `fix-404`                      | `hono-todos` | サブアプリ mount の二重 prefix が原因の 404 の修正 |
 
-レポートには実際に使ったプロンプト全文が記録されるので、プロンプト改訂をまたいだ結果が知らないうちに混ざることはありません。
+レポートには実際に使ったプロンプト全文と fixture のコンテンツハッシュが記録され、`agent-dx compare` は suite・task・fixture リビジョン・runtime・プロンプトのいずれかが異なる実行の比較を拒否します — 異なる測定同士の結果が知らないうちに混ざることはありません。
 
 ## eval の実行方法
 

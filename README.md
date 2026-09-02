@@ -63,7 +63,7 @@ Run `agent-dx --list` for the up-to-date list. As of v0:
 | `add-user-route` (default) | `hono-basic` | Add `GET /users/:id` returning the id as JSON         |
 | `fix-404`                  | `hono-todos` | Debug a 404 caused by a double-prefixed sub-app mount |
 
-Reports record the exact prompt used, so results across prompt revisions are never silently mixed.
+Reports record the exact prompt used and a content hash of the fixture, and `agent-dx compare` refuses runs whose suite, task, fixture revision, runtime, or prompt differ — results from different measurements are never silently mixed.
 
 ## How to run an eval
 
