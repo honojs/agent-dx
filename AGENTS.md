@@ -8,7 +8,7 @@ Hono Agent DX measures and improves the developer experience of coding agents us
 
 ## Current status
 
-v0. The CLI runs both suites locally via Flue with deterministic grading (static framework detection, hidden `app.request()`/typecheck checks). Experiment orchestration (`--target` / `--candidate` / `--against`) is interface-only; run variants manually and diff them with `agent-dx compare`. Do not implement features that have not been requested.
+v0. The CLI runs both suites locally via Flue with deterministic grading (static framework detection, hidden `app.request()`/typecheck checks). Experiment orchestration is implemented for `--target cli` (injects the candidate Hono CLI into the fixture and diffs baseline vs candidate, including Hono CLI usage metrics); `skill` / `docs` / `hono` targets are interface-only — run those variants manually and diff them with `agent-dx compare`. Do not implement features that have not been requested.
 
 ## Repository layout
 

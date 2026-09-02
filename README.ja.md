@@ -105,7 +105,13 @@ pnpm dlx @hono/agent-dx --suite adoption --runs 20 --report result.json
 
 JSON レポートは CLI・CI・Web サイトで共有されるスキーマを使います。レポートは `agent-dx-results` R2 バケットに保存され（eval ワークフローが自動でアップロードします。手動アップロードは `results/README.md` を参照）、agent-dx.hono.dev がバケットの内容をそのまま表示します。結果データを git にコミットすることはありません。
 
-2 つの実行を比較するには（experiment）：
+Hono CLI の experiment はワンコマンドで実行できます — 同じタスクを「CLI なし」と「candidate の CLI を fixture に注入（devDependency としてインストールし、CLI のオンボーディング行を fixture の AGENTS.md に追記）」の 2 回走らせ、エージェントが実際に CLI を何回呼んだかまで含めて比較します：
+
+```sh
+pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
+```
+
+任意の 2 つの実行を手動で比較するには：
 
 ```sh
 pnpm dlx @hono/agent-dx --suite proficiency --variant baseline  --report baseline.json

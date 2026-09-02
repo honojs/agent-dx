@@ -103,7 +103,13 @@ pnpm dlx @hono/agent-dx --suite adoption --runs 20 --report result.json
 
 The JSON report uses a schema shared by the CLI, CI, and the website. Reports are stored in the `agent-dx-results` R2 bucket (the eval workflow uploads them automatically; see `results/README.md` for manual uploads), and agent-dx.hono.dev renders everything in the bucket. Result data is never committed to git.
 
-To compare two runs (an experiment):
+To run a Hono CLI experiment in one command — the same task without and with the candidate CLI injected into the fixture (installed as a devDependency, with the CLI's onboarding line added to the fixture's AGENTS.md) — including how often the agent actually invoked the CLI:
+
+```sh
+pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
+```
+
+To compare two arbitrary runs manually:
 
 ```sh
 pnpm dlx @hono/agent-dx --suite proficiency --variant baseline  --report baseline.json

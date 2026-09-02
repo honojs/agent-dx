@@ -102,6 +102,22 @@ export function compareReports(
         candidate.summary.medianToolCalls,
       ),
     })
+    const baseCli = baseline.summary.honoCli
+    const candCli = candidate.summary.honoCli
+    if (baseCli && candCli && (baseCli.medianCalls || candCli.medianCalls)) {
+      rows.push({
+        label: 'Median Hono CLI calls',
+        baseline: String(baseCli.medianCalls),
+        candidate: String(candCli.medianCalls),
+        change: relativeDelta(baseCli.medianCalls, candCli.medianCalls),
+      })
+      rows.push({
+        label: 'agent-context rate',
+        baseline: percent(baseCli.agentContextRate),
+        candidate: percent(candCli.agentContextRate),
+        change: pointDelta(baseCli.agentContextRate, candCli.agentContextRate),
+      })
+    }
   }
 
   return {
