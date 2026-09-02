@@ -1,0 +1,21 @@
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_3e3900a991105c 151-152,155-156
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_6c23e3d5039c99 1,81-86,90,109,132-143,157,175-178,257,259
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a32851635695ff9a95267c348a037c4552a3d993",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
