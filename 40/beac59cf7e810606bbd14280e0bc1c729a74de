@@ -1,0 +1,37 @@
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_320b25d5ac6f5d 48-54,68,192-195,197,200,295-299,303-305,310,318-367,372-373,378,386-387
+packages/agent-dx/src/suites/proficiency/index.ts
+  s_b5227510c4b557::t_9944a763f0d6c9 1,46-51,67-73,92-107,123,200,210-219
+AGENTS.md
+  s_b5227510c4b557::t_6e25c4ca37191d 11
+README.ja.md
+  s_b5227510c4b557::t_e187bf462aaa1f 108-114
+README.md
+  s_b5227510c4b557::t_192d6fa694f43f 106-112
+packages/agent-dx/src/report/compare.ts
+  s_b5227510c4b557::t_af34872a6065ca 105-120
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_f493eaa4a6fab9 95-99
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_1ee0fd8a38edb8 10,108-125,179,199-204,232,244
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_89df70ed469f27 41-49,122-127,133-134
+packages/agent-dx/test/hono-cli-usage.test.ts
+  s_b5227510c4b557::t_f0e11feab9d53e 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "40beac59cf7e810606bbd14280e0bc1c729a74de",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
