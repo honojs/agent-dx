@@ -34,6 +34,14 @@ describe('analyzeHonoCliCommand', () => {
     })
   })
 
+  it('separates request --batch from plain request', () => {
+    expect(analyzeHonoCliCommand('npx hono request --batch -')).toEqual({
+      calls: 1,
+      agentContext: false,
+      commands: { 'request --batch': 1 },
+    })
+  })
+
   it('separates request --trace from plain request', () => {
     expect(analyzeHonoCliCommand('npx hono request -P /todos --trace')).toEqual(
       {
