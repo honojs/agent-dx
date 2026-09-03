@@ -1,0 +1,21 @@
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_9a97447c5babb3 116-117,140-142
+packages/agent-dx/test/hono-cli-usage.test.ts
+  s_b5227510c4b557::t_9e087cac561ba6 37-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "dd1a502b035663c29099d58c78b633e25abf9b92",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
