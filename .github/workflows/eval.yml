@@ -71,10 +71,10 @@ jobs:
           mkdir -p reports
           if [ "$RUN_MATRIX" = "true" ]; then
             # Weekly fixed-condition benchmark: every runtime × scenario,
-            # on a cheap high-n model and the mainstream coding model.
+            # on a cheap high-n model and the Claude Code default model.
             for model_runs in \
               "cloudflare-ai-gateway/claude-haiku-4-5:10" \
-              "cloudflare-ai-gateway/claude-sonnet-5:5"; do
+              "cloudflare-ai-gateway/claude-opus-5:5"; do
               model="${model_runs%:*}"
               model_slug="$(echo "$model" | tr '/' '-')"
               for runtime in cloudflare-workers bun node-js deno; do
