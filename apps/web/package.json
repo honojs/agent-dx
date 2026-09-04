@@ -4,17 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "build": "wrangler deploy --dry-run --outdir dist",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "pnpm run build && vite preview",
     "typecheck": "wrangler types && tsc --noEmit",
-    "deploy": "wrangler deploy"
+    "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
     "@hono/agent-dx": "workspace:*",
     "hono": "^4.13.5"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.44.0",
     "typescript": "^5.9.3",
-    "wrangler": "^4.127.1"
+    "vite": "^8.1.4",
+    "vite-ssr-components": "^0.6.1",
+    "wrangler": "^4.129.0"
   }
 }
