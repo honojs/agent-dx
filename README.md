@@ -58,10 +58,11 @@ Run `agent-dx --list` for the up-to-date list. As of v0:
 
 **Proficiency** measures one `--task` at a time (× `--model`):
 
-| `--task`                   | Fixture      | Change requested                                      |
-| -------------------------- | ------------ | ----------------------------------------------------- |
-| `add-user-route` (default) | `hono-basic` | Add `GET /users/:id` returning the id as JSON         |
-| `fix-404`                  | `hono-todos` | Debug a 404 caused by a double-prefixed sub-app mount |
+| `--task`                   | Fixture          | Change requested                                                       |
+| -------------------------- | ---------------- | ---------------------------------------------------------------------- |
+| `add-user-route` (default) | `hono-basic`     | Add `GET /users/:id` returning the id as JSON                          |
+| `fix-404`                  | `hono-todos`     | Debug a 404 caused by a double-prefixed sub-app mount                  |
+| `refactor-routes`          | `hono-shop-flat` | Split a bloated single-file app into routers without changing behavior |
 
 Reports record the exact prompt used and a content hash of the fixture, and `agent-dx compare` refuses runs whose suite, task, fixture revision, runtime, or prompt differ — results from different measurements are never silently mixed.
 
