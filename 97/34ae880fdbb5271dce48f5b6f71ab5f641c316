@@ -1,0 +1,49 @@
+packages/agent-dx/src/suites/proficiency/tasks/fix-404-large.ts
+  s_449966fc5983c0::t_2255fd4f35f8db 1-79
+packages/agent-dx/fixtures/hono-shop/AGENTS.md
+  s_b5227510c4b557::t_25ace432caa394 1-8
+packages/agent-dx/fixtures/hono-shop/package.json
+  s_b5227510c4b557::t_b308e49a908d04 1-15
+packages/agent-dx/fixtures/hono-shop/src/data.ts
+  s_b5227510c4b557::t_4520cf8daf772e 1-27
+packages/agent-dx/fixtures/hono-shop/src/index.ts
+  s_b5227510c4b557::t_238e1f62e67ec1 1-26
+packages/agent-dx/fixtures/hono-shop/src/middleware/request-id.ts
+  s_b5227510c4b557::t_e497a74dc55063 1-9
+packages/agent-dx/fixtures/hono-shop/src/routes/admin.ts
+  s_b5227510c4b557::t_8fe4ca4617d640 1-38
+packages/agent-dx/fixtures/hono-shop/src/routes/auth.ts
+  s_b5227510c4b557::t_edb55a6cfa7284 1-28
+packages/agent-dx/fixtures/hono-shop/src/routes/orders.ts
+  s_b5227510c4b557::t_9eb33db453d593 1-53
+packages/agent-dx/fixtures/hono-shop/src/routes/products.ts
+  s_b5227510c4b557::t_c210726691850a 1-50
+packages/agent-dx/fixtures/hono-shop/src/routes/users.ts
+  s_b5227510c4b557::t_a66055dd71377c 1-39
+packages/agent-dx/fixtures/hono-shop/tsconfig.json
+  s_b5227510c4b557::t_85c88f20f5ff61 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9734ae880fdbb5271dce48f5b6f71ab5f641c316",
+  "prompts": {},
+  "sessions": {
+    "s_449966fc5983c0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2f17bb4f-880e-4e5a-a9db-77bbb1298819",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    },
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
