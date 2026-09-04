@@ -1,0 +1,19 @@
+.github/workflows/eval.yml
+  s_7b3c0e00ac918a::t_f4ecd5a3692a50 27-32,34-35,61,65-66,68-95,98-100,110-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "75f9fee2703d79bc9e15d77d47398bbfc081643d",
+  "prompts": {},
+  "sessions": {
+    "s_7b3c0e00ac918a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9d0229d1-3244-43df-b80f-e5cb5d49d8ef",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
