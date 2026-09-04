@@ -93,11 +93,6 @@ try {
       const body = await me.json()
       return login.status === 200 && me.status === 200 && body.name === 'Alice'
     }],
-    ['unknown paths respond with the JSON 404', async () => {
-      const res = await get(app, '/api/nope')
-      const body = await res.json()
-      return res.status === 404 && body.error === 'not found'
-    }],
   ]
   for (const [name, fn] of cases) {
     try {

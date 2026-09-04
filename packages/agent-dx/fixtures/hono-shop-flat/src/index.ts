@@ -204,6 +204,4 @@ app.get('/auth/me', (c) => {
   return user ? c.json(user) : c.json({ error: 'not signed in' }, 401)
 })
 
-app.notFound((c) => c.json({ error: 'not found' }, 404))
-
 export default app
