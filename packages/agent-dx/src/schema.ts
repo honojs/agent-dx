@@ -73,6 +73,8 @@ export interface AdoptionRun {
   error?: string
   /** Where the generated workspace was kept, when the run kept it. */
   workspace?: string
+  /** Public URL of the generated code (e.g. a samples repository page). */
+  sampleUrl?: string
 }
 
 export interface PracticalCheck {
