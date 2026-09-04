@@ -852,6 +852,7 @@ export const Layout: FC<PropsWithChildren<{ head?: Child }>> = ({
         name="description"
         content="Measure and improve the developer experience of coding agents using Hono."
       />
+      <link rel="icon" href="/favicon.ico" />
       {head}
       <Style />
     </head>
