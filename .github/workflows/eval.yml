@@ -45,7 +45,7 @@ permissions:
 jobs:
   eval:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
@@ -70,19 +70,26 @@ jobs:
         run: |
           mkdir -p reports
           if [ "$RUN_MATRIX" = "true" ]; then
-            # Weekly fixed-condition benchmark: every runtime × scenario.
-            for runtime in cloudflare-workers bun node-js deno; do
-              for scenario in minimal routes api framework; do
-                echo "::group::adoption $runtime × $scenario"
-                node packages/agent-dx/dist/cli.js \
-                  --suite adoption \
-                  --runtime "$runtime" \
-                  --scenario "$scenario" \
-                  --runs 10 \
-                  --model "$MODEL" \
-                  --report "reports/adoption-$runtime-$scenario.json" ||
-                  echo "adoption $runtime × $scenario failed"
-                echo "::endgroup::"
+            # Weekly fixed-condition benchmark: every runtime × scenario,
+            # on a cheap high-n model and the mainstream coding model.
+            for model_runs in \
+              "cloudflare-ai-gateway/claude-haiku-4-5:10" \
+              "cloudflare-ai-gateway/claude-sonnet-5:5"; do
+              model="${model_runs%:*}"
+              model_slug="$(echo "$model" | tr '/' '-')"
+              for runtime in cloudflare-workers bun node-js deno; do
+                for scenario in minimal routes api framework; do
+                  echo "::group::adoption $runtime × $scenario × $model"
+                  node packages/agent-dx/dist/cli.js \
+                    --suite adoption \
+                    --runtime "$runtime" \
+                    --scenario "$scenario" \
+                    --runs "${model_runs##*:}" \
+                    --model "$model" \
+                    --report "reports/adoption-$runtime-$scenario-$model_slug.json" ||
+                    echo "adoption $runtime × $scenario × $model failed"
+                  echo "::endgroup::"
+                done
               done
             done
           else
@@ -94,7 +101,7 @@ jobs:
               --runs "$RUNS" \
               --model "$MODEL" \
               "${FLAGS[@]}" \
-              --report "reports/$SUITE.json"
+              --report "reports/$SUITE-$(echo "$MODEL" | tr '/' '-').json"
           fi
       - uses: actions/upload-artifact@v4
         with:
@@ -104,7 +111,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_R2_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          MODEL: ${{ inputs.model || 'cloudflare-ai-gateway/claude-haiku-4-5' }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "CLOUDFLARE_API_TOKEN not set; skipping R2 upload."
@@ -113,7 +119,7 @@ jobs:
           STAMP="$(date -u +%Y-%m-%dT%H-%M-%S)"
           for report in reports/*.json; do
             name="$(basename "$report" .json)"
-            KEY="${name%%-*}/$STAMP-$name-$(echo "$MODEL" | tr '/' '-').json"
+            KEY="${name%%-*}/$STAMP-$name.json"
             pnpm --dir apps/web exec wrangler r2 object put \
               "agent-dx-results/$KEY" \
               --file "$GITHUB_WORKSPACE/$report" --remote
