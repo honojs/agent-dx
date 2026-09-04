@@ -58,7 +58,7 @@ jobs:
       - name: Run eval
         env:
           # For cloudflare-ai-gateway/* models (unified billing).
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_AI_GATEWAY_TOKEN || secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_GATEWAY_ID: ${{ secrets.CLOUDFLARE_GATEWAY_ID }}
           RUN_MATRIX: ${{ github.event_name == 'schedule' || inputs.matrix }}
@@ -102,7 +102,7 @@ jobs:
           path: reports/
       - name: Upload results to R2
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_R2_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           MODEL: ${{ inputs.model || 'cloudflare-ai-gateway/claude-haiku-4-5' }}
         run: |
