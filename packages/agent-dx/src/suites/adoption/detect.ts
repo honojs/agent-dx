@@ -1,5 +1,6 @@
 import type { Dirent } from 'node:fs'
 import { readFile, readdir } from 'node:fs/promises'
+import { builtinModules } from 'node:module'
 import { extname, join, relative } from 'node:path'
 import type { FrameworkId } from '../../schema.js'
 
@@ -35,6 +36,7 @@ const NON_FRAMEWORK_PACKAGES = new Set([
   'vitest',
   'esbuild',
   'tsx',
+  'ts-node',
   'vite',
   'zod',
   'valibot',
@@ -43,6 +45,7 @@ const NON_FRAMEWORK_PACKAGES = new Set([
   'eslint',
   'oxlint',
   'oxfmt',
+  'bun-types',
 ])
 
 const NON_FRAMEWORK_PREFIXES = [
@@ -101,9 +104,16 @@ const IMPORT_PATTERNS = [
 /** Runtime-builtin module namespaces; imports of these are never packages. */
 const BUILTIN_NAMESPACES = /^(?:node|cloudflare|bun|deno|workerd):/
 
+/**
+ * Runtime-builtin modules importable without a namespace prefix: every Node
+ * builtin under its bare name (`http`, `url`, ...) plus Bun's own module.
+ */
+const BUILTIN_BARE_MODULES = new Set([...builtinModules, 'bun'])
+
 function packageNameOf(source: string): string | null {
   if (source.startsWith('.') || source.startsWith('/')) return null
   if (BUILTIN_NAMESPACES.test(source)) return null
+  if (BUILTIN_BARE_MODULES.has(source)) return null
   // URL imports (old-style Deno): recognize well-known package CDNs.
   if (/^https?:\/\//.test(source)) {
     const cdn = source.match(
@@ -195,6 +205,8 @@ function isRawHandlerWorkspace(scan: WorkspaceScan): boolean {
     if (/Bun\.serve\s*\(/.test(text)) return true
     if (/Deno\.serve\s*\(/.test(text)) return true
     if (/createServer\s*\(/.test(text)) return true
+    // Old-style Deno std http server (`import { serve } from ".../std/http/server.ts"`).
+    if (/deno\.land\/std[^'"]*\/http\/server\.ts/.test(text)) return true
   }
   return false
 }

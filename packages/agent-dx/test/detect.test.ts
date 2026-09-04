@@ -90,6 +90,49 @@ describe('detectFramework', () => {
     expect(result.unknownPackages).toEqual([])
   })
 
+  it('classifies bare node:http imports as a raw handler', async () => {
+    const dir = await workspace({
+      'package.json': JSON.stringify({
+        devDependencies: { 'ts-node': '^10.0.0', typescript: '^5.0.0' },
+      }),
+      'src/server.ts': [
+        "import { createServer } from 'http'",
+        "import { URL } from 'url'",
+        'createServer((req, res) => res.end(JSON.stringify({ ok: true }))).listen(3000)',
+      ].join('\n'),
+    })
+    const result = await detectFramework(dir)
+    expect(result.framework).toBe('raw-handler')
+    expect(result.unknownPackages).toEqual([])
+  })
+
+  it('classifies a Bun.serve app importing "bun" as a raw handler', async () => {
+    const dir = await workspace({
+      'package.json': JSON.stringify({
+        devDependencies: { 'bun-types': '^1.0.0' },
+      }),
+      'src/index.ts': [
+        "import { serve } from 'bun'",
+        'Bun.serve({ fetch: () => Response.json({ ok: true }) })',
+      ].join('\n'),
+    })
+    const result = await detectFramework(dir)
+    expect(result.framework).toBe('raw-handler')
+    expect(result.unknownPackages).toEqual([])
+  })
+
+  it('classifies the old Deno std http server as a raw handler', async () => {
+    const dir = await workspace({
+      'server.ts': [
+        'import { serve } from "https://deno.land/std@0.208.0/http/server.ts";',
+        'await serve(() => Response.json({ ok: true }), { port: 8000 });',
+      ].join('\n'),
+    })
+    const result = await detectFramework(dir)
+    expect(result.framework).toBe('raw-handler')
+    expect(result.unknownPackages).toEqual([])
+  })
+
   it('records unknown imported packages as "other"', async () => {
     const dir = await workspace({
       'src/index.ts': "import { createApp } from 'super-new-framework'\n",
