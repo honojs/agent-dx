@@ -1,0 +1,59 @@
+.vscode/extensions.json
+  s_b5227510c4b557::t_94e975d9b31b17 1-3
+.vscode/settings.json
+  s_b5227510c4b557::t_d2e2f7c5e45813 1-5
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/101ed3cac1a46928bfed24cbf98216bc4fe5e21e6121bd55a6c56539d8b873c5000001a06e1ddc4c
+  s_b5227510c4b557::t_d68af901956ccd 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/150c27933a308aa87df5656d3e09be65d0eafbab3b83a3efc013ea49b929d189000001a06e1dcc13
+  s_b5227510c4b557::t_321457418bf2de 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/16d9b301e43a0c6a3343a5b8adb726d91c466082a74ba61622c92c25158796bc000001a06e1e2ce2
+  s_b5227510c4b557::t_9c6976fc675549 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/1ebd6f9f588b2b883a5815da01c71b2943fe0d4e618f099414e0e2b7963abc25000001a06e1e1cca
+  s_b5227510c4b557::t_a915886ac9f28a 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/27127c09e50bd91c24e9cab3f5885c3f16d4323b00cf09d4ba78c363439aa096000001a06e1d5c85
+  s_b5227510c4b557::t_280c45737f5b8a 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/3c11644d88f2d9f60b178c8c8b852e323e232746fe31e8fc033abb0bc8853f6d000001a06e1d4ec9
+  s_b5227510c4b557::t_f8325425486d2e 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/3ce74300c6923817d3443847eea0b044559f87baf04683cec857458a9e39b159000001a06e1d441e
+  s_b5227510c4b557::t_ec2b1c66e1336d 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/4a97c6f7f4d51222fba07555e47a7935e58a311de9e78409b193285b2043945c000001a06e1d34c3
+  s_b5227510c4b557::t_6bad64bd916e27 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/4ddeaed82777636c3b7ab94ed4daa084e86b30a942225fdb7b249724e592fb46000001a06e1dab5f
+  s_b5227510c4b557::t_61697a47d5a643 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/549ccf58a20dc00c7c85485c4d759443fddfb5eed2bbd674d17971f825db4bd1000001a06e1dfc97
+  s_b5227510c4b557::t_888c0f3e5ae28c 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/6a466564cea028c24c7edcfcf3dd31b7939e7988a5e0b595488fce7c8da6d3fa000001a06e1e0ca5
+  s_b5227510c4b557::t_4c1d503ca25ab0 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/811915f80e3dd1c3237e604a9474f9bdb314687f6220a764edcd46960c50507f000001a06e1e3d02
+  s_b5227510c4b557::t_b18480a8158110 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/90b3c9ffd9bb5143cc0e0b4cf3cdbbad3d861021c7280a15d2ab0bd66e8380a0000001a06e1d7a2e
+  s_b5227510c4b557::t_3c7f84b201c02b 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/a988993827aafb5bbf7298fea034bd3c1f8e877d2da1719bf5e6722806a2df9d000001a06e1dec69
+  s_b5227510c4b557::t_df1cac5c2589c0 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/cda9ea02f1a4f21090f0b9210a099a7a6619f9bf31f370cd2d53c389e9a7da08000001a06e1d69fc
+  s_b5227510c4b557::t_f54910e5cc6066 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/d45180e58608ffbe054e3f6bae9388db3a4241bcea0eb6dc2bc92a4db74c0667000001a06e1dbc04
+  s_b5227510c4b557::t_39981546e8ad97 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/d720ddb4820ad10fb4042943eceecd935dda884d0c7666dfe039cef57f32ca5e000001a06e1d8a62
+  s_b5227510c4b557::t_c7e48bc2ae2c2d 1
+apps/web/.wrangler-preview/v3/r2/agent-dx-results/blobs/f678350bf1ec2f0c1286b08568bf6edab24cb89575990477ca4754982efdda20000001a06e1d9a86
+  s_b5227510c4b557::t_d5aa56d4dfd78e 1
+.github/workflows/eval.yml
+  s_b5227510c4b557::t_9e6d8b216c4fc5 33-36,65,73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4c789dcaf10ff26fcae03b4976ea1f6fbffa193a",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
