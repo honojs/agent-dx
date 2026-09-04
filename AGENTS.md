@@ -27,6 +27,8 @@ v0. The CLI runs both suites locally via Flue with deterministic grading (static
 5. Model APIs are never called from PR CI. Evals run manually (`workflow_dispatch`) or on a schedule only.
 6. Result data lives in the `agent-dx-results` R2 bucket (append-only keys, uploaded by `eval.yml`, rendered by the website). Never commit result JSON to git, and never let CI commit to the repository.
 7. Keep packages minimal. No speculative abstractions; do not split packages until it is actually needed. Do not add Turborepo, Nx, or similar — plain package.json scripts with `pnpm -r` are enough.
+8. Usage metrics are diagnostics, not goals. CLI usage rate, agent-context rate, and skill activation explain why a run succeeded or failed; never optimize a fixture, prompt, or instruction just to raise them. The goal metrics are success rate, tokens, and duration.
+9. Tasks earn their place by experiment. Merge a new proficiency task or fixture only after a run has shown one of: a discriminative success rate (baseline not pinned at 100%), a diagnostic it moves between conditions, or a role as the instrument for a planned measurement. Prototype in a scratch workspace first; a task that agents solve by reading alone is not kept.
 
 ## Pull Request Workflow
 
