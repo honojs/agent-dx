@@ -30,6 +30,10 @@ on:
       scenario:
         description: 'Adoption scenario (empty = suite default)'
         default: ''
+      matrix:
+        description: 'Run the full adoption runtime × scenario matrix'
+        type: boolean
+        default: false
   schedule:
     # Weekly adoption benchmark: the full runtime × scenario matrix
     # (Monday 03:00 UTC).
@@ -58,7 +62,7 @@ jobs:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_GATEWAY_ID: ${{ secrets.CLOUDFLARE_GATEWAY_ID }}
-          IS_SCHEDULE: ${{ github.event_name == 'schedule' }}
+          RUN_MATRIX: ${{ github.event_name == 'schedule' || inputs.matrix }}
           SUITE: ${{ inputs.suite || 'adoption' }}
           RUNS: ${{ inputs.runs || '10' }}
           MODEL: ${{ inputs.model || 'anthropic/claude-haiku-4-5' }}
@@ -66,7 +70,7 @@ jobs:
           SCENARIO: ${{ inputs.scenario || '' }}
         run: |
           mkdir -p reports
-          if [ "$IS_SCHEDULE" = "true" ]; then
+          if [ "$RUN_MATRIX" = "true" ]; then
             # Weekly fixed-condition benchmark: every runtime × scenario.
             for runtime in cloudflare-workers bun node-js deno; do
               for scenario in minimal routes api framework; do
