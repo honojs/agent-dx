@@ -113,8 +113,8 @@ function extractTokenUsage(
  * split on shell separators first. Deterministic by construction.
  *
  * Command keys are the subcommand (`routes`, `request`, `agent-context`,
- * `help` for `--help`/`-h`), with `request --trace` counted as its own
- * key so the debugging flag is visible in breakdowns.
+ * `help` for `--help`/`-h`), with `request --trace` and `request --batch`
+ * counted as their own keys so those modes are visible in breakdowns.
  */
 export function analyzeHonoCliCommand(
   command: string,
@@ -137,7 +137,9 @@ export function analyzeHonoCliCommand(
     if (first === '--help' || first === '-h') key = 'help'
     else if (first.startsWith('-')) key = first.replace(/^-+/, '')
     else key = first || 'unknown'
-    if (key === 'request' && tokens.includes('--trace')) {
+    if (key === 'request' && tokens.includes('--batch')) {
+      key = 'request --batch'
+    } else if (key === 'request' && tokens.includes('--trace')) {
       key = 'request --trace'
     }
     usage.commands[key] = (usage.commands[key] ?? 0) + 1
