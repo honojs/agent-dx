@@ -1,0 +1,21 @@
+.vscode/extensions.json
+  s_b5227510c4b557::t_1f2ec4b976d6e7 1-3
+.vscode/settings.json
+  s_b5227510c4b557::t_dce43720b869fe 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "22a94c804adbde894f344228fc8c8e909a99779e",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
