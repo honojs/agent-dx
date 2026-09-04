@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { exec } from '../../exec.js'
-import type { ProficiencyCheck } from '../../schema.js'
+import type { PracticalCheck } from '../../schema.js'
 
 /**
  * Shared helpers for hidden graders. Everything here runs only after the
@@ -13,7 +13,7 @@ import type { ProficiencyCheck } from '../../schema.js'
 /** Run `tsc --noEmit` with the workspace's own TypeScript. */
 export async function typecheckCheck(
   workspace: string,
-): Promise<ProficiencyCheck> {
+): Promise<PracticalCheck> {
   const tsc = await exec(
     join(workspace, 'node_modules', '.bin', 'tsc'),
     ['--noEmit'],
@@ -34,7 +34,7 @@ export async function typecheckCheck(
 export async function runCheckScript(
   workspace: string,
   script: string,
-): Promise<ProficiencyCheck[]> {
+): Promise<PracticalCheck[]> {
   const graderDir = join(workspace, '.agent-dx')
   await mkdir(graderDir, { recursive: true })
   await writeFile(join(graderDir, 'check.mjs'), script)
@@ -51,7 +51,7 @@ export async function runCheckScript(
     .find((text) => text.startsWith('__AGENT_DX__'))
   if (line) {
     try {
-      return JSON.parse(line.slice('__AGENT_DX__'.length)) as ProficiencyCheck[]
+      return JSON.parse(line.slice('__AGENT_DX__'.length)) as PracticalCheck[]
     } catch {
       // Fall through to the failure check below.
     }

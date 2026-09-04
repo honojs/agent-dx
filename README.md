@@ -16,7 +16,7 @@ Do coding agents choose Hono on their own? We give an agent a **neutral prompt**
 
 Each measurement is a runtime × scenario pair — see [What you can measure](#what-you-can-measure).
 
-### Proficiency
+### Practical
 
 How effectively do coding agents use Hono? We hand the agent an existing Hono project and a small change request, then grade the modified project with **hidden deterministic checks** (runtime behavior via `app.request()` plus a TypeScript typecheck). The agent never sees the grader.
 
@@ -56,7 +56,7 @@ Run `agent-dx --list` for the up-to-date list. As of v0:
 | `api`               | A todos JSON API with validation                 | Does a realistic app make the agent pick a framework, and which? |
 | `framework`         | The same API, explicitly told to use a framework | When a framework is a given, which one wins?                     |
 
-**Proficiency** measures one `--task` at a time (× `--model`):
+**Practical** measures one `--task` at a time (× `--model`):
 
 | `--task`                   | Fixture          | Change requested                                                       |
 | -------------------------- | ---------------- | ---------------------------------------------------------------------- |
@@ -76,8 +76,8 @@ Model runs need a provider API key (for the default model, `ANTHROPIC_API_KEY`).
 # Adoption: does the agent pick Hono for a Cloudflare Workers app?
 pnpm dlx @hono/agent-dx --suite adoption --runs 20
 
-# Proficiency: can the agent modify an existing Hono project correctly?
-pnpm dlx @hono/agent-dx --suite proficiency --runs 3
+# Practical: can the agent modify an existing Hono project correctly?
+pnpm dlx @hono/agent-dx --suite practical --runs 3
 
 # Inside this repo, use the workspace CLI directly:
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
@@ -109,7 +109,7 @@ The JSON report uses a schema shared by the CLI, CI, and the website. Reports ar
 To run a Hono CLI experiment in one command — the same task without and with the candidate CLI injected into the fixture (installed as a devDependency, with the CLI's onboarding line added to the fixture's AGENTS.md) — including how often the agent actually invoked the CLI:
 
 ```sh
-pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
+pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite practical --task fix-404
 ```
 
 Experiment conditions can also be composed per run, e.g. for a full onboarding matrix: `--hono-cli <spec>` installs the CLI into the fixture, `--onboarding none` leaves the AGENTS.md onboarding line out, and `--skill <dir>` injects a skill as `.agents/skills/<name>/` — the workspace-skill path real agent harnesses discover.
@@ -117,16 +117,16 @@ Experiment conditions can also be composed per run, e.g. for a full onboarding m
 To compare two arbitrary runs manually:
 
 ```sh
-pnpm dlx @hono/agent-dx --suite proficiency --variant baseline  --report baseline.json
+pnpm dlx @hono/agent-dx --suite practical --variant baseline  --report baseline.json
 # ...switch to the candidate setup...
-pnpm dlx @hono/agent-dx --suite proficiency --variant candidate --report candidate.json
+pnpm dlx @hono/agent-dx --suite practical --variant candidate --report candidate.json
 pnpm dlx @hono/agent-dx compare baseline.json candidate.json
 ```
 
 ```text
 Hono Agent DX
 
-Suite: proficiency (add-user-route)
+Suite: practical (add-user-route)
 Model: anthropic/claude-haiku-4-5
 
                     Baseline   Candidate   Change
@@ -148,7 +148,7 @@ agent-dx/
 │       │   ├── schema.ts             # shared result schema
 │       │   ├── runner/               # Flue-based agent runner
 │       │   ├── suites/adoption/      # neutral prompts + framework detection
-│       │   ├── suites/proficiency/   # fixture tasks + hidden graders
+│       │   ├── suites/practical/   # fixture tasks + hidden graders
 │       │   └── report/               # console/JSON reporters, experiment compare
 │       └── fixtures/                 # existing Hono projects given to the agent
 ├── results/            # where results live (R2) — no data in git

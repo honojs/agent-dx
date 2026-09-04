@@ -1,15 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { compareReports, renderComparison } from '../src/report/compare.js'
-import type { AdoptionReport, ProficiencyReport } from '../src/schema.js'
+import type { AdoptionReport, PracticalReport } from '../src/schema.js'
 
-function proficiencyReport(
-  overrides: Partial<ProficiencyReport>,
-): ProficiencyReport {
+function practicalReport(overrides: Partial<PracticalReport>): PracticalReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     tool: '@hono/agent-dx',
     toolVersion: '0.1.0',
-    suite: 'proficiency',
+    suite: 'practical',
     model: 'anthropic/claude-haiku-4-5',
     runs: 10,
     startedAt: '2026-08-30T00:00:00.000Z',
@@ -28,7 +26,7 @@ function proficiencyReport(
 
 function adoptionReport(honoAdoption: number): AdoptionReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     tool: '@hono/agent-dx',
     toolVersion: '0.1.0',
     suite: 'adoption',
@@ -43,9 +41,9 @@ function adoptionReport(honoAdoption: number): AdoptionReport {
 }
 
 describe('compareReports', () => {
-  it('computes proficiency deltas', () => {
-    const baseline = proficiencyReport({ variant: 'baseline' })
-    const candidate = proficiencyReport({
+  it('computes practical deltas', () => {
+    const baseline = practicalReport({ variant: 'baseline' })
+    const candidate = practicalReport({
       variant: 'candidate',
       summary: {
         successRate: 0.9,
@@ -77,14 +75,14 @@ describe('compareReports', () => {
   it('refuses to compare different tasks or fixture revisions', () => {
     expect(() =>
       compareReports(
-        proficiencyReport({ task: 'fix-404' }),
-        proficiencyReport({ task: 'add-user-route' }),
+        practicalReport({ task: 'fix-404' }),
+        practicalReport({ task: 'add-user-route' }),
       ),
     ).toThrowError(/different tasks/)
     expect(() =>
       compareReports(
-        proficiencyReport({ fixtureHash: 'aaaa000000000000' }),
-        proficiencyReport({ fixtureHash: 'bbbb111111111111' }),
+        practicalReport({ fixtureHash: 'aaaa000000000000' }),
+        practicalReport({ fixtureHash: 'bbbb111111111111' }),
       ),
     ).toThrowError(/fixture revisions/)
   })
@@ -106,13 +104,13 @@ describe('compareReports', () => {
 
   it('refuses to compare different suites', () => {
     expect(() =>
-      compareReports(adoptionReport(0.5), proficiencyReport({})),
+      compareReports(adoptionReport(0.5), practicalReport({})),
     ).toThrowError(/different suites/)
   })
 
   it('renders an aligned table', () => {
     const output = renderComparison(
-      compareReports(proficiencyReport({}), proficiencyReport({})),
+      compareReports(practicalReport({}), practicalReport({})),
     )
     expect(output).toContain('Baseline')
     expect(output).toContain('Candidate')

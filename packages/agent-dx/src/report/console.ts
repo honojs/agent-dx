@@ -2,7 +2,7 @@ import type {
   AdoptionReport,
   AgentDxReport,
   FrameworkId,
-  ProficiencyReport,
+  PracticalReport,
 } from '../schema.js'
 import { formatDuration, formatTokens, percent } from '../stats.js'
 
@@ -73,11 +73,11 @@ export function renderAdoptionReport(report: AdoptionReport): string {
   return lines.join('\n')
 }
 
-export function renderProficiencyReport(report: ProficiencyReport): string {
+export function renderPracticalReport(report: PracticalReport): string {
   const lines: string[] = []
   lines.push('Hono Agent DX')
   lines.push('')
-  lines.push(`Suite: proficiency`)
+  lines.push(`Suite: practical`)
   lines.push(`Task: ${report.task}`)
   lines.push(`Model: ${report.model}`)
   lines.push(`Runs: ${report.runs}`)
@@ -120,5 +120,5 @@ export function renderProficiencyReport(report: ProficiencyReport): string {
 export function renderReport(report: AgentDxReport): string {
   return report.suite === 'adoption'
     ? renderAdoptionReport(report)
-    : renderProficiencyReport(report)
+    : renderPracticalReport(report)
 }

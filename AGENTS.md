@@ -4,7 +4,7 @@ Guidance for AI coding agents (and humans) working on this repository.
 
 ## What is Hono Agent DX?
 
-Hono Agent DX measures and improves the developer experience of coding agents using [Hono](https://hono.dev). It runs agent evals in two suites — **adoption** (does an agent choose Hono given a neutral prompt?) and **proficiency** (can an agent correctly modify an existing Hono project?) — and compares baseline vs candidate variants of the Hono CLI, Skills, Docs, or Core to answer "did this change actually improve Agent DX?". Results are machine-readable JSON stored in the `agent-dx-results` R2 bucket, rendered at [agent-dx.hono.dev](https://agent-dx.hono.dev).
+Hono Agent DX measures and improves the developer experience of coding agents using [Hono](https://hono.dev). It runs agent evals in two suites — **adoption** (does an agent choose Hono given a neutral prompt?) and **practical** (can an agent correctly modify an existing Hono project?) — and compares baseline vs candidate variants of the Hono CLI, Skills, Docs, or Core to answer "did this change actually improve Agent DX?". Results are machine-readable JSON stored in the `agent-dx-results` R2 bucket, rendered at [agent-dx.hono.dev](https://agent-dx.hono.dev).
 
 ## Current status
 
@@ -22,13 +22,13 @@ v0. The CLI runs both suites locally via Flue with deterministic grading (static
 
 1. Grading is deterministic. No LLM judging; classification and checks must yield the same verdict for the same workspace.
 2. Adoption prompts stay neutral. Never mention Hono or any other framework in an adoption prompt or in the adoption agent instructions.
-3. Proficiency graders are hidden. The agent under evaluation must never see check scripts or grading criteria.
+3. Practical graders are hidden. The agent under evaluation must never see check scripts or grading criteria.
 4. The result schema (`packages/agent-dx/src/schema.ts`) is shared by the CLI, CI, and the web app. Change it in one place and bump `schemaVersion` on breaking changes.
 5. Model APIs are never called from PR CI. Evals run manually (`workflow_dispatch`) or on a schedule only.
 6. Result data lives in the `agent-dx-results` R2 bucket (append-only keys, uploaded by `eval.yml`, rendered by the website). Never commit result JSON to git, and never let CI commit to the repository.
 7. Keep packages minimal. No speculative abstractions; do not split packages until it is actually needed. Do not add Turborepo, Nx, or similar — plain package.json scripts with `pnpm -r` are enough.
 8. Usage metrics are diagnostics, not goals. CLI usage rate, agent-context rate, and skill activation explain why a run succeeded or failed; never optimize a fixture, prompt, or instruction just to raise them. The goal metrics are success rate, tokens, and duration.
-9. Tasks earn their place by experiment. Merge a new proficiency task or fixture only after a run has shown one of: a discriminative success rate (baseline not pinned at 100%), a diagnostic it moves between conditions, or a role as the instrument for a planned measurement. Prototype in a scratch workspace first; a task that agents solve by reading alone is not kept.
+9. Tasks earn their place by experiment. Merge a new practical task or fixture only after a run has shown one of: a discriminative success rate (baseline not pinned at 100%), a diagnostic it moves between conditions, or a role as the instrument for a planned measurement. Prototype in a scratch workspace first; a task that agents solve by reading alone is not kept.
 
 ## Pull Request Workflow
 

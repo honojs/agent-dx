@@ -8,6 +8,6 @@ export type { ComparisonRow, ExperimentComparison } from './compare.js'
 export {
   frameworkLabel,
   renderAdoptionReport,
-  renderProficiencyReport,
+  renderPracticalReport,
   renderReport,
 } from './console.js'

@@ -6,9 +6,9 @@
  * can be imported from any context.
  */
 
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
-export type SuiteName = 'adoption' | 'proficiency'
+export type SuiteName = 'adoption' | 'practical'
 
 /** What an experiment evaluates. Only the type is defined in v0. */
 export type TargetName = 'cli' | 'skill' | 'docs' | 'hono'
@@ -75,17 +75,17 @@ export interface AdoptionRun {
   workspace?: string
 }
 
-export interface ProficiencyCheck {
+export interface PracticalCheck {
   name: string
   passed: boolean
   detail?: string
 }
 
-export interface ProficiencyRun {
+export interface PracticalRun {
   index: number
   outcome: 'completed' | 'failed'
   success: boolean
-  checks: ProficiencyCheck[]
+  checks: PracticalCheck[]
   metrics: RunMetrics
   error?: string
   /** Where the modified workspace was kept, when the run kept it. */
@@ -125,7 +125,7 @@ export interface AdoptionReport extends ReportBase {
   summary: AdoptionSummary
 }
 
-export interface ProficiencySummary {
+export interface PracticalSummary {
   /** Successful runs / total runs, in [0, 1]. */
   successRate: number
   medianDurationMs: number
@@ -147,8 +147,8 @@ export interface ProficiencySummary {
   }
 }
 
-export interface ProficiencyReport extends ReportBase {
-  suite: 'proficiency'
+export interface PracticalReport extends ReportBase {
+  suite: 'practical'
   task: string
   /** Content hash of the pristine fixture; a changed fixture changes the task, so results are only comparable when this matches. */
   fixtureHash?: string
@@ -160,11 +160,11 @@ export interface ProficiencyReport extends ReportBase {
   skill?: string
   /** Content hash of the injected skill directory (skills evolve too). */
   skillHash?: string
-  results: ProficiencyRun[]
-  summary: ProficiencySummary
+  results: PracticalRun[]
+  summary: PracticalSummary
 }
 
-export type AgentDxReport = AdoptionReport | ProficiencyReport
+export type AgentDxReport = AdoptionReport | PracticalReport
 
 export function isAdoptionReport(
   report: AgentDxReport,
@@ -172,10 +172,10 @@ export function isAdoptionReport(
   return report.suite === 'adoption'
 }
 
-export function isProficiencyReport(
+export function isPracticalReport(
   report: AgentDxReport,
-): report is ProficiencyReport {
-  return report.suite === 'proficiency'
+): report is PracticalReport {
+  return report.suite === 'practical'
 }
 
 /** Best-effort validation for JSON loaded from disk. */
@@ -184,7 +184,7 @@ export function parseReport(json: unknown): AgentDxReport | null {
   const report = json as Record<string, unknown>
   if (report.schemaVersion !== SCHEMA_VERSION) return null
   if (report.tool !== '@hono/agent-dx') return null
-  if (report.suite !== 'adoption' && report.suite !== 'proficiency') return null
+  if (report.suite !== 'adoption' && report.suite !== 'practical') return null
   if (!Array.isArray(report.results)) return null
   return json as AgentDxReport
 }
