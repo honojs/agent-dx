@@ -4,7 +4,7 @@ Measure and improve the developer experience of coding agents using [Hono](https
 
 ```sh
 pnpm dlx @hono/agent-dx --suite adoption --runs 20
-pnpm dlx @hono/agent-dx --suite proficiency --runs 3 --report result.json
+pnpm dlx @hono/agent-dx --suite practical --runs 3 --report result.json
 pnpm dlx @hono/agent-dx compare baseline.json candidate.json
 ```
 

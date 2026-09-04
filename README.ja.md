@@ -18,7 +18,7 @@
 
 測定は runtime × scenario の組で行います — [何を測れるか](#何を測れるか) を参照してください。
 
-### Proficiency
+### Practical
 
 コーディングエージェントは Hono をどれだけ効果的に使えるのか？ 既存の Hono プロジェクトと小さな変更依頼をエージェントに渡し、変更後のプロジェクトを**隠された決定論的チェック**（`app.request()` による動作検証と TypeScript の型チェック）で採点します。エージェントは採点基準を一切見られません。
 
@@ -58,7 +58,7 @@ pnpm build
 | `api`                   | バリデーション付きの todos JSON API           | 現実的なアプリならフレームワークを選ぶか？ 選ぶならどれか？      |
 | `framework`             | 同じ API を、フレームワーク利用を明示して依頼 | フレームワークを使うと決まったとき、どれが勝つか？               |
 
-**Proficiency** は 1 回の実行につき 1 つの `--task`（× `--model`）を測ります：
+**Practical** は 1 回の実行につき 1 つの `--task`（× `--model`）を測ります：
 
 | `--task`                       | fixture          | 依頼する変更                                                                   |
 | ------------------------------ | ---------------- | ------------------------------------------------------------------------------ |
@@ -78,8 +78,8 @@ pnpm build
 # Adoption: エージェントは Cloudflare Workers アプリに Hono を選ぶか？
 pnpm dlx @hono/agent-dx --suite adoption --runs 20
 
-# Proficiency: エージェントは既存の Hono プロジェクトを正しく変更できるか？
-pnpm dlx @hono/agent-dx --suite proficiency --runs 3
+# Practical: エージェントは既存の Hono プロジェクトを正しく変更できるか？
+pnpm dlx @hono/agent-dx --suite practical --runs 3
 
 # このリポジトリ内では workspace の CLI を直接使えます:
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
@@ -111,7 +111,7 @@ JSON レポートは CLI・CI・Web サイトで共有されるスキーマを�
 Hono CLI の experiment はワンコマンドで実行できます — 同じタスクを「CLI なし」と「candidate の CLI を fixture に注入（devDependency としてインストールし、CLI のオンボーディング行を fixture の AGENTS.md に追記）」の 2 回走らせ、エージェントが実際に CLI を何回呼んだかまで含めて比較します：
 
 ```sh
-pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
+pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite practical --task fix-404
 ```
 
 実験条件は run ごとに個別に組み合わせることもできます（オンボーディングのフルマトリクスなど）：`--hono-cli <spec>` は fixture に CLI をインストールし、`--onboarding none` は AGENTS.md のオンボーディング行を入れず、`--skill <dir>` はスキルを `.agents/skills/<name>/` として注入します — 実際のエージェントハーネスが発見する workspace skill の経路です。
@@ -119,16 +119,16 @@ pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite proficie
 任意の 2 つの実行を手動で比較するには：
 
 ```sh
-pnpm dlx @hono/agent-dx --suite proficiency --variant baseline  --report baseline.json
+pnpm dlx @hono/agent-dx --suite practical --variant baseline  --report baseline.json
 # ...candidate のセットアップに切り替える...
-pnpm dlx @hono/agent-dx --suite proficiency --variant candidate --report candidate.json
+pnpm dlx @hono/agent-dx --suite practical --variant candidate --report candidate.json
 pnpm dlx @hono/agent-dx compare baseline.json candidate.json
 ```
 
 ```text
 Hono Agent DX
 
-Suite: proficiency (add-user-route)
+Suite: practical (add-user-route)
 Model: anthropic/claude-haiku-4-5
 
                     Baseline   Candidate   Change
@@ -150,7 +150,7 @@ agent-dx/
 │       │   ├── schema.ts             # 共有のレポートスキーマ
 │       │   ├── runner/               # Flue ベースのエージェント runner
 │       │   ├── suites/adoption/      # 中立プロンプト + フレームワーク判定
-│       │   ├── suites/proficiency/   # fixture タスク + 隠された grader
+│       │   ├── suites/practical/   # fixture タスク + 隠された grader
 │       │   └── report/               # コンソール/JSON レポート、experiment 比較
 │       └── fixtures/                 # エージェントに渡す既存 Hono プロジェクト
 ├── results/            # 結果の置き場について（実体は R2）— git にデータは置かない

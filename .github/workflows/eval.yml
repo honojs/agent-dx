@@ -16,7 +16,7 @@ on:
       suite:
         description: 'Suite to run'
         type: choice
-        options: [adoption, proficiency]
+        options: [adoption, practical]
         default: adoption
       runs:
         description: 'Number of runs'

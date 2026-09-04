@@ -2,9 +2,9 @@ import { compareReports, frameworkLabel } from '@hono/agent-dx/report'
 import {
   type AdoptionReport,
   type AgentDxReport,
-  type ProficiencyReport,
+  type PracticalReport,
   isAdoptionReport,
-  isProficiencyReport,
+  isPracticalReport,
 } from '@hono/agent-dx/schema'
 import type { FC } from 'hono/jsx'
 
@@ -95,11 +95,9 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
   )
 }
 
-const ProficiencySection: FC<{ reports: ProficiencyReport[] }> = ({
-  reports,
-}) => (
+const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => (
   <section>
-    <h2>Proficiency</h2>
+    <h2>Practical</h2>
     <p>How effectively do coding agents use Hono?</p>
     {reports.length > 0 ? (
       <table>
@@ -125,7 +123,7 @@ const ProficiencySection: FC<{ reports: ProficiencyReport[] }> = ({
         </tbody>
       </table>
     ) : (
-      <p class="empty">No proficiency results yet.</p>
+      <p class="empty">No practical results yet.</p>
     )}
   </section>
 )
@@ -210,7 +208,7 @@ export const Page: FC<{ reports: AgentDxReport[] }> = ({ reports }) => (
         Hono.
       </p>
       <AdoptionSection reports={reports.filter(isAdoptionReport)} />
-      <ProficiencySection reports={reports.filter(isProficiencyReport)} />
+      <PracticalSection reports={reports.filter(isPracticalReport)} />
       <ExperimentsSection reports={reports} />
       <section>
         <p class="meta">

@@ -13,10 +13,7 @@ import {
   adoptionPrompt,
   runAdoptionSuite,
 } from './suites/adoption/index.js'
-import {
-  PROFICIENCY_TASKS,
-  runProficiencySuite,
-} from './suites/proficiency/index.js'
+import { PRACTICAL_TASKS, runPracticalSuite } from './suites/practical/index.js'
 import { TOOL_VERSION } from './version.js'
 
 const HELP = `Hono Agent DX — measure the developer experience of coding agents using Hono.
@@ -26,7 +23,7 @@ Usage:
   agent-dx compare <a.json> <b.json>     Compare two reports (baseline vs candidate)
 
 Options:
-  --suite <name>      Suite to run: adoption | proficiency (default: adoption)
+  --suite <name>      Suite to run: adoption | practical (default: adoption)
   --runs <n>          Number of runs, each in a fresh conversation (default: 5)
   --concurrency <n>   Runs to execute in parallel (default: 5)
   --quiet             Hide per-tool-call progress output
@@ -38,8 +35,8 @@ Options:
                       (default: cloudflare-workers)
   --scenario <id>     Adoption scenario: ${Object.keys(ADOPTION_SCENARIOS).join(' | ')}
                       (default: minimal)
-  --task <id>         Proficiency task (default: add-user-route)
-  --hono-cli <spec>   Install this Hono CLI into the fixture (proficiency),
+  --task <id>         Practical task (default: add-user-route)
+  --hono-cli <spec>   Install this Hono CLI into the fixture (practical),
                       e.g. @hono/cli@next or a local path
   --onboarding <m>    agents-md | none — whether the CLI onboarding line is
                       appended to the fixture's AGENTS.md (default: agents-md)
@@ -69,9 +66,9 @@ Environment:
 Examples:
   agent-dx --suite adoption --runs 20 --concurrency 10
   agent-dx --suite adoption --scenario framework --runs 20
-  agent-dx --suite proficiency --runs 3 --report result.json
+  agent-dx --suite practical --runs 3 --report result.json
   agent-dx --suite adoption --model cloudflare-ai-gateway/claude-haiku-4-5
-  agent-dx --target cli --candidate @hono/cli@next --suite proficiency --task fix-404
+  agent-dx --target cli --candidate @hono/cli@next --suite practical --task fix-404
   agent-dx compare baseline.json candidate.json
 `
 
@@ -112,7 +109,7 @@ function printList(): void {
     '  adoption      Does the agent choose Hono given a neutral prompt?',
   )
   console.log(
-    '  proficiency   Can the agent correctly modify an existing Hono project?',
+    '  practical   Can the agent correctly modify an existing Hono project?',
   )
   console.log('')
   console.log('Adoption runtimes:')
@@ -125,8 +122,8 @@ function printList(): void {
     console.log(`  ${scenario.id.padEnd(20)} ${scenario.description}`)
   }
   console.log('')
-  console.log('Proficiency tasks:')
-  for (const task of Object.values(PROFICIENCY_TASKS)) {
+  console.log('Practical tasks:')
+  for (const task of Object.values(PRACTICAL_TASKS)) {
     console.log(`  ${task.id.padEnd(20)} ${task.description}`)
   }
 }
@@ -210,19 +207,19 @@ async function main(): Promise<void> {
     )
     console.error('')
     console.error(
-      '  agent-dx --suite proficiency --variant baseline  --report baseline.json',
+      '  agent-dx --suite practical --variant baseline  --report baseline.json',
     )
     console.error('  # ...switch to the candidate setup...')
     console.error(
-      '  agent-dx --suite proficiency --variant candidate --report candidate.json',
+      '  agent-dx --suite practical --variant candidate --report candidate.json',
     )
     console.error('  agent-dx compare baseline.json candidate.json')
     process.exit(1)
   }
 
   const suite = values.suite ?? 'adoption'
-  if (suite !== 'adoption' && suite !== 'proficiency') {
-    fail(`unknown suite "${suite}" — expected "adoption" or "proficiency"`)
+  if (suite !== 'adoption' && suite !== 'practical') {
+    fail(`unknown suite "${suite}" — expected "adoption" or "practical"`)
   }
   const runs = Number.parseInt(values.runs ?? '5', 10)
   if (!Number.isInteger(runs) || runs < 1) {
@@ -266,7 +263,7 @@ async function main(): Promise<void> {
   const promptText =
     suite === 'adoption'
       ? runtime && scenario && adoptionPrompt(runtime, scenario)
-      : PROFICIENCY_TASKS[taskId]?.prompt
+      : PRACTICAL_TASKS[taskId]?.prompt
   if (promptText) {
     console.error('Prompt:')
     for (const line of promptText.split('\n')) {
@@ -306,11 +303,11 @@ async function main(): Promise<void> {
     fail(`--onboarding must be "agents-md" or "none", got "${onboarding}"`)
   }
 
-  const runProficiencyArm = (
+  const runPracticalArm = (
     honoCli: string | undefined,
     armKeepDir: string | undefined,
   ) =>
-    runProficiencySuite({
+    runPracticalSuite({
       model,
       runs,
       concurrency,
@@ -335,8 +332,8 @@ async function main(): Promise<void> {
   // --target cli: run the same task without and with the candidate Hono
   // CLI injected into the fixture, then diff the two reports.
   if (values.target === 'cli') {
-    if (suite !== 'proficiency') {
-      fail('--target cli currently requires --suite proficiency')
+    if (suite !== 'practical') {
+      fail('--target cli currently requires --suite practical')
     }
     const candidateSpec = values.candidate
     if (!candidateSpec) {
@@ -348,7 +345,7 @@ async function main(): Promise<void> {
     const baselineCli = againstSpec === 'none' ? undefined : againstSpec
 
     console.error(`=== baseline (${baselineCli ?? 'no Hono CLI'}) ===`)
-    const baseline = await runProficiencyArm(
+    const baseline = await runPracticalArm(
       baselineCli,
       keepDir ? join(keepDir, 'baseline') : undefined,
     )
@@ -356,7 +353,7 @@ async function main(): Promise<void> {
     baseline.target = 'cli'
 
     console.error(`\n=== candidate (${candidateSpec}) ===`)
-    const candidate = await runProficiencyArm(
+    const candidate = await runPracticalArm(
       candidateSpec,
       keepDir ? join(keepDir, 'candidate') : undefined,
     )
@@ -400,7 +397,7 @@ async function main(): Promise<void> {
       },
     })
   } else {
-    report = await runProficiencyArm(values['hono-cli'], keepDir)
+    report = await runPracticalArm(values['hono-cli'], keepDir)
   }
 
   if (values.variant) report.variant = values.variant

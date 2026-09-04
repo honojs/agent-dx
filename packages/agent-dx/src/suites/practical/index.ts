@@ -5,7 +5,7 @@ import { fixtureDir, hashDirectory } from '../../fixtures.js'
 import { runPool } from '../../pool.js'
 import type { AgentRunProgress } from '../../runner/flue-runner.js'
 import { runAgent, shutdownRunner } from '../../runner/flue-runner.js'
-import type { ProficiencyReport, ProficiencyRun } from '../../schema.js'
+import type { PracticalReport, PracticalRun } from '../../schema.js'
 import { SCHEMA_VERSION } from '../../schema.js'
 import { median } from '../../stats.js'
 import { TOOL_VERSION } from '../../version.js'
@@ -14,7 +14,7 @@ import {
   persistWorkspace,
   removeWorkspace,
 } from '../../workspace.js'
-import type { ProficiencyTask } from './task.js'
+import type { PracticalTask } from './task.js'
 import { addUserRouteTask } from './tasks/add-user-route.js'
 import { buildEndpointsTask } from './tasks/build-endpoints.js'
 import { fix404Task } from './tasks/fix-404.js'
@@ -22,15 +22,15 @@ import { fix404ShadowTask } from './tasks/fix-404-shadow.js'
 import { refactorRoutesTask } from './tasks/refactor-routes.js'
 
 /**
- * Proficiency suite: hand the agent an existing Hono project and a small
+ * Practical suite: hand the agent an existing Hono project and a small
  * change request, then grade the result with hidden deterministic checks.
  *
- * New tasks are added by implementing `ProficiencyTask` and registering
- * them in `PROFICIENCY_TASKS` (planned: routing, 404 debugging,
+ * New tasks are added by implementing `PracticalTask` and registering
+ * them in `PRACTICAL_TASKS` (planned: routing, 404 debugging,
  * middleware scope, validation, RPC typing, performance).
  */
 
-export const PROFICIENCY_TASKS: Record<string, ProficiencyTask> = {
+export const PRACTICAL_TASKS: Record<string, PracticalTask> = {
   [addUserRouteTask.id]: addUserRouteTask,
   [buildEndpointsTask.id]: buildEndpointsTask,
   [fix404Task.id]: fix404Task,
@@ -45,7 +45,7 @@ const INSTRUCTIONS = [
   'Do not ask questions. When the change is complete, stop and summarize briefly.',
 ].join('\n')
 
-export interface ProficiencySuiteOptions {
+export interface PracticalSuiteOptions {
   model: string
   runs: number
   task: string
@@ -73,7 +73,7 @@ export interface ProficiencySuiteOptions {
   keepDir?: string
   onRunStarted?: (index: number) => void
   onRunProgress?: (index: number, progress: AgentRunProgress) => void
-  onRunFinished?: (run: ProficiencyRun) => void
+  onRunFinished?: (run: PracticalRun) => void
 }
 
 /**
@@ -91,8 +91,8 @@ interface PreparedFixture {
 }
 
 async function prepareFixture(
-  task: ProficiencyTask,
-  options: ProficiencySuiteOptions,
+  task: PracticalTask,
+  options: PracticalSuiteOptions,
 ): Promise<PreparedFixture> {
   const prepared = await createWorkspaceFrom(
     'fixture',
@@ -163,14 +163,14 @@ async function prepareFixture(
   return { prepared, honoCliVersion }
 }
 
-export async function runProficiencySuite(
-  options: ProficiencySuiteOptions,
-): Promise<ProficiencyReport> {
-  const task = PROFICIENCY_TASKS[options.task]
+export async function runPracticalSuite(
+  options: PracticalSuiteOptions,
+): Promise<PracticalReport> {
+  const task = PRACTICAL_TASKS[options.task]
   if (!task) {
-    const known = Object.keys(PROFICIENCY_TASKS).join(', ')
+    const known = Object.keys(PRACTICAL_TASKS).join(', ')
     throw new Error(
-      `Unknown proficiency task "${options.task}". Known tasks: ${known}`,
+      `Unknown practical task "${options.task}". Known tasks: ${known}`,
     )
   }
 
@@ -183,7 +183,7 @@ export async function runProficiencySuite(
     : undefined
   const { prepared, honoCliVersion } = await prepareFixture(task, options)
 
-  let results: ProficiencyRun[]
+  let results: PracticalRun[]
   try {
     results = await runPool(
       options.runs,
@@ -191,7 +191,7 @@ export async function runProficiencySuite(
       async (jobIndex) => {
         const index = jobIndex + 1
         options.onRunStarted?.(index)
-        const workspace = await createWorkspaceFrom('proficiency', prepared)
+        const workspace = await createWorkspaceFrom('practical', prepared)
         try {
           const outcome = await runAgent({
             model: options.model,
@@ -201,7 +201,7 @@ export async function runProficiencySuite(
             timeoutMs: options.timeoutMs,
             onProgress: (progress) => options.onRunProgress?.(index, progress),
           })
-          let run: ProficiencyRun
+          let run: PracticalRun
           if (outcome.outcome === 'failed') {
             run = {
               index,
@@ -252,7 +252,7 @@ export async function runProficiencySuite(
     schemaVersion: SCHEMA_VERSION,
     tool: '@hono/agent-dx',
     toolVersion: TOOL_VERSION,
-    suite: 'proficiency',
+    suite: 'practical',
     model: options.model,
     runs: options.runs,
     startedAt,

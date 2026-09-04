@@ -1,6 +1,6 @@
-import type { ProficiencyCheck } from '../../../schema.js'
+import type { PracticalCheck } from '../../../schema.js'
 import { runCheckScript, typecheckCheck } from '../grading.js'
-import type { ProficiencyTask } from '../task.js'
+import type { PracticalTask } from '../task.js'
 
 /**
  * Task: add `GET /users/:id` to an existing Hono app.
@@ -37,14 +37,14 @@ try {
 console.log('__AGENT_DX__' + JSON.stringify(checks))
 `
 
-async function grade(workspace: string): Promise<ProficiencyCheck[]> {
+async function grade(workspace: string): Promise<PracticalCheck[]> {
   return [
     await typecheckCheck(workspace),
     ...(await runCheckScript(workspace, CHECK_SCRIPT)),
   ]
 }
 
-export const addUserRouteTask: ProficiencyTask = {
+export const addUserRouteTask: PracticalTask = {
   id: 'add-user-route',
   description: 'Add a GET /users/:id route to an existing Hono app',
   fixture: 'hono-basic',

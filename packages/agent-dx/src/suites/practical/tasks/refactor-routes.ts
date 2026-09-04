@@ -1,8 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import type { ProficiencyCheck } from '../../../schema.js'
+import type { PracticalCheck } from '../../../schema.js'
 import { runCheckScript, typecheckCheck } from '../grading.js'
-import type { ProficiencyTask } from '../task.js'
+import type { PracticalTask } from '../task.js'
 
 /**
  * Task: split a bloated single-file app into routers without changing
@@ -107,8 +107,8 @@ try {
 console.log('__AGENT_DX__' + JSON.stringify(checks))
 `
 
-async function grade(workspace: string): Promise<ProficiencyCheck[]> {
-  const checks: ProficiencyCheck[] = [await typecheckCheck(workspace)]
+async function grade(workspace: string): Promise<PracticalCheck[]> {
+  const checks: PracticalCheck[] = [await typecheckCheck(workspace)]
 
   // The refactor must actually happen: routers extracted into src/routes/
   // and the entry point reduced to wiring.
@@ -136,7 +136,7 @@ async function grade(workspace: string): Promise<ProficiencyCheck[]> {
   return [...checks, ...(await runCheckScript(workspace, CHECK_SCRIPT))]
 }
 
-export const refactorRoutesTask: ProficiencyTask = {
+export const refactorRoutesTask: PracticalTask = {
   id: 'refactor-routes',
   description:
     'Split a bloated single-file app into routers without changing behavior',

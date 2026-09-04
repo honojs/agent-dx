@@ -17,7 +17,7 @@ export interface ComparisonRow {
 
 export interface ExperimentComparison {
   suite: string
-  /** e.g. runtime for adoption, task for proficiency. */
+  /** e.g. runtime for adoption, task for practical. */
   subject: string
   baselineVariant: string
   candidateVariant: string
@@ -49,7 +49,7 @@ export function compareReports(
   // fixture revision, runtime, scenario, or prompt is a different
   // experiment, and mixing them silently would produce plausible-looking
   // nonsense.
-  if (baseline.suite === 'proficiency' && candidate.suite === 'proficiency') {
+  if (baseline.suite === 'practical' && candidate.suite === 'practical') {
     if (baseline.task !== candidate.task) {
       throw new Error(
         `Cannot compare different tasks: "${baseline.task}" vs "${candidate.task}"`,
@@ -96,7 +96,7 @@ export function compareReports(
     })
   }
 
-  if (baseline.suite === 'proficiency' && candidate.suite === 'proficiency') {
+  if (baseline.suite === 'practical' && candidate.suite === 'practical') {
     rows.push({
       label: 'Success rate',
       baseline: percent(baseline.summary.successRate),
