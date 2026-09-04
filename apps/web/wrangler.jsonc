@@ -5,6 +5,7 @@
   "main": "src/index.tsx",
   "compatibility_date": "2026-08-30",
   "routes": [{ "pattern": "agent-dx.hono.dev", "custom_domain": true }],
+  "workers_dev": false,
   "r2_buckets": [
     {
       "binding": "RESULTS",
