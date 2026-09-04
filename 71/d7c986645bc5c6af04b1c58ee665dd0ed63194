@@ -1,0 +1,23 @@
+apps/web/src/renderer.tsx
+  s_b5227510c4b557::t_b88d005204b2f5 2,6-15
+apps/web/src/style.css
+  s_b5227510c4b557::t_abff360bfc6f09 1-3
+apps/web/vite.config.ts
+  s_b5227510c4b557::t_52b0dedc60388f 3,6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "71d7c986645bc5c6af04b1c58ee665dd0ed63194",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "unknown"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
