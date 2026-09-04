@@ -1,0 +1,21 @@
+apps/web/public/.assetsignore
+  s_b5227510c4b557::t_e218ffa0a1bcc7 1
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_a1b8a4af62704a 855
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "641dc0054448726818bcc6fb84621a97fdfbc0c1",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
