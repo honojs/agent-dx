@@ -79,7 +79,7 @@ jobs:
                   --suite adoption \
                   --runtime "$runtime" \
                   --scenario "$scenario" \
-                  --runs 5 \
+                  --runs 10 \
                   --model "$MODEL" \
                   --report "reports/adoption-$runtime-$scenario.json" ||
                   echo "adoption $runtime × $scenario failed"
