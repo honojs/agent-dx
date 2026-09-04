@@ -23,7 +23,7 @@ on:
         default: '10'
       model:
         description: 'Model id'
-        default: 'anthropic/claude-haiku-4-5'
+        default: 'cloudflare-ai-gateway/claude-haiku-4-5'
       runtime:
         description: 'Adoption runtime (empty = suite default)'
         default: ''
@@ -57,7 +57,6 @@ jobs:
       - run: pnpm build
       - name: Run eval
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # For cloudflare-ai-gateway/* models (unified billing).
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -65,7 +64,7 @@ jobs:
           RUN_MATRIX: ${{ github.event_name == 'schedule' || inputs.matrix }}
           SUITE: ${{ inputs.suite || 'adoption' }}
           RUNS: ${{ inputs.runs || '10' }}
-          MODEL: ${{ inputs.model || 'anthropic/claude-haiku-4-5' }}
+          MODEL: ${{ inputs.model || 'cloudflare-ai-gateway/claude-haiku-4-5' }}
           RUNTIME: ${{ inputs.runtime || '' }}
           SCENARIO: ${{ inputs.scenario || '' }}
         run: |
@@ -105,7 +104,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          MODEL: ${{ inputs.model || 'anthropic/claude-haiku-4-5' }}
+          MODEL: ${{ inputs.model || 'cloudflare-ai-gateway/claude-haiku-4-5' }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "CLOUDFLARE_API_TOKEN not set; skipping R2 upload."
