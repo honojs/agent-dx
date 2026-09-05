@@ -97,6 +97,32 @@ jobs:
                 done
               done
             done
+            # Practical: every task, bare vs cli+skill (the comparison the
+            # suite exists for). The skill comes from honojs/skills.
+            git clone --depth 1 https://github.com/honojs/skills /tmp/hono-skills
+            for task in add-user-route build-endpoints fix-404 fix-404-shadow refactor-routes; do
+              echo "::group::practical $task baseline"
+              node packages/agent-dx/dist/cli.js \
+                --suite practical \
+                --task "$task" \
+                --runs 5 \
+                --model "$MODEL" \
+                --report "reports/practical-$task-baseline.json" ||
+                echo "practical $task baseline failed"
+              echo "::endgroup::"
+              echo "::group::practical $task cli+skill"
+              node packages/agent-dx/dist/cli.js \
+                --suite practical \
+                --task "$task" \
+                --runs 5 \
+                --model "$MODEL" \
+                --hono-cli @hono/cli@next \
+                --onboarding none \
+                --skill /tmp/hono-skills/skills/hono \
+                --report "reports/practical-$task-cli-skill.json" ||
+                echo "practical $task cli+skill failed"
+              echo "::endgroup::"
+            done
           else
             FLAGS=()
             [ -n "$RUNTIME" ] && FLAGS+=(--runtime "$RUNTIME")
