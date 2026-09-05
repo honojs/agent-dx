@@ -27,7 +27,9 @@ export function createSite(reports: AgentDxReport[]): Hono {
     const matching = adoption.filter(
       (report) => report.runtime === runtime && (report.scenario ?? 'default') === scenario
     )
-    if (matching.length === 0) return c.notFound()
+    if (matching.length === 0) {
+      return c.notFound()
+    }
     return c.render(<AdoptionDetail runtime={runtime} scenario={scenario} reports={matching} />)
   })
   return app

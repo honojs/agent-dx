@@ -12,12 +12,18 @@ export async function loadReports(bucket: R2Bucket): Promise<AgentDxReport[]> {
   do {
     const page = await bucket.list({ cursor })
     for (const object of page.objects) {
-      if (!object.key.endsWith('.json')) continue
+      if (!object.key.endsWith('.json')) {
+        continue
+      }
       const body = await bucket.get(object.key)
-      if (!body) continue
+      if (!body) {
+        continue
+      }
       try {
         const report = parseReport(await body.json())
-        if (report) reports.push(report)
+        if (report) {
+          reports.push(report)
+        }
       } catch {
         // Skip objects that are not valid JSON reports.
       }

@@ -89,8 +89,12 @@ function suppressExperimentalWarnings(): void {
   const defaults = process.listeners('warning')
   process.removeAllListeners('warning')
   process.on('warning', (warning) => {
-    if (warning.name === 'ExperimentalWarning') return
-    for (const listener of defaults) listener.call(process, warning)
+    if (warning.name === 'ExperimentalWarning') {
+      return
+    }
+    for (const listener of defaults) {
+      listener.call(process, warning)
+    }
   })
 }
 
@@ -128,7 +132,9 @@ async function loadReport(path: string): Promise<AgentDxReport> {
     fail(`could not read report file: ${path}`)
   }
   const report = parseReport(JSON.parse(raw))
-  if (!report) fail(`not a valid @hono/agent-dx report: ${path}`)
+  if (!report) {
+    fail(`not a valid @hono/agent-dx report: ${path}`)
+  }
   return report
 }
 
@@ -369,7 +375,9 @@ async function main(): Promise<void> {
     report = await runPracticalArm(values['hono-cli'], keepDir)
   }
 
-  if (values.variant) report.variant = values.variant
+  if (values.variant) {
+    report.variant = values.variant
+  }
 
   console.log('')
   console.log(renderReport(report))

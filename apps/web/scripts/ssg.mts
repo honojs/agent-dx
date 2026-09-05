@@ -15,7 +15,7 @@ const root = join(import.meta.dirname, '..')
 const out = join(root, 'dist-ssg')
 
 const proxy = await getPlatformProxy<{ RESULTS: R2Bucket }>({
-  configPath: join(root, 'wrangler.ssg.jsonc'),
+  configPath: join(root, 'wrangler.jsonc'),
   remoteBindings: true,
 })
 const reports = await loadReports(proxy.env.RESULTS)
