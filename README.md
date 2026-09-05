@@ -26,6 +26,22 @@ The main goal of this project: compare a **baseline** against a **candidate** �
 
 Agents run on [Flue](https://flueframework.com), which gives us fresh conversations per run, local sandboxed execution, and multi-model support, with room to move runs into Cloudflare Sandbox later.
 
+## Measurement model
+
+Agent DX answers one question: **when a coding agent works with Hono, how reliably and how cheaply does it succeed — and what changes that?** We split it into three questions, each with its own instrument.
+
+| Question                                                          | What it asks                                                                                                                                                 | Primary metrics                                         | What moves it (measured)                                                                                                                                                                                                        |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Adoption** — is Hono chosen?                                    | Given a neutral prompt, does the agent reach for Hono at all?                                                                                                | Hono adoption rate per runtime × scenario × model       | Project state, not persuasion: a dependency in `package.json` is followed, templates are copied; prompt specificity raises it in steps                                                                                          |
+| **Value** — is Hono worth using?                                  | Same task, same spec: plain handler vs Hono — what changes?                                                                                                  | Success, tokens, duration, lines of code written        | Hono removes about a third of the code and 16–31% of the tokens without lowering success (currently measured with experiment scripts, not a suite)                                                                              |
+| **Practical** — can the agent use it well, and do the rails help? | Given a Hono project and a change request, does the agent deliver what was asked — with and without the Hono CLI, skill, `AGENTS.md`, or an executable spec? | Success (hidden deterministic checks), tokens, duration | Rails lift success on lean harnesses and cost on strong ones; an executable acceptance spec (`hono request --batch checks.jsonl` with `expect`) is the best-performing form; features not on a discovery surface are never used |
+
+The columns that matter are the same everywhere: **success rate** ("did the agent build what was asked?") is the goal; **tokens and duration** are the bill; **lines of code** is how much boilerplate the agent was made to write. Everything else — CLI usage rate, command mix, skill activation, error recovery, which framework was picked — is a **diagnostic** that explains a result and is never a target (architecture rule 8).
+
+We control four axes: **model** (a cheap high-run model as the weekly canary plus the model real agents default to), **harness** (Flue as a stand-in for lean agents, real Claude Code to check that deltas reproduce), **task shape** (build and change tasks discriminate; debugging tasks with a stated symptom are solved by reading and only serve to observe diagnosis behavior), and **how the spec is delivered** (prose vs executable — the variable that moves success the most).
+
+We deliberately do not measure usage as a goal, debugging-with-symptom success (any capable model reads its way to 100%), or trivial tasks (everything scores 100%). A task earns its place only by experiment (architecture rule 9).
+
 ## How to run locally
 
 ```sh
