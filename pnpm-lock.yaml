@@ -27,6 +27,9 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: ^1.44.0
         version: 1.54.4(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(tsx@4.23.13)(yaml@2.9.0))(wrangler@4.129.0)
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.13
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

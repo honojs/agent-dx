@@ -125,3 +125,11 @@ jobs:
               --file "$GITHUB_WORKSPACE/$report" --remote
             echo "Uploaded to r2://agent-dx-results/$KEY"
           done
+      - name: Render and deploy site
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_R2_TOKEN: ${{ secrets.CLOUDFLARE_R2_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_R2_TOKEN }}
+        run: |
+          pnpm --dir apps/web run ssg
+          pnpm --dir apps/web exec wrangler deploy -c wrangler.deploy.jsonc
