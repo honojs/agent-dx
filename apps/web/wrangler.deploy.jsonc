@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Production site: static assets rendered by scripts/ssg.mts.
+  // Dev uses wrangler.jsonc (dynamic worker) via vite.
+  "name": "agent-dx",
+  "compatibility_date": "2026-08-30",
+  "routes": [{ "pattern": "agent-dx.hono.dev", "custom_domain": true }],
+  "workers_dev": false,
+  "assets": {
+    "directory": "./dist-ssg",
+  },
+}

@@ -7,6 +7,9 @@ import { loadReports } from './reports.js'
 // `Env` is generated from wrangler.jsonc by `wrangler types`.
 const app = new Hono<{ Bindings: Env }>()
 
+// Dev-only dynamic rendering. Production is a static assets deploy:
+// scripts/ssg.mts renders these same routes to dist-ssg/, deployed with
+// wrangler.deploy.jsonc after every eval.
 app.use(renderer)
 
 app.get('/', async (c) => {
