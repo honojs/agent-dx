@@ -179,11 +179,21 @@ export function isPracticalReport(report: AgentDxReport): report is PracticalRep
 
 /** Best-effort validation for JSON loaded from disk. */
 export function parseReport(json: unknown): AgentDxReport | null {
-  if (typeof json !== 'object' || json === null) return null
+  if (typeof json !== 'object' || json === null) {
+    return null
+  }
   const report = json as Record<string, unknown>
-  if (report.schemaVersion !== SCHEMA_VERSION) return null
-  if (report.tool !== '@hono/agent-dx') return null
-  if (report.suite !== 'adoption' && report.suite !== 'practical') return null
-  if (!Array.isArray(report.results)) return null
+  if (report.schemaVersion !== SCHEMA_VERSION) {
+    return null
+  }
+  if (report.tool !== '@hono/agent-dx') {
+    return null
+  }
+  if (report.suite !== 'adoption' && report.suite !== 'practical') {
+    return null
+  }
+  if (!Array.isArray(report.results)) {
+    return null
+  }
   return json as AgentDxReport
 }

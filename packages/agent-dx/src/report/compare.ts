@@ -31,7 +31,9 @@ function pointDelta(baseline: number, candidate: number): string {
 }
 
 function relativeDelta(baseline: number, candidate: number): string {
-  if (baseline === 0) return candidate === 0 ? '0%' : 'n/a'
+  if (baseline === 0) {
+    return candidate === 0 ? '0%' : 'n/a'
+  }
   const delta = Math.round(((candidate - baseline) / baseline) * 100)
   return `${delta >= 0 ? '+' : ''}${delta}%`
 }

@@ -4,5 +4,8 @@
     "**/node_modules/**",
     "packages/agent-dx/fixtures/**",
     "results/**"
-  ]
+  ],
+  "rules": {
+    "curly": "error"
+  }
 }

@@ -79,7 +79,9 @@ function acquireRuntime(): Promise<Flue> {
 
 /** Stop the shared Flue runtime. Call once after all runs have finished. */
 export async function shutdownRunner(): Promise<void> {
-  if (!runtime) return
+  if (!runtime) {
+    return
+  }
   const started = runtime
   runtime = null
   await (await started).stop()
@@ -87,11 +89,15 @@ export async function shutdownRunner(): Promise<void> {
 
 function extractTokenUsage(metadata: Record<string, unknown> | undefined): TokenUsage | undefined {
   const usage = metadata?.usage
-  if (typeof usage !== 'object' || usage === null) return undefined
+  if (typeof usage !== 'object' || usage === null) {
+    return undefined
+  }
   const record = usage as Record<string, unknown>
   const input = typeof record.input === 'number' ? record.input : undefined
   const output = typeof record.output === 'number' ? record.output : undefined
-  if (input === undefined && output === undefined) return undefined
+  if (input === undefined && output === undefined) {
+    return undefined
+  }
   const total =
     typeof record.totalTokens === 'number' ? record.totalTokens : (input ?? 0) + (output ?? 0)
   return { input: input ?? 0, output: output ?? 0, total }
@@ -117,21 +123,29 @@ export function analyzeHonoCliCommand(
   for (const segment of command.split(/&&|\|\||[;|\n]/)) {
     const text = segment.trim()
     const match = text.match(/^(?:npx\s+)?(?:\.?\/?node_modules\/\.bin\/)?hono\s+(.*)$/)
-    if (!match) continue
+    if (!match) {
+      continue
+    }
     usage.calls += 1
     const tokens = (match[1] ?? '').split(/\s+/)
     const first = tokens[0] ?? ''
     let key: string
-    if (first === '--help' || first === '-h') key = 'help'
-    else if (first.startsWith('-')) key = first.replace(/^-+/, '')
-    else key = first || 'unknown'
+    if (first === '--help' || first === '-h') {
+      key = 'help'
+    } else if (first.startsWith('-')) {
+      key = first.replace(/^-+/, '')
+    } else {
+      key = first || 'unknown'
+    }
     if (key === 'request' && tokens.includes('--batch')) {
       key = 'request --batch'
     } else if (key === 'request' && tokens.includes('--trace')) {
       key = 'request --trace'
     }
     usage.commands[key] = (usage.commands[key] ?? 0) + 1
-    if (key === 'agent-context') usage.agentContext = true
+    if (key === 'agent-context') {
+      usage.agentContext = true
+    }
   }
   return usage
 }
@@ -204,7 +218,9 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
   const commands: string[] = []
 
   const noteMetadata = (metadata: unknown) => {
-    if (typeof metadata !== 'object' || metadata === null) return
+    if (typeof metadata !== 'object' || metadata === null) {
+      return
+    }
     tokens = extractTokenUsage(metadata as Record<string, unknown>) ?? tokens
   }
 
@@ -231,7 +247,9 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
             }
             const usage = analyzeHonoCliCommand(input.command)
             if (usage.calls > 0) {
-              if (honoCli.errors > 0) honoCli.recovered = true
+              if (honoCli.errors > 0) {
+                honoCli.recovered = true
+              }
               honoCli.calls += usage.calls
               honoCli.agentContext = honoCli.agentContext || usage.agentContext
               for (const [key, count] of Object.entries(usage.commands)) {
@@ -248,7 +266,9 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
             })
           }
         } else if (chunk.type === 'tool-output' && honoCliToolCalls.has(chunk.toolCallId)) {
-          if (isCliErrorEnvelope(chunk.output)) honoCli.errors += 1
+          if (isCliErrorEnvelope(chunk.output)) {
+            honoCli.errors += 1
+          }
         } else if (chunk.type === 'tool-output-error' && honoCliToolCalls.has(chunk.toolCallId)) {
           honoCli.errors += 1
         } else if (chunk.type === 'message-metadata' || chunk.type === 'message-started') {

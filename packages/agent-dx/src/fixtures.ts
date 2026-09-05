@@ -22,10 +22,15 @@ export async function hashDirectory(dir: string): Promise<string> {
   const files: string[] = []
   const walk = async (current: string): Promise<void> => {
     for (const entry of await readdir(current, { withFileTypes: true })) {
-      if (entry.name === 'node_modules' || entry.name === '.DS_Store') continue
+      if (entry.name === 'node_modules' || entry.name === '.DS_Store') {
+        continue
+      }
       const full = join(current, entry.name)
-      if (entry.isDirectory()) await walk(full)
-      else files.push(full)
+      if (entry.isDirectory()) {
+        await walk(full)
+      } else {
+        files.push(full)
+      }
     }
   }
   await walk(dir)

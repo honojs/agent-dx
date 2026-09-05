@@ -171,7 +171,9 @@ const AdoptionCell: FC<{
   scenario: string
   report?: AdoptionReport
 }> = ({ runtime, scenario, report }) => {
-  if (!report) return <td class='cell'>·</td>
+  if (!report) {
+    return <td class='cell'>·</td>
+  }
   const rate = report.summary.honoAdoption
   return (
     <td
@@ -201,9 +203,15 @@ function collectCells(reports: AdoptionReport[]): AdoptionCells {
   for (const report of reports) {
     const scenario = report.scenario ?? 'default'
     const key = `${report.runtime} ${scenario}`
-    if (!latest.has(key)) latest.set(key, report)
-    if (!runtimes.includes(report.runtime)) runtimes.push(report.runtime)
-    if (!scenarios.includes(scenario)) scenarios.push(scenario)
+    if (!latest.has(key)) {
+      latest.set(key, report)
+    }
+    if (!runtimes.includes(report.runtime)) {
+      runtimes.push(report.runtime)
+    }
+    if (!scenarios.includes(scenario)) {
+      scenarios.push(scenario)
+    }
   }
   return {
     latest,
@@ -275,7 +283,9 @@ const GroupedBars: FC<{
         return (
           <>
             {group.bars.map((bar, barIndex) => {
-              if (!bar) return null
+              if (!bar) {
+                return null
+              }
               return (
                 <rect
                   x={groupStart + (groupWidth - barsWidth) / 2 + barIndex * barWidth}
@@ -332,7 +342,9 @@ const AdoptionBars: FC<{ cells: AdoptionCells }> = ({ cells }) => (
       label: scenario,
       bars: cells.runtimes.map((runtime, index) => {
         const report = cells.latest.get(`${runtime} ${scenario}`)
-        if (!report) return null
+        if (!report) {
+          return null
+        }
         return {
           label: `${runtime} × ${scenario}`,
           value: report.summary.honoAdoption,
@@ -377,7 +389,9 @@ const AdoptionMatrix: FC<{ cells: AdoptionCells }> = ({ cells }) => (
 const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
   const models: string[] = []
   for (const report of reports) {
-    if (!models.includes(report.model)) models.push(report.model)
+    if (!models.includes(report.model)) {
+      models.push(report.model)
+    }
   }
   models.sort()
   return (
@@ -527,7 +541,9 @@ const shareBarClass = css`
 const FrameworkShareBar: FC<{ report: AdoptionReport }> = ({ report }) => {
   const entries = Object.entries(report.summary.counts).sort((a, b) => b[1] - a[1])
   const total = entries.reduce((sum, [, count]) => sum + count, 0)
-  if (total === 0) return null
+  if (total === 0) {
+    return null
+  }
   return (
     <div class={shareBarClass}>
       {entries.map(([framework, count]) => (
@@ -617,9 +633,15 @@ export const AdoptionDetail: FC<{
 
 /** Which rails were given to the agent — the comparison axis of the suite. */
 function practicalCondition(report: PracticalReport): string {
-  if (report.honoCli && report.skill) return 'cli + skill'
-  if (report.honoCli) return 'cli'
-  if (report.skill) return 'skill'
+  if (report.honoCli && report.skill) {
+    return 'cli + skill'
+  }
+  if (report.honoCli) {
+    return 'cli'
+  }
+  if (report.skill) {
+    return 'skill'
+  }
   return 'baseline'
 }
 
@@ -633,7 +655,9 @@ const CONDITION_COLORS: Record<string, string> = {
 }
 
 const PracticalCell: FC<{ report?: PracticalReport }> = ({ report }) => {
-  if (!report) return <td class='cell'>·</td>
+  if (!report) {
+    return <td class='cell'>·</td>
+  }
   const success = report.summary.successRate
   return (
     <td
@@ -660,9 +684,15 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
   for (const report of reports) {
     const condition = practicalCondition(report)
     const key = `${report.task} ${condition}`
-    if (!latest.has(key)) latest.set(key, report)
-    if (!tasks.includes(report.task)) tasks.push(report.task)
-    if (!conditions.includes(condition)) conditions.push(condition)
+    if (!latest.has(key)) {
+      latest.set(key, report)
+    }
+    if (!tasks.includes(report.task)) {
+      tasks.push(report.task)
+    }
+    if (!conditions.includes(condition)) {
+      conditions.push(condition)
+    }
   }
   tasks.sort()
   return (
@@ -681,7 +711,9 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
               label: task,
               bars: ordered(conditions, CONDITION_ORDER).map((condition) => {
                 const report = latest.get(`${task} ${condition}`)
-                if (!report) return null
+                if (!report) {
+                  return null
+                }
                 return {
                   label: `${task} · ${condition}`,
                   value: report.summary.successRate,
@@ -726,7 +758,9 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
 function findExperiments(reports: AgentDxReport[]) {
   const groups = new Map<string, AgentDxReport[]>()
   for (const report of reports) {
-    if (!report.variant) continue
+    if (!report.variant) {
+      continue
+    }
     const subject = isAdoptionReport(report) ? report.runtime : report.task
     const key = `${report.suite}:${subject}:${report.target ?? ''}`
     groups.set(key, [...(groups.get(key) ?? []), report])
@@ -735,7 +769,9 @@ function findExperiments(reports: AgentDxReport[]) {
   for (const group of groups.values()) {
     const baseline = group.find((r) => r.variant === 'baseline')
     const candidate = group.find((r) => r.variant === 'candidate')
-    if (baseline && candidate) experiments.push(compareReports(baseline, candidate))
+    if (baseline && candidate) {
+      experiments.push(compareReports(baseline, candidate))
+    }
   }
   return experiments
 }

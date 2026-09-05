@@ -92,9 +92,15 @@ const BUILTIN_NAMESPACES = /^(?:node|cloudflare|bun|deno|workerd):/
 const BUILTIN_BARE_MODULES = new Set([...builtinModules, 'bun'])
 
 function packageNameOf(source: string): string | null {
-  if (source.startsWith('.') || source.startsWith('/')) return null
-  if (BUILTIN_NAMESPACES.test(source)) return null
-  if (BUILTIN_BARE_MODULES.has(source)) return null
+  if (source.startsWith('.') || source.startsWith('/')) {
+    return null
+  }
+  if (BUILTIN_NAMESPACES.test(source)) {
+    return null
+  }
+  if (BUILTIN_BARE_MODULES.has(source)) {
+    return null
+  }
   // URL imports (old-style Deno): recognize well-known package CDNs.
   if (/^https?:\/\//.test(source)) {
     const cdn = source.match(
@@ -106,7 +112,9 @@ function packageNameOf(source: string): string | null {
   const bare = source.replace(/^(?:npm|jsr):/, '')
   const parts = bare.split('/')
   if (bare.startsWith('@')) {
-    if (parts.length < 2 || !parts[1]) return null
+    if (parts.length < 2 || !parts[1]) {
+      return null
+    }
     return `${parts[0]}/${parts[1].split('@')[0]}`
   }
   const name = parts[0]?.split('@')[0]
@@ -132,7 +140,9 @@ async function scanWorkspace(root: string): Promise<WorkspaceScan> {
       const full = join(dir, entry.name)
       const rel = relative(root, full)
       if (entry.isDirectory()) {
-        if (!IGNORED_DIRS.has(entry.name)) await walk(full)
+        if (!IGNORED_DIRS.has(entry.name)) {
+          await walk(full)
+        }
         continue
       }
       if (entry.name === 'package.json') {
@@ -145,7 +155,9 @@ async function scanWorkspace(root: string): Promise<WorkspaceScan> {
             ...pkg.dependencies,
             ...pkg.devDependencies,
           })) {
-            if (!scan.dependencies.has(name)) scan.dependencies.set(name, rel)
+            if (!scan.dependencies.has(name)) {
+              scan.dependencies.set(name, rel)
+            }
           }
         } catch {
           // Ignore malformed package.json files.
@@ -161,9 +173,13 @@ async function scanWorkspace(root: string): Promise<WorkspaceScan> {
             pattern.lastIndex = 0
             for (const match of text.matchAll(pattern)) {
               const name = packageNameOf(match[1] ?? '')
-              if (!name) continue
+              if (!name) {
+                continue
+              }
               const files = scan.imports.get(name) ?? []
-              if (!files.includes(rel)) files.push(rel)
+              if (!files.includes(rel)) {
+                files.push(rel)
+              }
               scan.imports.set(name, files)
             }
           }
@@ -180,13 +196,25 @@ async function scanWorkspace(root: string): Promise<WorkspaceScan> {
 
 function isRawHandlerWorkspace(scan: WorkspaceScan): boolean {
   for (const text of scan.sourceTexts.values()) {
-    if (/export\s+default\s*\{/.test(text) && /\bfetch\s*[(:]/.test(text)) return true
-    if (/addEventListener\s*\(\s*['"]fetch['"]/.test(text)) return true
-    if (/Bun\.serve\s*\(/.test(text)) return true
-    if (/Deno\.serve\s*\(/.test(text)) return true
-    if (/createServer\s*\(/.test(text)) return true
+    if (/export\s+default\s*\{/.test(text) && /\bfetch\s*[(:]/.test(text)) {
+      return true
+    }
+    if (/addEventListener\s*\(\s*['"]fetch['"]/.test(text)) {
+      return true
+    }
+    if (/Bun\.serve\s*\(/.test(text)) {
+      return true
+    }
+    if (/Deno\.serve\s*\(/.test(text)) {
+      return true
+    }
+    if (/createServer\s*\(/.test(text)) {
+      return true
+    }
     // Old-style Deno std http server (`import { serve } from ".../std/http/server.ts"`).
-    if (/deno\.land\/std[^'"]*\/http\/server\.ts/.test(text)) return true
+    if (/deno\.land\/std[^'"]*\/http\/server\.ts/.test(text)) {
+      return true
+    }
   }
   return false
 }
@@ -209,7 +237,9 @@ export async function detectFramework(root: string): Promise<DetectionResult> {
     NON_FRAMEWORK_PACKAGES.has(name) || NON_FRAMEWORK_PREFIXES.some((p) => name.startsWith(p))
 
   for (const name of new Set([...scan.dependencies.keys(), ...scan.imports.keys()])) {
-    if (!knownPackageIds.has(name) && !isUtility(name)) unknownPackages.push(name)
+    if (!knownPackageIds.has(name) && !isUtility(name)) {
+      unknownPackages.push(name)
+    }
   }
   unknownPackages.sort()
 
@@ -229,9 +259,13 @@ export async function detectFramework(root: string): Promise<DetectionResult> {
         evidence.push(`imported "${pkg}" in ${importers.join(', ')}`)
       }
       const declaredIn = scan.dependencies.get(pkg)
-      if (declaredIn) evidence.push(`dependency "${pkg}" in ${declaredIn}`)
+      if (declaredIn) {
+        evidence.push(`dependency "${pkg}" in ${declaredIn}`)
+      }
     }
-    if (evidence.length === 0) continue
+    if (evidence.length === 0) {
+      continue
+    }
     if (!best || (imported && !best.imported)) {
       best = { framework, imported, evidence }
     }
