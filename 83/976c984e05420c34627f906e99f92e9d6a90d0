@@ -1,0 +1,47 @@
+.oxlintrc.json
+  s_b5227510c4b557::t_ec219d9b9098bf 7-10
+apps/web/scripts/ssg.mts
+  s_b5227510c4b557::t_8fbb06aaeaab8a 18
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_943f5376bdbf76 174-176,206-214,286-288,345-347,392-394,544-546,636-644,658-660,687-695,714-716,761-763,772-774
+apps/web/src/index.tsx
+  s_b5227510c4b557::t_674997b45d8e0c 25-27
+apps/web/src/reports.ts
+  s_b5227510c4b557::t_38e18ccf5bd792 15-17,19-21,24-26
+apps/web/src/site.tsx
+  s_b5227510c4b557::t_a2b55533a9df7f 30-32
+apps/web/wrangler.jsonc
+  s_b5227510c4b557::t_d82eec75f9c550 13-14
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_53c72794c1610c 92-97,135-137,378-380
+packages/agent-dx/src/fixtures.ts
+  s_b5227510c4b557::t_188c56428d5056 25-27,29-33
+packages/agent-dx/src/report/compare.ts
+  s_b5227510c4b557::t_c47c5bc9b1fe51 34-36
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_b703f29ddc6810 44-46,49-51,80-82
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_070617e9d1537f 82-84,92-94,98-100,126-128,133-139,146-148,221-223,250-252,269-271
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_40c6fe9aacf794 182-184,186-197
+packages/agent-dx/src/stats.ts
+  s_b5227510c4b557::t_ca9ca8995950ea 2-4,17-19,24-26
+packages/agent-dx/src/suites/adoption/detect.ts
+  s_b5227510c4b557::t_23c1ebddc0c9b5 95-103,115-117,143-145,158-160,176-178,180-182,199-213,215-217,240-242,262-267
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "83976c984e05420c34627f906e99f92e9d6a90d0",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
