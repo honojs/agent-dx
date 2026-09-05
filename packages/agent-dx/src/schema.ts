@@ -20,6 +20,7 @@ export type FrameworkId =
   | 'elysia'
   | 'h3'
   | 'express'
+  | 'oak'
   | 'fastify'
   | 'itty-router'
   | 'other'

@@ -12,6 +12,7 @@ const FRAMEWORK_LABELS: Record<FrameworkId, string> = {
   elysia: 'Elysia',
   h3: 'H3',
   express: 'Express',
+  oak: 'Oak',
   fastify: 'Fastify',
   'itty-router': 'itty-router',
   other: 'Other',
