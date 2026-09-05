@@ -153,11 +153,15 @@ function ordered(found: string[], order: string[]): string[] {
   return [...known, ...rest]
 }
 
-/** Framework with the most runs in a report, for the matrix cell footnote. */
+/** Most-chosen framework and its share, for the matrix cell footnote. */
 function topFramework(report: AdoptionReport): string {
   const entries = Object.entries(report.summary.counts)
   entries.sort((a, b) => b[1] - a[1])
-  return entries[0]?.[0] ?? '—'
+  const top = entries[0]
+  if (!top) {
+    return '—'
+  }
+  return `${frameworkLabel(top[0])} ${percent(top[1] / report.runs)}`
 }
 
 const cellLinkClass = css`
@@ -183,7 +187,7 @@ const AdoptionCell: FC<{
     >
       <a class={cellLinkClass} href={`/adoption/${runtime}/${scenario}`}>
         <span class={rate > 0 ? pctClass : pctZeroClass}>{percent(rate)}</span>
-        <span class={whoClass}>{frameworkLabel(topFramework(report))}</span>
+        <span class={whoClass}>{topFramework(report)}</span>
       </a>
     </td>
   )
