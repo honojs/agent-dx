@@ -77,6 +77,10 @@ jobs:
               "cloudflare-ai-gateway/claude-opus-5:5"; do
               model="${model_runs%:*}"
               model_slug="$(echo "$model" | tr '/' '-')"
+              # Opus hits the unified-billing wholesale rate limit at the
+              # default concurrency; run it sequentially.
+              concurrency=5
+              case "$model" in *opus*) concurrency=1 ;; esac
               for runtime in cloudflare-workers bun node-js deno; do
                 for scenario in minimal routes api framework; do
                   echo "::group::adoption $runtime × $scenario × $model"
@@ -85,6 +89,7 @@ jobs:
                     --runtime "$runtime" \
                     --scenario "$scenario" \
                     --runs "${model_runs##*:}" \
+                    --concurrency "$concurrency" \
                     --model "$model" \
                     --report "reports/adoption-$runtime-$scenario-$model_slug.json" ||
                     echo "adoption $runtime × $scenario × $model failed"
