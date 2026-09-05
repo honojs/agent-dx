@@ -32,7 +32,7 @@ await toSSG(
     },
     mkdir: async () => {},
   },
-  { dir: '' },
+  { dir: '' }
 )
 cpSync(join(root, 'public'), out, { recursive: true })
 await proxy.dispose()

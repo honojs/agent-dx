@@ -2,7 +2,7 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "semi": false,
   "singleQuote": true,
-  "printWidth": 80,
+  "printWidth": 100,
   "sortPackageJson": false,
   "ignorePatterns": [
     "pnpm-lock.yaml",
@@ -11,5 +11,7 @@
     ".agents/",
     "dist/",
     "results/"
-  ]
+  ],
+  "trailingComma": "es5",
+  "jsxSingleQuote": true
 }

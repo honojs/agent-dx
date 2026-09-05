@@ -7,9 +7,7 @@ import { persistWorkspace } from '../src/workspace.js'
 let dirs: string[] = []
 
 afterEach(async () => {
-  await Promise.all(
-    dirs.map((dir) => rm(dir, { recursive: true, force: true })),
-  )
+  await Promise.all(dirs.map((dir) => rm(dir, { recursive: true, force: true })))
   dirs = []
 })
 

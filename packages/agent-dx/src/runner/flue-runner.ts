@@ -1,10 +1,4 @@
-import {
-  init,
-  useInitialData,
-  useModel,
-  useResponseFinish,
-  useSandbox,
-} from '@flue/runtime'
+import { init, useInitialData, useModel, useResponseFinish, useSandbox } from '@flue/runtime'
 import type { Flue } from '@flue/runtime/node'
 import { local, start } from '@flue/runtime/node'
 import type { HonoCliUsage, RunMetrics, TokenUsage } from '../schema.js'
@@ -91,9 +85,7 @@ export async function shutdownRunner(): Promise<void> {
   await (await started).stop()
 }
 
-function extractTokenUsage(
-  metadata: Record<string, unknown> | undefined,
-): TokenUsage | undefined {
+function extractTokenUsage(metadata: Record<string, unknown> | undefined): TokenUsage | undefined {
   const usage = metadata?.usage
   if (typeof usage !== 'object' || usage === null) return undefined
   const record = usage as Record<string, unknown>
@@ -101,9 +93,7 @@ function extractTokenUsage(
   const output = typeof record.output === 'number' ? record.output : undefined
   if (input === undefined && output === undefined) return undefined
   const total =
-    typeof record.totalTokens === 'number'
-      ? record.totalTokens
-      : (input ?? 0) + (output ?? 0)
+    typeof record.totalTokens === 'number' ? record.totalTokens : (input ?? 0) + (output ?? 0)
   return { input: input ?? 0, output: output ?? 0, total }
 }
 
@@ -117,7 +107,7 @@ function extractTokenUsage(
  * counted as their own keys so those modes are visible in breakdowns.
  */
 export function analyzeHonoCliCommand(
-  command: string,
+  command: string
 ): Pick<HonoCliUsage, 'calls' | 'agentContext' | 'commands'> {
   const usage: Pick<HonoCliUsage, 'calls' | 'agentContext' | 'commands'> = {
     calls: 0,
@@ -126,9 +116,7 @@ export function analyzeHonoCliCommand(
   }
   for (const segment of command.split(/&&|\|\||[;|\n]/)) {
     const text = segment.trim()
-    const match = text.match(
-      /^(?:npx\s+)?(?:\.?\/?node_modules\/\.bin\/)?hono\s+(.*)$/,
-    )
+    const match = text.match(/^(?:npx\s+)?(?:\.?\/?node_modules\/\.bin\/)?hono\s+(.*)$/)
     if (!match) continue
     usage.calls += 1
     const tokens = (match[1] ?? '').split(/\s+/)
@@ -165,10 +153,7 @@ export function isCliErrorEnvelope(output: unknown): boolean {
  * Compress a tool-input hint for one-line progress output: make paths
  * workspace-relative, keep only the first line, and cap the length.
  */
-export function formatProgressDetail(
-  hint: string,
-  workspace: string,
-): string | undefined {
+export function formatProgressDetail(hint: string, workspace: string): string | undefined {
   const detail = hint
     .replaceAll(`/private${workspace}/`, '')
     .replaceAll(`/private${workspace}`, '.')
@@ -190,11 +175,7 @@ function errorMessage(error: unknown): string {
       current = current.cause
     } else {
       try {
-        parts.push(
-          typeof current === 'object'
-            ? JSON.stringify(current)
-            : String(current),
-        )
+        parts.push(typeof current === 'object' ? JSON.stringify(current) : String(current))
       } catch {
         parts.push(String(current))
       }
@@ -204,9 +185,7 @@ function errorMessage(error: unknown): string {
   return parts.join(' — caused by: ')
 }
 
-export async function runAgent(
-  options: AgentRunOptions,
-): Promise<AgentRunOutcome> {
+export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcome> {
   const { model, instructions, prompt, workspace } = options
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
 
@@ -240,15 +219,14 @@ export async function runAgent(
       onEvent: (chunk) => {
         if (chunk.type === 'tool-input') {
           toolCalls += 1
-          toolCallCounts[chunk.toolName] =
-            (toolCallCounts[chunk.toolName] ?? 0) + 1
+          toolCallCounts[chunk.toolName] = (toolCallCounts[chunk.toolName] ?? 0) + 1
           const input = chunk.input as Record<string, unknown> | null
           if (typeof input?.command === 'string') {
             if (commands.length < MAX_TRANSCRIPT_COMMANDS) {
               commands.push(
                 input.command.length > MAX_TRANSCRIPT_COMMAND_LENGTH
                   ? `${input.command.slice(0, MAX_TRANSCRIPT_COMMAND_LENGTH)}…`
-                  : input.command,
+                  : input.command
               )
             }
             const usage = analyzeHonoCliCommand(input.command)
@@ -266,26 +244,14 @@ export async function runAgent(
             const hint = input?.path ?? input?.file_path ?? input?.command
             options.onProgress({
               toolName: chunk.toolName,
-              detail:
-                typeof hint === 'string'
-                  ? formatProgressDetail(hint, workspace)
-                  : undefined,
+              detail: typeof hint === 'string' ? formatProgressDetail(hint, workspace) : undefined,
             })
           }
-        } else if (
-          chunk.type === 'tool-output' &&
-          honoCliToolCalls.has(chunk.toolCallId)
-        ) {
+        } else if (chunk.type === 'tool-output' && honoCliToolCalls.has(chunk.toolCallId)) {
           if (isCliErrorEnvelope(chunk.output)) honoCli.errors += 1
-        } else if (
-          chunk.type === 'tool-output-error' &&
-          honoCliToolCalls.has(chunk.toolCallId)
-        ) {
+        } else if (chunk.type === 'tool-output-error' && honoCliToolCalls.has(chunk.toolCallId)) {
           honoCli.errors += 1
-        } else if (
-          chunk.type === 'message-metadata' ||
-          chunk.type === 'message-started'
-        ) {
+        } else if (chunk.type === 'message-metadata' || chunk.type === 'message-started') {
           noteMetadata((chunk as { metadata?: unknown }).metadata)
         }
       },

@@ -159,12 +159,10 @@ app.get('/api/admin/stats', (c) =>
     users: users.length,
     products: products.length,
     orders: orders.length,
-  }),
+  })
 )
 
-app.get('/api/admin/orders/pending', (c) =>
-  c.json(orders.filter((o) => o.status === 'pending')),
-)
+app.get('/api/admin/orders/pending', (c) => c.json(orders.filter((o) => o.status === 'pending')))
 
 app.post('/api/admin/products/:id/restock', async (c) => {
   const product = products.find((p) => p.id === Number(c.req.param('id')))

@@ -9,11 +9,7 @@ import type { PracticalReport, PracticalRun } from '../../schema.js'
 import { SCHEMA_VERSION } from '../../schema.js'
 import { median } from '../../stats.js'
 import { TOOL_VERSION } from '../../version.js'
-import {
-  createWorkspaceFrom,
-  persistWorkspace,
-  removeWorkspace,
-} from '../../workspace.js'
+import { createWorkspaceFrom, persistWorkspace, removeWorkspace } from '../../workspace.js'
 import type { PracticalTask } from './task.js'
 import { addUserRouteTask } from './tasks/add-user-route.js'
 import { buildEndpointsTask } from './tasks/build-endpoints.js'
@@ -92,25 +88,16 @@ interface PreparedFixture {
 
 async function prepareFixture(
   task: PracticalTask,
-  options: PracticalSuiteOptions,
+  options: PracticalSuiteOptions
 ): Promise<PreparedFixture> {
-  const prepared = await createWorkspaceFrom(
-    'fixture',
-    fixtureDir(task.fixture),
-  )
-  const install = await exec(
-    'npm',
-    ['install', '--no-audit', '--no-fund', '--loglevel=error'],
-    {
-      cwd: prepared,
-      timeoutMs: 300_000,
-    },
-  )
+  const prepared = await createWorkspaceFrom('fixture', fixtureDir(task.fixture))
+  const install = await exec('npm', ['install', '--no-audit', '--no-fund', '--loglevel=error'], {
+    cwd: prepared,
+    timeoutMs: 300_000,
+  })
   if (!install.ok) {
     await removeWorkspace(prepared)
-    throw new Error(
-      `Fixture install failed for "${task.fixture}":\n${install.stderr}`,
-    )
+    throw new Error(`Fixture install failed for "${task.fixture}":\n${install.stderr}`)
   }
   let honoCliVersion: string | undefined
   if (options.honoCli) {
@@ -119,39 +106,24 @@ async function prepareFixture(
     // (unless the experiment turns the line off).
     const cliInstall = await exec(
       'npm',
-      [
-        'install',
-        '-D',
-        options.honoCli,
-        '--no-audit',
-        '--no-fund',
-        '--loglevel=error',
-      ],
-      { cwd: prepared, timeoutMs: 300_000 },
+      ['install', '-D', options.honoCli, '--no-audit', '--no-fund', '--loglevel=error'],
+      { cwd: prepared, timeoutMs: 300_000 }
     )
     if (!cliInstall.ok) {
       await removeWorkspace(prepared)
-      throw new Error(
-        `Hono CLI install failed for "${options.honoCli}":\n${cliInstall.stderr}`,
-      )
+      throw new Error(`Hono CLI install failed for "${options.honoCli}":\n${cliInstall.stderr}`)
     }
     // Specs like "@next" move; record the version that actually landed.
     try {
       const pkg = JSON.parse(
-        await readFile(
-          join(prepared, 'node_modules', '@hono', 'cli', 'package.json'),
-          'utf8',
-        ),
+        await readFile(join(prepared, 'node_modules', '@hono', 'cli', 'package.json'), 'utf8')
       ) as { version?: string }
       honoCliVersion = pkg.version
     } catch {
       // Leave undefined when the CLI package cannot be inspected.
     }
     if (options.honoCliOnboarding ?? true) {
-      await appendFile(
-        join(prepared, 'AGENTS.md'),
-        `\n${HONO_CLI_ONBOARDING}\n`,
-      )
+      await appendFile(join(prepared, 'AGENTS.md'), `\n${HONO_CLI_ONBOARDING}\n`)
     }
   }
   if (options.skillDir) {
@@ -163,82 +135,71 @@ async function prepareFixture(
   return { prepared, honoCliVersion }
 }
 
-export async function runPracticalSuite(
-  options: PracticalSuiteOptions,
-): Promise<PracticalReport> {
+export async function runPracticalSuite(options: PracticalSuiteOptions): Promise<PracticalReport> {
   const task = PRACTICAL_TASKS[options.task]
   if (!task) {
     const known = Object.keys(PRACTICAL_TASKS).join(', ')
-    throw new Error(
-      `Unknown practical task "${options.task}". Known tasks: ${known}`,
-    )
+    throw new Error(`Unknown practical task "${options.task}". Known tasks: ${known}`)
   }
 
   const startedAt = new Date().toISOString()
   // Hash the pristine fixture (before any injection) so a fixture edit is
   // never silently compared against older results.
   const fixtureHash = await hashDirectory(fixtureDir(task.fixture))
-  const skillHash = options.skillDir
-    ? await hashDirectory(options.skillDir)
-    : undefined
+  const skillHash = options.skillDir ? await hashDirectory(options.skillDir) : undefined
   const { prepared, honoCliVersion } = await prepareFixture(task, options)
 
   let results: PracticalRun[]
   try {
-    results = await runPool(
-      options.runs,
-      options.concurrency ?? 1,
-      async (jobIndex) => {
-        const index = jobIndex + 1
-        options.onRunStarted?.(index)
-        const workspace = await createWorkspaceFrom('practical', prepared)
-        try {
-          const outcome = await runAgent({
-            model: options.model,
-            instructions: INSTRUCTIONS,
-            prompt: task.prompt,
-            workspace,
-            timeoutMs: options.timeoutMs,
-            onProgress: (progress) => options.onRunProgress?.(index, progress),
+    results = await runPool(options.runs, options.concurrency ?? 1, async (jobIndex) => {
+      const index = jobIndex + 1
+      options.onRunStarted?.(index)
+      const workspace = await createWorkspaceFrom('practical', prepared)
+      try {
+        const outcome = await runAgent({
+          model: options.model,
+          instructions: INSTRUCTIONS,
+          prompt: task.prompt,
+          workspace,
+          timeoutMs: options.timeoutMs,
+          onProgress: (progress) => options.onRunProgress?.(index, progress),
+        })
+        let run: PracticalRun
+        if (outcome.outcome === 'failed') {
+          run = {
+            index,
+            outcome: 'failed',
+            success: false,
+            checks: [],
+            metrics: outcome.metrics,
+            error: outcome.error,
+          }
+        } else {
+          // The grader only runs after the agent is done; the agent never
+          // sees the checks.
+          await rm(`${workspace}/.agent-dx`, {
+            recursive: true,
+            force: true,
           })
-          let run: PracticalRun
-          if (outcome.outcome === 'failed') {
-            run = {
-              index,
-              outcome: 'failed',
-              success: false,
-              checks: [],
-              metrics: outcome.metrics,
-              error: outcome.error,
-            }
-          } else {
-            // The grader only runs after the agent is done; the agent never
-            // sees the checks.
-            await rm(`${workspace}/.agent-dx`, {
-              recursive: true,
-              force: true,
-            })
-            const checks = await task.grade(workspace)
-            run = {
-              index,
-              outcome: 'completed',
-              success:
-                checks.length > 0 && checks.every((check) => check.passed),
-              checks,
-              metrics: outcome.metrics,
-            }
+          const checks = await task.grade(workspace)
+          run = {
+            index,
+            outcome: 'completed',
+            success: checks.length > 0 && checks.every((check) => check.passed),
+            checks,
+            metrics: outcome.metrics,
           }
-          if (options.keepDir) {
-            run.workspace = join(options.keepDir, `run-${index}`)
-            await persistWorkspace(workspace, run.workspace)
-          }
-          options.onRunFinished?.(run)
-          return run
-        } finally {
-          await removeWorkspace(workspace)
         }
-      },
-    )
+        if (options.keepDir) {
+          run.workspace = join(options.keepDir, `run-${index}`)
+          await persistWorkspace(workspace, run.workspace)
+        }
+        options.onRunFinished?.(run)
+        return run
+      } finally {
+        await removeWorkspace(workspace)
+      }
+    })
   } finally {
     await shutdownRunner()
     await removeWorkspace(prepared)
@@ -266,39 +227,28 @@ export async function runPracticalSuite(
     results,
     summary: {
       successRate:
-        options.runs === 0
-          ? 0
-          : results.filter((run) => run.success).length / options.runs,
+        options.runs === 0 ? 0 : results.filter((run) => run.success).length / options.runs,
       medianDurationMs: median(results.map((run) => run.metrics.durationMs)),
       medianToolCalls: median(results.map((run) => run.metrics.toolCalls)),
       medianTokens: tokenTotals.length > 0 ? median(tokenTotals) : undefined,
       honoCli: {
-        medianCalls: median(
-          results.map((run) => run.metrics.honoCli?.calls ?? 0),
-        ),
+        medianCalls: median(results.map((run) => run.metrics.honoCli?.calls ?? 0)),
         usageRate:
           options.runs === 0
             ? 0
-            : results.filter((run) => (run.metrics.honoCli?.calls ?? 0) > 0)
-                .length / options.runs,
+            : results.filter((run) => (run.metrics.honoCli?.calls ?? 0) > 0).length / options.runs,
         agentContextRate:
           options.runs === 0
             ? 0
-            : results.filter((run) => run.metrics.honoCli?.agentContext)
-                .length / options.runs,
+            : results.filter((run) => run.metrics.honoCli?.agentContext).length / options.runs,
         commands: results.reduce<Record<string, number>>((totals, run) => {
-          for (const [key, count] of Object.entries(
-            run.metrics.honoCli?.commands ?? {},
-          )) {
+          for (const [key, count] of Object.entries(run.metrics.honoCli?.commands ?? {})) {
             totals[key] = (totals[key] ?? 0) + count
           }
           return totals
         }, {}),
-        errorRuns: results.filter(
-          (run) => (run.metrics.honoCli?.errors ?? 0) > 0,
-        ).length,
-        recoveredRuns: results.filter((run) => run.metrics.honoCli?.recovered)
-          .length,
+        errorRuns: results.filter((run) => (run.metrics.honoCli?.errors ?? 0) > 0).length,
+        recoveredRuns: results.filter((run) => run.metrics.honoCli?.recovered).length,
       },
     },
   }

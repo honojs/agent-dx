@@ -78,11 +78,7 @@ const PROVIDER_ENV_KEYS: Record<string, string[]> = {
   google: ['GEMINI_API_KEY'],
   // Cloudflare AI Gateway (supports unified billing): the "API key" is an
   // AI Gateway token sent as cf-aig-authorization; no provider key needed.
-  'cloudflare-ai-gateway': [
-    'CLOUDFLARE_API_KEY',
-    'CLOUDFLARE_ACCOUNT_ID',
-    'CLOUDFLARE_GATEWAY_ID',
-  ],
+  'cloudflare-ai-gateway': ['CLOUDFLARE_API_KEY', 'CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_GATEWAY_ID'],
 }
 
 /**
@@ -105,12 +101,8 @@ function fail(message: string): never {
 
 function printList(): void {
   console.log('Suites:')
-  console.log(
-    '  adoption      Does the agent choose Hono given a neutral prompt?',
-  )
-  console.log(
-    '  practical   Can the agent correctly modify an existing Hono project?',
-  )
+  console.log('  adoption      Does the agent choose Hono given a neutral prompt?')
+  console.log('  practical   Can the agent correctly modify an existing Hono project?')
   console.log('')
   console.log('Adoption runtimes:')
   for (const runtime of Object.values(ADOPTION_RUNTIMES)) {
@@ -199,20 +191,12 @@ async function main(): Promise<void> {
     fail('--candidate / --against require --target (e.g. --target cli)')
   }
   if (values.target && values.target !== 'cli') {
-    console.error(
-      `Experiment orchestration for --target ${values.target} is not implemented yet`,
-    )
-    console.error(
-      '(only "cli" is). For now, run each variant yourself and compare:',
-    )
+    console.error(`Experiment orchestration for --target ${values.target} is not implemented yet`)
+    console.error('(only "cli" is). For now, run each variant yourself and compare:')
     console.error('')
-    console.error(
-      '  agent-dx --suite practical --variant baseline  --report baseline.json',
-    )
+    console.error('  agent-dx --suite practical --variant baseline  --report baseline.json')
     console.error('  # ...switch to the candidate setup...')
-    console.error(
-      '  agent-dx --suite practical --variant candidate --report candidate.json',
-    )
+    console.error('  agent-dx --suite practical --variant candidate --report candidate.json')
     console.error('  agent-dx compare baseline.json candidate.json')
     process.exit(1)
   }
@@ -227,20 +211,14 @@ async function main(): Promise<void> {
   }
   const concurrency = Number.parseInt(values.concurrency ?? '5', 10)
   if (!Number.isInteger(concurrency) || concurrency < 1) {
-    fail(
-      `--concurrency must be a positive integer, got "${values.concurrency}"`,
-    )
+    fail(`--concurrency must be a positive integer, got "${values.concurrency}"`)
   }
   const model = values.model ?? 'anthropic/claude-haiku-4-5'
 
   const provider = model.split('/')[0] ?? ''
-  const missingEnv = (PROVIDER_ENV_KEYS[provider] ?? []).filter(
-    (key) => !process.env[key],
-  )
+  const missingEnv = (PROVIDER_ENV_KEYS[provider] ?? []).filter((key) => !process.env[key])
   if (missingEnv.length > 0) {
-    fail(
-      `${missingEnv.join(', ')} not set — required to run models from "${provider}"`,
-    )
+    fail(`${missingEnv.join(', ')} not set — required to run models from "${provider}"`)
   }
 
   const runtimeId = values.runtime ?? 'cloudflare-workers'
@@ -250,13 +228,13 @@ async function main(): Promise<void> {
     ? join(
         process.cwd(),
         'agent-dx-runs',
-        `${suite}-${new Date().toISOString().replaceAll(':', '-').slice(0, 19)}`,
+        `${suite}-${new Date().toISOString().replaceAll(':', '-').slice(0, 19)}`
       )
     : undefined
 
   suppressExperimentalWarnings()
   console.error(
-    `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`,
+    `Running ${suite} suite (model: ${model}, runs: ${runs}, concurrency: ${concurrency})...`
   )
   const runtime = ADOPTION_RUNTIMES[runtimeId]
   const scenario = ADOPTION_SCENARIOS[scenarioId]
@@ -281,7 +259,7 @@ async function main(): Promise<void> {
   const runLabel = (index: number) =>
     paint(
       RUN_COLORS[(index - 1) % RUN_COLORS.length] ?? 36,
-      `run ${String(index).padStart(String(runs).length)}/${runs}`,
+      `run ${String(index).padStart(String(runs).length)}/${runs}`
     )
   const onRunStarted = (index: number) => {
     console.error(`  ${runLabel(index)} started`)
@@ -290,9 +268,7 @@ async function main(): Promise<void> {
     ? undefined
     : (index: number, progress: { toolName: string; detail?: string }) => {
         const detail = progress.detail ? ` ${progress.detail}` : ''
-        console.error(
-          `  ${runLabel(index)} ${paint(2, `${progress.toolName}${detail}`)}`,
-        )
+        console.error(`  ${runLabel(index)} ${paint(2, `${progress.toolName}${detail}`)}`)
       }
 
   const keptSuffix = (workspace: string | undefined) =>
@@ -303,10 +279,7 @@ async function main(): Promise<void> {
     fail(`--onboarding must be "agents-md" or "none", got "${onboarding}"`)
   }
 
-  const runPracticalArm = (
-    honoCli: string | undefined,
-    armKeepDir: string | undefined,
-  ) =>
+  const runPracticalArm = (honoCli: string | undefined, armKeepDir: string | undefined) =>
     runPracticalSuite({
       model,
       runs,
@@ -319,12 +292,11 @@ async function main(): Promise<void> {
       onRunStarted,
       onRunProgress,
       onRunFinished: (run) => {
-        const label =
-          run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
+        const label = run.outcome === 'failed' ? 'failed' : run.success ? 'pass' : 'FAIL'
         console.error(
           `  ${runLabel(run.index)} done: ${label} ` +
             `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
-            keptSuffix(run.workspace),
+            keptSuffix(run.workspace)
         )
       },
     })
@@ -337,9 +309,7 @@ async function main(): Promise<void> {
     }
     const candidateSpec = values.candidate
     if (!candidateSpec) {
-      fail(
-        '--candidate <npm-spec> is required with --target cli (e.g. --candidate @hono/cli@next)',
-      )
+      fail('--candidate <npm-spec> is required with --target cli (e.g. --candidate @hono/cli@next)')
     }
     const againstSpec = values.against ?? 'none'
     const baselineCli = againstSpec === 'none' ? undefined : againstSpec
@@ -347,7 +317,7 @@ async function main(): Promise<void> {
     console.error(`=== baseline (${baselineCli ?? 'no Hono CLI'}) ===`)
     const baseline = await runPracticalArm(
       baselineCli,
-      keepDir ? join(keepDir, 'baseline') : undefined,
+      keepDir ? join(keepDir, 'baseline') : undefined
     )
     baseline.variant = 'baseline'
     baseline.target = 'cli'
@@ -355,7 +325,7 @@ async function main(): Promise<void> {
     console.error(`\n=== candidate (${candidateSpec}) ===`)
     const candidate = await runPracticalArm(
       candidateSpec,
-      keepDir ? join(keepDir, 'candidate') : undefined,
+      keepDir ? join(keepDir, 'candidate') : undefined
     )
     candidate.variant = 'candidate'
     candidate.target = 'cli'
@@ -387,12 +357,11 @@ async function main(): Promise<void> {
       onRunStarted,
       onRunProgress,
       onRunFinished: (run) => {
-        const label =
-          run.outcome === 'failed' ? 'failed' : frameworkLabel(run.framework)
+        const label = run.outcome === 'failed' ? 'failed' : frameworkLabel(run.framework)
         console.error(
           `  ${runLabel(run.index)} done: ${label} ` +
             `(${run.metrics.toolCalls} tool calls, ${formatDuration(run.metrics.durationMs)})` +
-            keptSuffix(run.workspace),
+            keptSuffix(run.workspace)
         )
       },
     })
@@ -415,8 +384,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(
-    `agent-dx: ${error instanceof Error ? error.message : String(error)}`,
-  )
+  console.error(`agent-dx: ${error instanceof Error ? error.message : String(error)}`)
   process.exit(1)
 })

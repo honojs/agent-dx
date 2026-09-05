@@ -22,25 +22,13 @@ export function createSite(reports: AgentDxReport[]): Hono {
   const app = new Hono()
   app.use(jsxRenderer(({ children }) => <Layout>{children}</Layout>))
   app.get('/', (c) => c.render(<Home reports={reports} />))
-  app.get(
-    '/adoption/:runtime/:scenario',
-    ssgParams([...cells.values()]),
-    (c) => {
-      const { runtime, scenario } = c.req.param()
-      const matching = adoption.filter(
-        (report) =>
-          report.runtime === runtime &&
-          (report.scenario ?? 'default') === scenario,
-      )
-      if (matching.length === 0) return c.notFound()
-      return c.render(
-        <AdoptionDetail
-          runtime={runtime}
-          scenario={scenario}
-          reports={matching}
-        />,
-      )
-    },
-  )
+  app.get('/adoption/:runtime/:scenario', ssgParams([...cells.values()]), (c) => {
+    const { runtime, scenario } = c.req.param()
+    const matching = adoption.filter(
+      (report) => report.runtime === runtime && (report.scenario ?? 'default') === scenario
+    )
+    if (matching.length === 0) return c.notFound()
+    return c.render(<AdoptionDetail runtime={runtime} scenario={scenario} reports={matching} />)
+  })
   return app
 }

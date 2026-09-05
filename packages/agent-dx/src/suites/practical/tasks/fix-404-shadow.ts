@@ -71,16 +71,12 @@ console.log('__AGENT_DX__' + JSON.stringify(checks))
 `
 
 async function grade(workspace: string): Promise<PracticalCheck[]> {
-  return [
-    await typecheckCheck(workspace),
-    ...(await runCheckScript(workspace, CHECK_SCRIPT)),
-  ]
+  return [await typecheckCheck(workspace), ...(await runCheckScript(workspace, CHECK_SCRIPT))]
 }
 
 export const fix404ShadowTask: PracticalTask = {
   id: 'fix-404-shadow',
-  description:
-    'Debug a 404 the obvious file cannot explain (feature-gate shadowing)',
+  description: 'Debug a 404 the obvious file cannot explain (feature-gate shadowing)',
   fixture: 'hono-shop',
   prompt:
     'GET /api/orders returns 404, but the orders routes exist in the code. Debug the routing and fix it.',

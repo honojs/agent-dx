@@ -8,10 +8,7 @@ export async function createWorkspace(prefix: string): Promise<string> {
 }
 
 /** Copy a fixture directory into a fresh temporary workspace. */
-export async function createWorkspaceFrom(
-  prefix: string,
-  fixtureDir: string,
-): Promise<string> {
+export async function createWorkspaceFrom(prefix: string, fixtureDir: string): Promise<string> {
   const workspace = await createWorkspace(prefix)
   await cp(fixtureDir, workspace, { recursive: true })
   return workspace
@@ -27,10 +24,7 @@ const PERSIST_SKIP = new Set(['node_modules', '.agent-dx', '.git'])
  * Copy a finished workspace to a durable location for inspection,
  * leaving out installed dependencies and grader files.
  */
-export async function persistWorkspace(
-  workspace: string,
-  dest: string,
-): Promise<void> {
+export async function persistWorkspace(workspace: string, dest: string): Promise<void> {
   await mkdir(dirname(dest), { recursive: true })
   await cp(workspace, dest, {
     recursive: true,

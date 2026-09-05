@@ -169,15 +169,11 @@ export interface PracticalReport extends ReportBase {
 
 export type AgentDxReport = AdoptionReport | PracticalReport
 
-export function isAdoptionReport(
-  report: AgentDxReport,
-): report is AdoptionReport {
+export function isAdoptionReport(report: AgentDxReport): report is AdoptionReport {
   return report.suite === 'adoption'
 }
 
-export function isPracticalReport(
-  report: AgentDxReport,
-): report is PracticalReport {
+export function isPracticalReport(report: AgentDxReport): report is PracticalReport {
   return report.suite === 'practical'
 }
 

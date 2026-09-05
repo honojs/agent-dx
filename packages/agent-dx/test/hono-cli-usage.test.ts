@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  analyzeHonoCliCommand,
-  isCliErrorEnvelope,
-} from '../src/runner/flue-runner.js'
+import { analyzeHonoCliCommand, isCliErrorEnvelope } from '../src/runner/flue-runner.js'
 
 describe('analyzeHonoCliCommand', () => {
   it('counts direct and npx invocations with their subcommand', () => {
@@ -16,9 +13,11 @@ describe('analyzeHonoCliCommand', () => {
       agentContext: false,
       commands: { request: 1 },
     })
-    expect(
-      analyzeHonoCliCommand('./node_modules/.bin/hono routes --plain'),
-    ).toEqual({ calls: 1, agentContext: false, commands: { routes: 1 } })
+    expect(analyzeHonoCliCommand('./node_modules/.bin/hono routes --plain')).toEqual({
+      calls: 1,
+      agentContext: false,
+      commands: { routes: 1 },
+    })
   })
 
   it('detects agent-context and help entry points', () => {
@@ -43,18 +42,16 @@ describe('analyzeHonoCliCommand', () => {
   })
 
   it('separates request --trace from plain request', () => {
-    expect(analyzeHonoCliCommand('npx hono request -P /todos --trace')).toEqual(
-      {
-        calls: 1,
-        agentContext: false,
-        commands: { 'request --trace': 1 },
-      },
-    )
+    expect(analyzeHonoCliCommand('npx hono request -P /todos --trace')).toEqual({
+      calls: 1,
+      agentContext: false,
+      commands: { 'request --trace': 1 },
+    })
   })
 
   it('counts chained invocations separately', () => {
     const usage = analyzeHonoCliCommand(
-      'cd . && npx hono agent-context && npx hono routes | head -20',
+      'cd . && npx hono agent-context && npx hono routes | head -20'
     )
     expect(usage).toEqual({
       calls: 2,
@@ -64,11 +61,7 @@ describe('analyzeHonoCliCommand', () => {
   })
 
   it('ignores unrelated commands and substrings', () => {
-    for (const command of [
-      'npm install hono',
-      'cat hono.txt',
-      'echo "use hono routes"',
-    ]) {
+    for (const command of ['npm install hono', 'cat hono.txt', 'echo "use hono routes"']) {
       expect(analyzeHonoCliCommand(command).calls).toBe(0)
     }
   })

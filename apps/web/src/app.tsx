@@ -171,14 +171,12 @@ const AdoptionCell: FC<{
   scenario: string
   report?: AdoptionReport
 }> = ({ runtime, scenario, report }) => {
-  if (!report) return <td class="cell">·</td>
+  if (!report) return <td class='cell'>·</td>
   const rate = report.summary.honoAdoption
   return (
     <td
-      class="cell"
-      style={
-        rate > 0 ? `background: rgba(255, 91, 17, ${0.05 + rate * 0.12})` : ''
-      }
+      class='cell'
+      style={rate > 0 ? `background: rgba(255, 91, 17, ${0.05 + rate * 0.12})` : ''}
       title={`${formatDate(report.finishedAt)} · ${report.model} · ${report.runs} runs`}
     >
       <a class={cellLinkClass} href={`/adoption/${runtime}/${scenario}`}>
@@ -241,14 +239,13 @@ const GroupedBars: FC<{
   const groupWidth = plotWidth / Math.max(groups.length, 1)
   const barsPerGroup = Math.max(...groups.map((g) => g.bars.length), 1)
   const barWidth = Math.min(22, (groupWidth * 0.7) / barsPerGroup)
-  const y = (rate: number): number =>
-    pad.top + (1 - rate) * (height - pad.top - pad.bottom)
+  const y = (rate: number): number => pad.top + (1 - rate) * (height - pad.top - pad.bottom)
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      role="img"
+      role='img'
       aria-label={ariaLabel}
-      style="width: 100%; height: auto;"
+      style='width: 100%; height: auto;'
     >
       {[0, 0.5, 1].map((rate) => (
         <>
@@ -257,15 +254,15 @@ const GroupedBars: FC<{
             y1={y(rate)}
             x2={width - pad.right}
             y2={y(rate)}
-            stroke="currentColor"
+            stroke='currentColor'
             opacity={0.15}
           />
           <text
             x={pad.left - 8}
             y={y(rate) + 4}
-            text-anchor="end"
-            font-size="11"
-            fill="currentColor"
+            text-anchor='end'
+            font-size='11'
+            fill='currentColor'
             opacity={0.6}
           >
             {percent(rate)}
@@ -281,30 +278,24 @@ const GroupedBars: FC<{
               if (!bar) return null
               return (
                 <rect
-                  x={
-                    groupStart +
-                    (groupWidth - barsWidth) / 2 +
-                    barIndex * barWidth
-                  }
+                  x={groupStart + (groupWidth - barsWidth) / 2 + barIndex * barWidth}
                   y={y(bar.value)}
                   width={barWidth - 3}
                   height={y(0) - y(bar.value)}
                   fill={bar.color}
-                  fill-opacity="0.75"
-                  rx="2"
+                  fill-opacity='0.75'
+                  rx='2'
                 >
-                  <title>
-                    {bar.title ?? `${bar.label}: ${percent(bar.value)}`}
-                  </title>
+                  <title>{bar.title ?? `${bar.label}: ${percent(bar.value)}`}</title>
                 </rect>
               )
             })}
             <text
               x={groupStart + groupWidth / 2}
               y={height - 22}
-              text-anchor="middle"
-              font-size="11"
-              fill="currentColor"
+              text-anchor='middle'
+              font-size='11'
+              fill='currentColor'
               opacity={0.7}
             >
               {group.label}
@@ -313,12 +304,7 @@ const GroupedBars: FC<{
         )
       })}
       {legend.map((entry, index) => (
-        <text
-          x={pad.left + index * 150}
-          y={height - 6}
-          font-size="11"
-          fill={entry.color}
-        >
+        <text x={pad.left + index * 150} y={height - 6} font-size='11' fill={entry.color}>
           {entry.label}
         </text>
       ))}
@@ -335,17 +321,13 @@ const RUNTIME_COLORS: Record<string, string> = {
 }
 
 function runtimeColor(runtime: string, index: number): string {
-  return (
-    RUNTIME_COLORS[runtime] ??
-    CHART_COLORS[index % CHART_COLORS.length] ??
-    '#888'
-  )
+  return RUNTIME_COLORS[runtime] ?? CHART_COLORS[index % CHART_COLORS.length] ?? '#888'
 }
 
 /** Grouped bars: Hono adoption per scenario, one bar per runtime. */
 const AdoptionBars: FC<{ cells: AdoptionCells }> = ({ cells }) => (
   <GroupedBars
-    ariaLabel="Hono adoption per scenario and runtime"
+    ariaLabel='Hono adoption per scenario and runtime'
     groups={cells.scenarios.map((scenario) => ({
       label: scenario,
       bars: cells.runtimes.map((runtime, index) => {
@@ -371,7 +353,7 @@ const AdoptionMatrix: FC<{ cells: AdoptionCells }> = ({ cells }) => (
       <tr>
         <th>Runtime</th>
         {cells.scenarios.map((scenario) => (
-          <th class="cell">{scenario}</th>
+          <th class='cell'>{scenario}</th>
         ))}
       </tr>
     </thead>
@@ -402,9 +384,9 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
     <section class={sectionClass}>
       <h2>Adoption</h2>
       <p class={ledeClass}>
-        Given a neutral prompt — no framework named — does a coding agent choose
-        Hono? Hono adoption rate and the most-chosen option, per runtime ×
-        scenario. Click a cell for history and details.
+        Given a neutral prompt — no framework named — does a coding agent choose Hono? Hono adoption
+        rate and the most-chosen option, per runtime × scenario. Click a cell for history and
+        details.
       </p>
       {models.length > 0 ? (
         models.map((model) => {
@@ -426,9 +408,7 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
 
 /** Hono adoption over time, one line per model. Dependency-free SVG. */
 const AdoptionChart: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
-  const byTime = [...reports].sort((a, b) =>
-    a.finishedAt.localeCompare(b.finishedAt),
-  )
+  const byTime = [...reports].sort((a, b) => a.finishedAt.localeCompare(b.finishedAt))
   const dates = [...new Set(byTime.map((r) => formatDate(r.finishedAt)))]
   const models = [...new Set(byTime.map((r) => r.model))].sort()
   const width = 640
@@ -439,14 +419,13 @@ const AdoptionChart: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
     const span = Math.max(dates.length - 1, 1)
     return pad.left + (i / span) * (width - pad.left - pad.right)
   }
-  const y = (rate: number): number =>
-    pad.top + (1 - rate) * (height - pad.top - pad.bottom)
+  const y = (rate: number): number => pad.top + (1 - rate) * (height - pad.top - pad.bottom)
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      role="img"
-      aria-label="Hono adoption over time"
-      style="width: 100%; height: auto;"
+      role='img'
+      aria-label='Hono adoption over time'
+      style='width: 100%; height: auto;'
     >
       {[0, 0.5, 1].map((rate) => (
         <>
@@ -455,15 +434,15 @@ const AdoptionChart: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
             y1={y(rate)}
             x2={width - pad.right}
             y2={y(rate)}
-            stroke="currentColor"
+            stroke='currentColor'
             opacity={0.15}
           />
           <text
             x={pad.left - 8}
             y={y(rate) + 4}
-            text-anchor="end"
-            font-size="11"
-            fill="currentColor"
+            text-anchor='end'
+            font-size='11'
+            fill='currentColor'
             opacity={0.6}
           >
             {percent(rate)}
@@ -472,21 +451,15 @@ const AdoptionChart: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
       ))}
       {dates.length > 0 && (
         <>
-          <text
-            x={pad.left}
-            y={height - 8}
-            font-size="11"
-            fill="currentColor"
-            opacity={0.6}
-          >
+          <text x={pad.left} y={height - 8} font-size='11' fill='currentColor' opacity={0.6}>
             {dates[0]}
           </text>
           <text
             x={width - pad.right}
             y={height - 8}
-            text-anchor="end"
-            font-size="11"
-            fill="currentColor"
+            text-anchor='end'
+            font-size='11'
+            fill='currentColor'
             opacity={0.6}
           >
             {dates[dates.length - 1]}
@@ -497,33 +470,20 @@ const AdoptionChart: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
         const rows = byTime.filter((r) => r.model === model)
         const color = CHART_COLORS[index % CHART_COLORS.length]
         const points = rows
-          .map(
-            (r) =>
-              `${x(formatDate(r.finishedAt))},${y(r.summary.honoAdoption)}`,
-          )
+          .map((r) => `${x(formatDate(r.finishedAt))},${y(r.summary.honoAdoption)}`)
           .join(' ')
         return (
           <>
-            <polyline
-              points={points}
-              fill="none"
-              stroke={color}
-              stroke-width="2"
-            />
+            <polyline points={points} fill='none' stroke={color} stroke-width='2' />
             {rows.map((r) => (
               <circle
                 cx={x(formatDate(r.finishedAt))}
                 cy={y(r.summary.honoAdoption)}
-                r="3"
+                r='3'
                 fill={color}
               />
             ))}
-            <text
-              x={pad.left + 4 + index * 150}
-              y={pad.top + 4}
-              font-size="11"
-              fill={color}
-            >
+            <text x={pad.left + 4 + index * 150} y={pad.top + 4} font-size='11' fill={color}>
               {model.split('/').pop()}
             </text>
           </>
@@ -565,9 +525,7 @@ const shareBarClass = css`
 
 /** 100%-stacked bar of which frameworks the runs chose. */
 const FrameworkShareBar: FC<{ report: AdoptionReport }> = ({ report }) => {
-  const entries = Object.entries(report.summary.counts).sort(
-    (a, b) => b[1] - a[1],
-  )
+  const entries = Object.entries(report.summary.counts).sort((a, b) => b[1] - a[1])
   const total = entries.reduce((sum, [, count]) => sum + count, 0)
   if (total === 0) return null
   return (
@@ -603,8 +561,7 @@ export const AdoptionDetail: FC<{
       Adoption · {runtime} × {scenario}
     </h2>
     <p class={ledeClass}>
-      Hono adoption over time, and what was chosen instead.{' '}
-      <a href="/">← back</a>
+      Hono adoption over time, and what was chosen instead. <a href='/'>← back</a>
     </p>
     {reports[0]?.prompt && (
       <>
@@ -618,7 +575,7 @@ export const AdoptionDetail: FC<{
         <tr>
           <th>Date</th>
           <th>Model</th>
-          <th class="num">Hono</th>
+          <th class='num'>Hono</th>
           <th>Share</th>
           <th>What agents chose</th>
           <th>Code</th>
@@ -631,12 +588,8 @@ export const AdoptionDetail: FC<{
             <tr>
               <td>{formatDate(report.finishedAt)}</td>
               <td>{report.model.split('/').pop()}</td>
-              <td class="num">
-                <span
-                  class={
-                    report.summary.honoAdoption > 0 ? pctClass : pctZeroClass
-                  }
-                >
+              <td class='num'>
+                <span class={report.summary.honoAdoption > 0 ? pctClass : pctZeroClass}>
                   {percent(report.summary.honoAdoption)}
                 </span>
               </td>
@@ -680,23 +633,19 @@ const CONDITION_COLORS: Record<string, string> = {
 }
 
 const PracticalCell: FC<{ report?: PracticalReport }> = ({ report }) => {
-  if (!report) return <td class="cell">·</td>
+  if (!report) return <td class='cell'>·</td>
   const success = report.summary.successRate
   return (
     <td
-      class="cell"
+      class='cell'
       title={`${formatDate(report.finishedAt)} · ${report.model} · ${report.runs} runs${report.honoCliVersion ? ` · @hono/cli ${report.honoCliVersion}` : ''}`}
     >
-      <span class={success === 1 ? pctClass : pctZeroClass}>
-        {percent(success)}
-      </span>
+      <span class={success === 1 ? pctClass : pctZeroClass}>{percent(success)}</span>
       <span class={whoClass}>
         {report.summary.medianTokens
           ? `${Math.round(report.summary.medianTokens / 1000)}k tok`
           : '—'}
-        {report.summary.honoCli
-          ? ` · CLI ${percent(report.summary.honoCli.usageRate)}`
-          : ''}
+        {report.summary.honoCli ? ` · CLI ${percent(report.summary.honoCli.usageRate)}` : ''}
       </span>
     </td>
   )
@@ -720,14 +669,14 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
     <section class={sectionClass}>
       <h2>Practical</h2>
       <p class={ledeClass}>
-        Hand the agent a real Hono project and a change request, grade the
-        result with hidden deterministic checks. Success rate, median tokens,
-        and CLI usage per task — with and without the Hono CLI and skill.
+        Hand the agent a real Hono project and a change request, grade the result with hidden
+        deterministic checks. Success rate, median tokens, and CLI usage per task — with and without
+        the Hono CLI and skill.
       </p>
       {latest.size > 0 ? (
         <>
           <GroupedBars
-            ariaLabel="Practical success rate per task and condition"
+            ariaLabel='Practical success rate per task and condition'
             groups={tasks.map((task) => ({
               label: task,
               bars: ordered(conditions, CONDITION_ORDER).map((condition) => {
@@ -750,7 +699,7 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
               <tr>
                 <th>Task</th>
                 {ordered(conditions, CONDITION_ORDER).map((condition) => (
-                  <th class="cell">{condition}</th>
+                  <th class='cell'>{condition}</th>
                 ))}
               </tr>
             </thead>
@@ -759,9 +708,7 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
                 <tr>
                   <td>{task}</td>
                   {ordered(conditions, CONDITION_ORDER).map((condition) => (
-                    <PracticalCell
-                      report={latest.get(`${task} ${condition}`)}
-                    />
+                    <PracticalCell report={latest.get(`${task} ${condition}`)} />
                   ))}
                 </tr>
               ))}
@@ -788,8 +735,7 @@ function findExperiments(reports: AgentDxReport[]) {
   for (const group of groups.values()) {
     const baseline = group.find((r) => r.variant === 'baseline')
     const candidate = group.find((r) => r.variant === 'candidate')
-    if (baseline && candidate)
-      experiments.push(compareReports(baseline, candidate))
+    if (baseline && candidate) experiments.push(compareReports(baseline, candidate))
   }
   return experiments
 }
@@ -800,8 +746,8 @@ const ExperimentsSection: FC<{ reports: AgentDxReport[] }> = ({ reports }) => {
     <section class={sectionClass}>
       <h2>Experiments</h2>
       <p class={ledeClass}>
-        Do changes to Hono CLI, Skills, Docs, or Core improve Agent DX? Baseline
-        vs candidate, same task and fixture.
+        Do changes to Hono CLI, Skills, Docs, or Core improve Agent DX? Baseline vs candidate, same
+        task and fixture.
       </p>
       {experiments.length > 0 ? (
         experiments.map((experiment) => (
@@ -814,18 +760,18 @@ const ExperimentsSection: FC<{ reports: AgentDxReport[] }> = ({ reports }) => {
               <thead>
                 <tr>
                   <th />
-                  <th class="num">Baseline</th>
-                  <th class="num">Candidate</th>
-                  <th class="num">Change</th>
+                  <th class='num'>Baseline</th>
+                  <th class='num'>Candidate</th>
+                  <th class='num'>Change</th>
                 </tr>
               </thead>
               <tbody>
                 {experiment.rows.map((row) => (
                   <tr>
                     <td>{row.label}</td>
-                    <td class="num">{row.baseline}</td>
-                    <td class="num">{row.candidate}</td>
-                    <td class="num">{row.change}</td>
+                    <td class='num'>{row.baseline}</td>
+                    <td class='num'>{row.candidate}</td>
+                    <td class='num'>{row.change}</td>
                   </tr>
                 ))}
               </tbody>
@@ -839,37 +785,31 @@ const ExperimentsSection: FC<{ reports: AgentDxReport[] }> = ({ reports }) => {
   )
 }
 
-export const Layout: FC<PropsWithChildren<{ head?: Child }>> = ({
-  head,
-  children,
-}) => (
-  <html lang="en">
+export const Layout: FC<PropsWithChildren<{ head?: Child }>> = ({ head, children }) => (
+  <html lang='en'>
     <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta charset='utf-8' />
+      <meta name='viewport' content='width=device-width, initial-scale=1' />
       <title>Hono Agent DX</title>
       <meta
-        name="description"
-        content="Measure and improve the developer experience of coding agents using Hono."
+        name='description'
+        content='Measure and improve the developer experience of coding agents using Hono.'
       />
-      <link rel="icon" href="/favicon.ico" />
+      <link rel='icon' href='/favicon.ico' />
       {head}
       <Style />
     </head>
     <body class={bodyClass}>
       <header class={headerClass}>
         <h1>
-          <a href="/">Hono Agent DX</a>
+          <a href='/'>Hono Agent DX</a>
         </h1>
-        <p>
-          Measure and improve the developer experience of coding agents using
-          Hono.
-        </p>
+        <p>Measure and improve the developer experience of coding agents using Hono.</p>
       </header>
       {children}
       <footer class={footerClass}>
-        <a href="https://github.com/honojs/agent-dx">GitHub</a> ·{' '}
-        <a href="https://www.npmjs.com/package/@hono/agent-dx">npm</a>
+        <a href='https://github.com/honojs/agent-dx'>GitHub</a> ·{' '}
+        <a href='https://www.npmjs.com/package/@hono/agent-dx'>npm</a>
       </footer>
     </body>
   </html>

@@ -53,9 +53,7 @@ describe('compareReports', () => {
       },
     })
     const comparison = compareReports(baseline, candidate)
-    const byLabel = Object.fromEntries(
-      comparison.rows.map((row) => [row.label, row]),
-    )
+    const byLabel = Object.fromEntries(comparison.rows.map((row) => [row.label, row]))
 
     expect(byLabel['Success rate']?.change).toBe('+20pt')
     expect(byLabel['Median tokens']?.change).toBe('-24%')
@@ -64,10 +62,7 @@ describe('compareReports', () => {
   })
 
   it('computes adoption deltas in points', () => {
-    const comparison = compareReports(
-      adoptionReport(0.55),
-      adoptionReport(0.75),
-    )
+    const comparison = compareReports(adoptionReport(0.55), adoptionReport(0.75))
     expect(comparison.rows[0]?.label).toBe('Hono adoption')
     expect(comparison.rows[0]?.change).toBe('+20pt')
   })
@@ -76,42 +71,37 @@ describe('compareReports', () => {
     expect(() =>
       compareReports(
         practicalReport({ task: 'fix-404' }),
-        practicalReport({ task: 'add-user-route' }),
-      ),
+        practicalReport({ task: 'add-user-route' })
+      )
     ).toThrowError(/different tasks/)
     expect(() =>
       compareReports(
         practicalReport({ fixtureHash: 'aaaa000000000000' }),
-        practicalReport({ fixtureHash: 'bbbb111111111111' }),
-      ),
+        practicalReport({ fixtureHash: 'bbbb111111111111' })
+      )
     ).toThrowError(/fixture revisions/)
   })
 
   it('refuses to compare different adoption runtimes or prompts', () => {
     expect(() =>
-      compareReports(
-        { ...adoptionReport(0.5), runtime: 'bun' },
-        adoptionReport(0.5),
-      ),
+      compareReports({ ...adoptionReport(0.5), runtime: 'bun' }, adoptionReport(0.5))
     ).toThrowError(/different runtimes/)
     expect(() =>
       compareReports(
         { ...adoptionReport(0.5), prompt: 'old prompt' },
-        { ...adoptionReport(0.5), prompt: 'new prompt' },
-      ),
+        { ...adoptionReport(0.5), prompt: 'new prompt' }
+      )
     ).toThrowError(/prompt revisions/)
   })
 
   it('refuses to compare different suites', () => {
-    expect(() =>
-      compareReports(adoptionReport(0.5), practicalReport({})),
-    ).toThrowError(/different suites/)
+    expect(() => compareReports(adoptionReport(0.5), practicalReport({}))).toThrowError(
+      /different suites/
+    )
   })
 
   it('renders an aligned table', () => {
-    const output = renderComparison(
-      compareReports(practicalReport({}), practicalReport({})),
-    )
+    const output = renderComparison(compareReports(practicalReport({}), practicalReport({})))
     expect(output).toContain('Baseline')
     expect(output).toContain('Candidate')
     expect(output).toContain('Success rate')

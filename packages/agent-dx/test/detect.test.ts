@@ -18,9 +18,7 @@ async function workspace(files: Record<string, string>): Promise<string> {
 }
 
 afterEach(async () => {
-  await Promise.all(
-    dirs.map((dir) => rm(dir, { recursive: true, force: true })),
-  )
+  await Promise.all(dirs.map((dir) => rm(dir, { recursive: true, force: true })))
   dirs = []
 })
 
@@ -28,8 +26,7 @@ describe('detectFramework', () => {
   it('detects Hono from imports and dependencies', async () => {
     const dir = await workspace({
       'package.json': JSON.stringify({ dependencies: { hono: '^4.0.0' } }),
-      'src/index.ts':
-        "import { Hono } from 'hono'\nconst app = new Hono()\nexport default app\n",
+      'src/index.ts': "import { Hono } from 'hono'\nconst app = new Hono()\nexport default app\n",
     })
     const result = await detectFramework(dir)
     expect(result.framework).toBe('hono')
@@ -46,8 +43,7 @@ describe('detectFramework', () => {
 
   it('detects itty-router', async () => {
     const dir = await workspace({
-      'src/index.ts':
-        "import { Router } from 'itty-router'\nconst router = Router()\n",
+      'src/index.ts': "import { Router } from 'itty-router'\nconst router = Router()\n",
     })
     const result = await detectFramework(dir)
     expect(result.framework).toBe('itty-router')
@@ -180,8 +176,7 @@ describe('detectFramework', () => {
 
   it('detects oak from deno-style imports', async () => {
     const dir = await workspace({
-      'server.ts':
-        'import { Application } from "https://deno.land/x/oak@v12.6.1/mod.ts";\n',
+      'server.ts': 'import { Application } from "https://deno.land/x/oak@v12.6.1/mod.ts";\n',
     })
     expect((await detectFramework(dir)).framework).toBe('oak')
 
@@ -193,16 +188,14 @@ describe('detectFramework', () => {
 
   it('resolves deno.land/x URL imports', async () => {
     const dir = await workspace({
-      'src/index.ts':
-        "import { Hono } from 'https://deno.land/x/hono/mod.ts'\n",
+      'src/index.ts': "import { Hono } from 'https://deno.land/x/hono/mod.ts'\n",
     })
     expect((await detectFramework(dir)).framework).toBe('hono')
   })
 
   it('ignores node_modules', async () => {
     const dir = await workspace({
-      'node_modules/express/index.js':
-        "module.exports = require('./lib/express')\n",
+      'node_modules/express/index.js': "module.exports = require('./lib/express')\n",
       'src/index.ts': "import { Hono } from 'hono'\n",
     })
     const result = await detectFramework(dir)

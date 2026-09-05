@@ -21,15 +21,9 @@ app.get('/adoption/:runtime/:scenario', async (c) => {
   const { runtime, scenario } = c.req.param()
   const reports = (await loadReports(c.env.RESULTS))
     .filter(isAdoptionReport)
-    .filter(
-      (report) =>
-        report.runtime === runtime &&
-        (report.scenario ?? 'default') === scenario,
-    )
+    .filter((report) => report.runtime === runtime && (report.scenario ?? 'default') === scenario)
   if (reports.length === 0) return c.notFound()
-  return c.render(
-    <AdoptionDetail runtime={runtime} scenario={scenario} reports={reports} />,
-  )
+  return c.render(<AdoptionDetail runtime={runtime} scenario={scenario} reports={reports} />)
 })
 
 export default app

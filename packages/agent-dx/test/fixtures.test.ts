@@ -18,9 +18,7 @@ async function makeDir(files: Record<string, string>): Promise<string> {
 }
 
 afterEach(async () => {
-  await Promise.all(
-    dirs.map((dir) => rm(dir, { recursive: true, force: true })),
-  )
+  await Promise.all(dirs.map((dir) => rm(dir, { recursive: true, force: true })))
   dirs = []
 })
 
