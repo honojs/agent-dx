@@ -178,6 +178,19 @@ describe('detectFramework', () => {
     expect((await detectFramework(jsrDir)).framework).toBe('itty-router')
   })
 
+  it('detects oak from deno-style imports', async () => {
+    const dir = await workspace({
+      'server.ts':
+        'import { Application } from "https://deno.land/x/oak@v12.6.1/mod.ts";\n',
+    })
+    expect((await detectFramework(dir)).framework).toBe('oak')
+
+    const jsrDir = await workspace({
+      'server.ts': "import { Application } from 'jsr:@oak/oak'\n",
+    })
+    expect((await detectFramework(jsrDir)).framework).toBe('oak')
+  })
+
   it('resolves deno.land/x URL imports', async () => {
     const dir = await workspace({
       'src/index.ts':

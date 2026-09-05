@@ -25,6 +25,7 @@ const KNOWN_FRAMEWORKS: KnownFramework[] = [
   { id: 'elysia', packages: ['elysia'] },
   { id: 'h3', packages: ['h3'] },
   { id: 'express', packages: ['express'] },
+  { id: 'oak', packages: ['oak', '@oak/oak'] },
   { id: 'fastify', packages: ['fastify'] },
   { id: 'itty-router', packages: ['itty-router'] },
 ]
