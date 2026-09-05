@@ -6,6 +6,38 @@
     "results/**"
   ],
   "rules": {
-    "curly": "error"
+    "curly": "error",
+    "no-debugger": "error",
+    "no-empty": [
+      "warn",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
+    "prefer-const": [
+      "warn",
+      {
+        "destructuring": "all"
+      }
+    ],
+    "import/no-duplicates": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports"
+      }
+    ],
+    "no-unused-vars": [
+      "warn",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ]
   }
 }
