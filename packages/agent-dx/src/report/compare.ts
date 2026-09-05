@@ -38,12 +38,10 @@ function relativeDelta(baseline: number, candidate: number): string {
 
 export function compareReports(
   baseline: AgentDxReport,
-  candidate: AgentDxReport,
+  candidate: AgentDxReport
 ): ExperimentComparison {
   if (baseline.suite !== candidate.suite) {
-    throw new Error(
-      `Cannot compare different suites: "${baseline.suite}" vs "${candidate.suite}"`,
-    )
+    throw new Error(`Cannot compare different suites: "${baseline.suite}" vs "${candidate.suite}"`)
   }
   // Refuse comparisons across different measurements: a changed task,
   // fixture revision, runtime, scenario, or prompt is a different
@@ -51,9 +49,7 @@ export function compareReports(
   // nonsense.
   if (baseline.suite === 'practical' && candidate.suite === 'practical') {
     if (baseline.task !== candidate.task) {
-      throw new Error(
-        `Cannot compare different tasks: "${baseline.task}" vs "${candidate.task}"`,
-      )
+      throw new Error(`Cannot compare different tasks: "${baseline.task}" vs "${candidate.task}"`)
     }
     if (
       baseline.fixtureHash &&
@@ -61,23 +57,19 @@ export function compareReports(
       baseline.fixtureHash !== candidate.fixtureHash
     ) {
       throw new Error(
-        `Cannot compare across fixture revisions: the "${baseline.task}" fixture changed between runs (${baseline.fixtureHash} vs ${candidate.fixtureHash})`,
+        `Cannot compare across fixture revisions: the "${baseline.task}" fixture changed between runs (${baseline.fixtureHash} vs ${candidate.fixtureHash})`
       )
     }
   }
   if (baseline.suite === 'adoption' && candidate.suite === 'adoption') {
     if (baseline.runtime !== candidate.runtime) {
       throw new Error(
-        `Cannot compare different runtimes: "${baseline.runtime}" vs "${candidate.runtime}"`,
+        `Cannot compare different runtimes: "${baseline.runtime}" vs "${candidate.runtime}"`
       )
     }
-    if (
-      baseline.prompt &&
-      candidate.prompt &&
-      baseline.prompt !== candidate.prompt
-    ) {
+    if (baseline.prompt && candidate.prompt && baseline.prompt !== candidate.prompt) {
       throw new Error(
-        'Cannot compare across prompt revisions: the adoption prompt changed between runs',
+        'Cannot compare across prompt revisions: the adoption prompt changed between runs'
       )
     }
   }
@@ -89,10 +81,7 @@ export function compareReports(
       label: 'Hono adoption',
       baseline: percent(baseline.summary.honoAdoption),
       candidate: percent(candidate.summary.honoAdoption),
-      change: pointDelta(
-        baseline.summary.honoAdoption,
-        candidate.summary.honoAdoption,
-      ),
+      change: pointDelta(baseline.summary.honoAdoption, candidate.summary.honoAdoption),
     })
   }
 
@@ -101,10 +90,7 @@ export function compareReports(
       label: 'Success rate',
       baseline: percent(baseline.summary.successRate),
       candidate: percent(candidate.summary.successRate),
-      change: pointDelta(
-        baseline.summary.successRate,
-        candidate.summary.successRate,
-      ),
+      change: pointDelta(baseline.summary.successRate, candidate.summary.successRate),
     })
     if (
       baseline.summary.medianTokens !== undefined &&
@@ -114,29 +100,20 @@ export function compareReports(
         label: 'Median tokens',
         baseline: formatTokens(baseline.summary.medianTokens),
         candidate: formatTokens(candidate.summary.medianTokens),
-        change: relativeDelta(
-          baseline.summary.medianTokens,
-          candidate.summary.medianTokens,
-        ),
+        change: relativeDelta(baseline.summary.medianTokens, candidate.summary.medianTokens),
       })
     }
     rows.push({
       label: 'Median duration',
       baseline: formatDuration(baseline.summary.medianDurationMs),
       candidate: formatDuration(candidate.summary.medianDurationMs),
-      change: relativeDelta(
-        baseline.summary.medianDurationMs,
-        candidate.summary.medianDurationMs,
-      ),
+      change: relativeDelta(baseline.summary.medianDurationMs, candidate.summary.medianDurationMs),
     })
     rows.push({
       label: 'Median tool calls',
       baseline: String(baseline.summary.medianToolCalls),
       candidate: String(candidate.summary.medianToolCalls),
-      change: relativeDelta(
-        baseline.summary.medianToolCalls,
-        candidate.summary.medianToolCalls,
-      ),
+      change: relativeDelta(baseline.summary.medianToolCalls, candidate.summary.medianToolCalls),
     })
     const baseCli = baseline.summary.honoCli
     const candCli = candidate.summary.honoCli
@@ -186,12 +163,7 @@ export function renderComparison(comparison: ExperimentComparison): string {
   const header = ['', 'Baseline', 'Candidate', 'Change']
   const rows = [
     header,
-    ...comparison.rows.map((row) => [
-      row.label,
-      row.baseline,
-      row.candidate,
-      row.change,
-    ]),
+    ...comparison.rows.map((row) => [row.label, row.baseline, row.candidate, row.change]),
   ]
   const widths: number[] = []
   for (const row of rows) {
@@ -202,11 +174,9 @@ export function renderComparison(comparison: ExperimentComparison): string {
   for (const row of rows) {
     lines.push(
       row
-        .map((cell, i) =>
-          i === 0 ? cell.padEnd(widths[i] ?? 0) : cell.padStart(widths[i] ?? 0),
-        )
+        .map((cell, i) => (i === 0 ? cell.padEnd(widths[i] ?? 0) : cell.padStart(widths[i] ?? 0)))
         .join('   ')
-        .trimEnd(),
+        .trimEnd()
     )
   }
   return lines.join('\n')

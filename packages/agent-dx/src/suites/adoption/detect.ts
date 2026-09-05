@@ -49,31 +49,11 @@ const NON_FRAMEWORK_PACKAGES = new Set([
   'bun-types',
 ])
 
-const NON_FRAMEWORK_PREFIXES = [
-  '@cloudflare/',
-  '@types/',
-  '@typescript-eslint/',
-  '@vitest/',
-]
+const NON_FRAMEWORK_PREFIXES = ['@cloudflare/', '@types/', '@typescript-eslint/', '@vitest/']
 
-const SOURCE_EXTENSIONS = new Set([
-  '.ts',
-  '.tsx',
-  '.js',
-  '.jsx',
-  '.mjs',
-  '.cjs',
-  '.mts',
-  '.cts',
-])
+const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.mts', '.cts'])
 
-const IGNORED_DIRS = new Set([
-  'node_modules',
-  '.git',
-  'dist',
-  '.wrangler',
-  '.agent-dx',
-])
+const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', '.wrangler', '.agent-dx'])
 
 export interface DetectionResult {
   framework: FrameworkId
@@ -118,7 +98,7 @@ function packageNameOf(source: string): string | null {
   // URL imports (old-style Deno): recognize well-known package CDNs.
   if (/^https?:\/\//.test(source)) {
     const cdn = source.match(
-      /^https?:\/\/(?:deno\.land\/x|esm\.sh|cdn\.skypack\.dev|unpkg\.com)\/((?:@[^/@]+\/)?[^/@]+)/,
+      /^https?:\/\/(?:deno\.land\/x|esm\.sh|cdn\.skypack\.dev|unpkg\.com)\/((?:@[^/@]+\/)?[^/@]+)/
     )
     return cdn?.[1] ?? null
   }
@@ -200,8 +180,7 @@ async function scanWorkspace(root: string): Promise<WorkspaceScan> {
 
 function isRawHandlerWorkspace(scan: WorkspaceScan): boolean {
   for (const text of scan.sourceTexts.values()) {
-    if (/export\s+default\s*\{/.test(text) && /\bfetch\s*[(:]/.test(text))
-      return true
+    if (/export\s+default\s*\{/.test(text) && /\bfetch\s*[(:]/.test(text)) return true
     if (/addEventListener\s*\(\s*['"]fetch['"]/.test(text)) return true
     if (/Bun\.serve\s*\(/.test(text)) return true
     if (/Deno\.serve\s*\(/.test(text)) return true
@@ -227,15 +206,10 @@ export async function detectFramework(root: string): Promise<DetectionResult> {
   const unknownPackages: string[] = []
   const knownPackageIds = new Set(KNOWN_FRAMEWORKS.flatMap((f) => f.packages))
   const isUtility = (name: string): boolean =>
-    NON_FRAMEWORK_PACKAGES.has(name) ||
-    NON_FRAMEWORK_PREFIXES.some((p) => name.startsWith(p))
+    NON_FRAMEWORK_PACKAGES.has(name) || NON_FRAMEWORK_PREFIXES.some((p) => name.startsWith(p))
 
-  for (const name of new Set([
-    ...scan.dependencies.keys(),
-    ...scan.imports.keys(),
-  ])) {
-    if (!knownPackageIds.has(name) && !isUtility(name))
-      unknownPackages.push(name)
+  for (const name of new Set([...scan.dependencies.keys(), ...scan.imports.keys()])) {
+    if (!knownPackageIds.has(name) && !isUtility(name)) unknownPackages.push(name)
   }
   unknownPackages.sort()
 
@@ -271,15 +245,11 @@ export async function detectFramework(root: string): Promise<DetectionResult> {
   }
 
   // 3: unknown packages that are imported look like a framework we don't know.
-  const importedUnknown = unknownPackages.filter((name) =>
-    scan.imports.has(name),
-  )
+  const importedUnknown = unknownPackages.filter((name) => scan.imports.has(name))
   if (importedUnknown.length > 0) {
     return {
       framework: 'other',
-      evidence: importedUnknown.map(
-        (name) => `imported unknown package "${name}"`,
-      ),
+      evidence: importedUnknown.map((name) => `imported unknown package "${name}"`),
       unknownPackages,
     }
   }

@@ -10,11 +10,9 @@ describe('formatProgressDetail', () => {
 
   it('rewrites workspace references inside commands', () => {
     expect(formatProgressDetail(`cd ${ws} && npm run typecheck`, ws)).toBe(
-      'cd . && npm run typecheck',
+      'cd . && npm run typecheck'
     )
-    expect(formatProgressDetail(`/private${ws}/src/app.ts`, ws)).toBe(
-      'src/app.ts',
-    )
+    expect(formatProgressDetail(`/private${ws}/src/app.ts`, ws)).toBe('src/app.ts')
   })
 
   it('keeps only the first line and caps the length', () => {

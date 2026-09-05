@@ -10,7 +10,7 @@ export interface ExecResult {
 export function exec(
   command: string,
   args: string[],
-  options: { cwd: string; timeoutMs?: number },
+  options: { cwd: string; timeoutMs?: number }
 ): Promise<ExecResult> {
   return new Promise((resolve) => {
     execFile(
@@ -24,7 +24,7 @@ export function exec(
       },
       (error, stdout, stderr) => {
         resolve({ ok: error === null, stdout, stderr })
-      },
+      }
     )
   })
 }

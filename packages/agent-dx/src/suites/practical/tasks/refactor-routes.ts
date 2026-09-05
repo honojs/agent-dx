@@ -119,9 +119,7 @@ async function grade(workspace: string): Promise<PracticalCheck[]> {
   } catch {
     // Missing directory counts as zero.
   }
-  const entryLines = (
-    await readFile(join(workspace, 'src', 'index.ts'), 'utf8')
-  ).split('\n').length
+  const entryLines = (await readFile(join(workspace, 'src', 'index.ts'), 'utf8')).split('\n').length
   checks.push({
     name: 'routes are split into src/routes/ modules',
     passed: routeFiles >= 4,
@@ -138,8 +136,7 @@ async function grade(workspace: string): Promise<PracticalCheck[]> {
 
 export const refactorRoutesTask: PracticalTask = {
   id: 'refactor-routes',
-  description:
-    'Split a bloated single-file app into routers without changing behavior',
+  description: 'Split a bloated single-file app into routers without changing behavior',
   fixture: 'hono-shop-flat',
   prompt: [
     'src/index.ts has grown too large. Split the routes into router files under src/routes/ (users, products, orders, admin, auth), mounted from the entry point.',

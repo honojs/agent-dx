@@ -49,10 +49,7 @@ console.log('__AGENT_DX__' + JSON.stringify(checks))
 `
 
 async function grade(workspace: string): Promise<PracticalCheck[]> {
-  return [
-    await typecheckCheck(workspace),
-    ...(await runCheckScript(workspace, CHECK_SCRIPT)),
-  ]
+  return [await typecheckCheck(workspace), ...(await runCheckScript(workspace, CHECK_SCRIPT))]
 }
 
 export const fix404Task: PracticalTask = {

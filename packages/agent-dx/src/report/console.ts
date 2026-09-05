@@ -1,9 +1,4 @@
-import type {
-  AdoptionReport,
-  AgentDxReport,
-  FrameworkId,
-  PracticalReport,
-} from '../schema.js'
+import type { AdoptionReport, AgentDxReport, FrameworkId, PracticalReport } from '../schema.js'
 import { formatDuration, formatTokens, percent } from '../stats.js'
 
 const FRAMEWORK_LABELS: Record<FrameworkId, string> = {
@@ -33,11 +28,9 @@ function table(rows: string[][]): string {
   return rows
     .map((row) =>
       row
-        .map((cell, i) =>
-          i === 0 ? cell.padEnd(widths[i] ?? 0) : cell.padStart(widths[i] ?? 0),
-        )
+        .map((cell, i) => (i === 0 ? cell.padEnd(widths[i] ?? 0) : cell.padStart(widths[i] ?? 0)))
         .join('  ')
-        .trimEnd(),
+        .trimEnd()
     )
     .join('\n')
 }
@@ -54,9 +47,7 @@ export function renderAdoptionReport(report: AdoptionReport): string {
   if (report.variant) lines.push(`Variant: ${report.variant}`)
   lines.push('')
 
-  const entries = Object.entries(report.summary.counts).sort(
-    (a, b) => b[1] - a[1],
-  )
+  const entries = Object.entries(report.summary.counts).sort((a, b) => b[1] - a[1])
   const rows = entries.map(([framework, count]) => [
     frameworkLabel(framework),
     percent(count / report.runs),
@@ -109,9 +100,7 @@ export function renderPracticalReport(report: PracticalReport): string {
       const reasons =
         run.outcome === 'failed'
           ? [run.error ?? 'agent run failed']
-          : run.checks
-              .filter((check) => !check.passed)
-              .map((check) => check.name)
+          : run.checks.filter((check) => !check.passed).map((check) => check.name)
       lines.push(`  #${run.index}: ${reasons.join('; ')}`)
     }
   }
@@ -119,7 +108,5 @@ export function renderPracticalReport(report: PracticalReport): string {
 }
 
 export function renderReport(report: AgentDxReport): string {
-  return report.suite === 'adoption'
-    ? renderAdoptionReport(report)
-    : renderPracticalReport(report)
+  return report.suite === 'adoption' ? renderAdoptionReport(report) : renderPracticalReport(report)
 }

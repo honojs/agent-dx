@@ -6,7 +6,7 @@
 export async function runPool<T>(
   count: number,
   concurrency: number,
-  worker: (index: number) => Promise<T>,
+  worker: (index: number) => Promise<T>
 ): Promise<T[]> {
   const results = Array.from({ length: count }) as T[]
   let next = 0

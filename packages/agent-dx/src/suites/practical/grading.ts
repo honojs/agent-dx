@@ -11,14 +11,10 @@ import type { PracticalCheck } from '../../schema.js'
  */
 
 /** Run `tsc --noEmit` with the workspace's own TypeScript. */
-export async function typecheckCheck(
-  workspace: string,
-): Promise<PracticalCheck> {
-  const tsc = await exec(
-    join(workspace, 'node_modules', '.bin', 'tsc'),
-    ['--noEmit'],
-    { cwd: workspace },
-  )
+export async function typecheckCheck(workspace: string): Promise<PracticalCheck> {
+  const tsc = await exec(join(workspace, 'node_modules', '.bin', 'tsc'), ['--noEmit'], {
+    cwd: workspace,
+  })
   return {
     name: 'TypeScript typecheck passes',
     passed: tsc.ok,
@@ -31,24 +27,15 @@ export async function typecheckCheck(
  * loader (fixtures need no TypeScript runner among their dependencies)
  * and parse the `__AGENT_DX__<json>` line it prints into checks.
  */
-export async function runCheckScript(
-  workspace: string,
-  script: string,
-): Promise<PracticalCheck[]> {
+export async function runCheckScript(workspace: string, script: string): Promise<PracticalCheck[]> {
   const graderDir = join(workspace, '.agent-dx')
   await mkdir(graderDir, { recursive: true })
   await writeFile(join(graderDir, 'check.mjs'), script)
-  const tsxLoader = pathToFileURL(
-    createRequire(import.meta.url).resolve('tsx'),
-  ).href
-  const run = await exec(
-    process.execPath,
-    ['--import', tsxLoader, join(graderDir, 'check.mjs')],
-    { cwd: workspace },
-  )
-  const line = run.stdout
-    .split('\n')
-    .find((text) => text.startsWith('__AGENT_DX__'))
+  const tsxLoader = pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href
+  const run = await exec(process.execPath, ['--import', tsxLoader, join(graderDir, 'check.mjs')], {
+    cwd: workspace,
+  })
+  const line = run.stdout.split('\n').find((text) => text.startsWith('__AGENT_DX__'))
   if (line) {
     try {
       return JSON.parse(line.slice('__AGENT_DX__'.length)) as PracticalCheck[]

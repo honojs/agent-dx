@@ -15,12 +15,10 @@ app.get('/stats', (c) =>
     users: users.length,
     products: products.length,
     orders: orders.length,
-  }),
+  })
 )
 
-app.get('/orders/pending', (c) =>
-  c.json(orders.filter((o) => o.status === 'pending')),
-)
+app.get('/orders/pending', (c) => c.json(orders.filter((o) => o.status === 'pending')))
 
 app.post('/products/:id/restock', async (c) => {
   const product = products.find((p) => p.id === Number(c.req.param('id')))

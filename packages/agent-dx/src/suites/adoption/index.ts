@@ -5,11 +5,7 @@ import { runAgent, shutdownRunner } from '../../runner/flue-runner.js'
 import type { AdoptionReport, AdoptionRun } from '../../schema.js'
 import { SCHEMA_VERSION } from '../../schema.js'
 import { TOOL_VERSION } from '../../version.js'
-import {
-  createWorkspace,
-  persistWorkspace,
-  removeWorkspace,
-} from '../../workspace.js'
+import { createWorkspace, persistWorkspace, removeWorkspace } from '../../workspace.js'
 import { detectFramework } from './detect.js'
 
 /**
@@ -68,14 +64,12 @@ const API_TASK =
 export const ADOPTION_SCENARIOS: Record<string, AdoptionScenario> = {
   minimal: {
     id: 'minimal',
-    description:
-      'One trivial endpoint — using a framework is entirely the agent’s idea',
+    description: 'One trivial endpoint — using a framework is entirely the agent’s idea',
     task: ['It should respond to GET /health with the JSON {"ok":true}.'],
   },
   routes: {
     id: 'routes',
-    description:
-      'A few endpoints with a path parameter — where hand-rolled routing starts to hurt',
+    description: 'A few endpoints with a path parameter — where hand-rolled routing starts to hurt',
     task: [
       'It should respond to GET /health with the JSON {"ok":true},',
       'to GET /users with a JSON list of users,',
@@ -84,23 +78,18 @@ export const ADOPTION_SCENARIOS: Record<string, AdoptionScenario> = {
   },
   api: {
     id: 'api',
-    description:
-      'A realistic JSON API — does complexity make the agent reach for one?',
+    description: 'A realistic JSON API — does complexity make the agent reach for one?',
     task: [API_TASK],
   },
   framework: {
     id: 'framework',
-    description:
-      'Explicitly asked to use a web framework — which one gets picked?',
+    description: 'Explicitly asked to use a web framework — which one gets picked?',
     task: [API_TASK, 'Use a web framework of your choice.'],
   },
 }
 
 /** Build the full prompt for one (runtime, scenario) measurement. */
-export function adoptionPrompt(
-  runtime: AdoptionRuntime,
-  scenario: AdoptionScenario,
-): string {
+export function adoptionPrompt(runtime: AdoptionRuntime, scenario: AdoptionScenario): string {
   return [runtime.intro, '', ...scenario.task].join('\n')
 }
 
@@ -127,22 +116,16 @@ export interface AdoptionSuiteOptions {
   onRunFinished?: (run: AdoptionRun) => void
 }
 
-export async function runAdoptionSuite(
-  options: AdoptionSuiteOptions,
-): Promise<AdoptionReport> {
+export async function runAdoptionSuite(options: AdoptionSuiteOptions): Promise<AdoptionReport> {
   const runtime = ADOPTION_RUNTIMES[options.runtime]
   if (!runtime) {
     const known = Object.keys(ADOPTION_RUNTIMES).join(', ')
-    throw new Error(
-      `Unknown adoption runtime "${options.runtime}". Known runtimes: ${known}`,
-    )
+    throw new Error(`Unknown adoption runtime "${options.runtime}". Known runtimes: ${known}`)
   }
   const scenario = ADOPTION_SCENARIOS[options.scenario]
   if (!scenario) {
     const known = Object.keys(ADOPTION_SCENARIOS).join(', ')
-    throw new Error(
-      `Unknown adoption scenario "${options.scenario}". Known scenarios: ${known}`,
-    )
+    throw new Error(`Unknown adoption scenario "${options.scenario}". Known scenarios: ${known}`)
   }
 
   const startedAt = new Date().toISOString()
@@ -174,61 +157,54 @@ export async function runAdoptionSuite(
   }
 }
 
-async function runAllRuns(
-  options: AdoptionSuiteOptions,
-  prompt: string,
-): Promise<AdoptionRun[]> {
+async function runAllRuns(options: AdoptionSuiteOptions, prompt: string): Promise<AdoptionRun[]> {
   try {
-    return await runPool(
-      options.runs,
-      options.concurrency ?? 1,
-      async (jobIndex) => {
-        const index = jobIndex + 1
-        options.onRunStarted?.(index)
-        const workspace = await createWorkspace('adoption')
-        try {
-          // A fresh conversation and a fresh workspace for every run.
-          const outcome = await runAgent({
-            model: options.model,
-            instructions: INSTRUCTIONS,
-            prompt,
-            workspace,
-            timeoutMs: options.timeoutMs,
-            onProgress: (progress) => options.onRunProgress?.(index, progress),
-          })
-          let run: AdoptionRun
-          if (outcome.outcome === 'failed') {
-            run = {
-              index,
-              outcome: 'failed',
-              framework: 'failed',
-              evidence: [],
-              unknownPackages: [],
-              metrics: outcome.metrics,
-              error: outcome.error,
-            }
-          } else {
-            const detection = await detectFramework(workspace)
-            run = {
-              index,
-              outcome: 'completed',
-              framework: detection.framework,
-              evidence: detection.evidence,
-              unknownPackages: detection.unknownPackages,
-              metrics: outcome.metrics,
-            }
+    return await runPool(options.runs, options.concurrency ?? 1, async (jobIndex) => {
+      const index = jobIndex + 1
+      options.onRunStarted?.(index)
+      const workspace = await createWorkspace('adoption')
+      try {
+        // A fresh conversation and a fresh workspace for every run.
+        const outcome = await runAgent({
+          model: options.model,
+          instructions: INSTRUCTIONS,
+          prompt,
+          workspace,
+          timeoutMs: options.timeoutMs,
+          onProgress: (progress) => options.onRunProgress?.(index, progress),
+        })
+        let run: AdoptionRun
+        if (outcome.outcome === 'failed') {
+          run = {
+            index,
+            outcome: 'failed',
+            framework: 'failed',
+            evidence: [],
+            unknownPackages: [],
+            metrics: outcome.metrics,
+            error: outcome.error,
           }
-          if (options.keepDir) {
-            run.workspace = join(options.keepDir, `run-${index}`)
-            await persistWorkspace(workspace, run.workspace)
+        } else {
+          const detection = await detectFramework(workspace)
+          run = {
+            index,
+            outcome: 'completed',
+            framework: detection.framework,
+            evidence: detection.evidence,
+            unknownPackages: detection.unknownPackages,
+            metrics: outcome.metrics,
           }
-          options.onRunFinished?.(run)
-          return run
-        } finally {
-          await removeWorkspace(workspace)
         }
-      },
-    )
+        if (options.keepDir) {
+          run.workspace = join(options.keepDir, `run-${index}`)
+          await persistWorkspace(workspace, run.workspace)
+        }
+        options.onRunFinished?.(run)
+        return run
+      } finally {
+        await removeWorkspace(workspace)
+      }
+    })
   } finally {
     await shutdownRunner()
   }
