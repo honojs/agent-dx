@@ -1,0 +1,25 @@
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_21f0e6cad3cc91 15
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_7d8843de747f3f 23
+packages/agent-dx/src/suites/adoption/detect.ts
+  s_b5227510c4b557::t_da068b84fea8b9 28
+packages/agent-dx/test/detect.test.ts
+  s_b5227510c4b557::t_71c9c153f7c358 181-193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "abed761c074c51bfe02c63c1cc1e6b8c1f15ed09",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
