@@ -411,7 +411,7 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
           const cells = collectCells(reports.filter((r) => r.model === model))
           return (
             <>
-              <h3>{model}</h3>
+              <h3>{model.split('/').pop()}</h3>
               <AdoptionBars cells={cells} />
               <AdoptionMatrix cells={cells} />
             </>
