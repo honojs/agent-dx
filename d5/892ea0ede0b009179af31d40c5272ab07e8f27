@@ -1,0 +1,75 @@
+.oxfmtrc.json
+  s_b5227510c4b557::t_5737c4bf1f4cf5 5,14-16
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_68e5e07fd3e0fb 174,178-179,242,246,248,257,263-265,281,286-287,289,296-298,307,324,330,356,387-389,411,422,426-428,437,443-445,454,460-462,473,477,482,486,528,564,578,591-592,636,640,643,648,672-674,679,702,711,738,749-750,763-765,772-774,788-789,791-792,795-796,798,805,807,811-812
+apps/web/src/index.tsx
+  s_b5227510c4b557::t_1f9474789eac93 21,23
+apps/web/src/renderer.tsx
+  s_b5227510c4b557::t_ce078405cd8f86 10
+packages/agent-dx/fixtures/hono-shop-flat/src/index.ts
+  s_b5227510c4b557::t_91ac4a8a349597 162,165
+packages/agent-dx/fixtures/hono-shop/src/routes/admin.ts
+  s_b5227510c4b557::t_c716732a785c09 18,21
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_bc8bd171ae97b6 81,104-105,194-195,197,199,214,219,221,231,237,262,271,282,295,299,312,320,328,360,364,387
+packages/agent-dx/src/exec.ts
+  s_b5227510c4b557::t_aae03cd802ef38 13,27
+packages/agent-dx/src/pool.ts
+  s_b5227510c4b557::t_922e2038fb7e03 9
+packages/agent-dx/src/report/compare.ts
+  s_b5227510c4b557::t_b56ca1004e0b98 41,44,52,60,67,70,72,84,93,103,110,116,166,177,179
+packages/agent-dx/src/report/console.ts
+  s_b5227510c4b557::t_0f04cd8f851651 1,30,32,49,102,110
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_d29cc7b0a931ae 1,88,96,110,119,156,178,188,222,229,247,250,252,254
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_e44d559335ec00 171,175
+packages/agent-dx/src/suites/adoption/detect.ts
+  s_b5227510c4b557::t_aa93854112e09d 51,53,55,100,182,208,210-211,247,251
+packages/agent-dx/src/suites/adoption/index.ts
+  s_b5227510c4b557::t_c0390128abdce7 8,67,72,81,86,92,119,123,128,160,162-185,187-195,198-207
+packages/agent-dx/src/suites/practical/grading.ts
+  s_b5227510c4b557::t_49828111b4c760 14-17,30,34-38
+packages/agent-dx/src/suites/practical/index.ts
+  s_b5227510c4b557::t_708a549033ba6d 12,91,93-97,100,109-110,114,119,126,138,142,149,154-175,177-190,193-202,230,235,239,243,245,250-251
+packages/agent-dx/src/suites/practical/tasks/add-user-route.ts
+  s_b5227510c4b557::t_0db61134478086 41
+packages/agent-dx/src/suites/practical/tasks/build-endpoints.ts
+  s_b5227510c4b557::t_cd990f7abf769c 93
+packages/agent-dx/src/suites/practical/tasks/fix-404-shadow.ts
+  s_b5227510c4b557::t_12abf468946e27 74,79
+packages/agent-dx/src/suites/practical/tasks/fix-404.ts
+  s_b5227510c4b557::t_b762b5d23e4e7e 52
+packages/agent-dx/src/suites/practical/tasks/refactor-routes.ts
+  s_b5227510c4b557::t_6f56a8dece85ed 122,139
+packages/agent-dx/src/workspace.ts
+  s_b5227510c4b557::t_d9612601f9254e 11,27
+packages/agent-dx/test/compare.test.ts
+  s_b5227510c4b557::t_f5afba5d6afbf0 56,65,74-75,80-81,87,92-93,98-100,104
+packages/agent-dx/test/detect.test.ts
+  s_b5227510c4b557::t_cf1c0134be4395 21,29,46,179,186
+packages/agent-dx/test/fixtures.test.ts
+  s_b5227510c4b557::t_737d96d107eabd 21
+packages/agent-dx/test/hono-cli-usage.test.ts
+  s_b5227510c4b557::t_22d5b5779a1f19 2,16-20,45-49,54,64
+packages/agent-dx/test/progress.test.ts
+  s_b5227510c4b557::t_0d7706f999fd2a 13,15
+packages/agent-dx/test/workspace.test.ts
+  s_b5227510c4b557::t_929876870278f4 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d5892ea0ede0b009179af31d40c5272ab07e8f27",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
