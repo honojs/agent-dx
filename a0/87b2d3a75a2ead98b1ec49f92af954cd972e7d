@@ -1,0 +1,19 @@
+.oxlintrc.json
+  s_b5227510c4b557::t_4f109c9eb1921f 9-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a087b2d3a75a2ead98b1ec49f92af954cd972e7d",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
