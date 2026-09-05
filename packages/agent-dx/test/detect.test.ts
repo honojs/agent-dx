@@ -176,8 +176,7 @@ describe('detectFramework', () => {
 
   it('detects oak from deno-style imports', async () => {
     const dir = await workspace({
-      'server.ts':
-        'import { Application } from "https://deno.land/x/oak@v12.6.1/mod.ts";\n',
+      'server.ts': 'import { Application } from "https://deno.land/x/oak@v12.6.1/mod.ts";\n',
     })
     expect((await detectFramework(dir)).framework).toBe('oak')
 
