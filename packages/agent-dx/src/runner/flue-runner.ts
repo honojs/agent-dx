@@ -1,4 +1,5 @@
 import { init, useInitialData, useModel, useResponseFinish, useSandbox } from '@flue/runtime'
+import type { ConversationStreamChunk } from '@flue/runtime'
 import type { Flue } from '@flue/runtime/node'
 import { local, start } from '@flue/runtime/node'
 import type { HonoCliUsage, RunMetrics, TokenUsage } from '../schema.js'
@@ -24,8 +25,14 @@ export interface AgentRunOptions {
   instructions: string
   /** The user task prompt. */
   prompt: string
+  /**
+   * Further user messages, sent one at a time in the same conversation
+   * after the agent finishes the previous one — a multi-step session.
+   */
+  followUps?: string[]
   /** Directory the agent can read/write/execute in. */
   workspace: string
+  /** Time limit per conversation turn. */
   timeoutMs?: number
   /** Called on every tool invocation, for live progress output. */
   onProgress?: (progress: AgentRunProgress) => void
@@ -199,6 +206,23 @@ function errorMessage(error: unknown): string {
   return parts.join(' — caused by: ')
 }
 
+function addTokenUsage(
+  total: TokenUsage | undefined,
+  turn: TokenUsage | undefined
+): TokenUsage | undefined {
+  if (!turn) {
+    return total
+  }
+  if (!total) {
+    return turn
+  }
+  return {
+    input: total.input + turn.input,
+    output: total.output + turn.output,
+    total: total.total + turn.total,
+  }
+}
+
 export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcome> {
   const { model, instructions, prompt, workspace } = options
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
@@ -207,6 +231,8 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
   const toolCallCounts: Record<string, number> = {}
   let toolCalls = 0
   let tokens: TokenUsage | undefined
+  // The provider reports usage per reply, so a session sums its turns.
+  let turnTokens: TokenUsage | undefined
   const honoCli: HonoCliUsage = {
     calls: 0,
     agentContext: false,
@@ -221,87 +247,84 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
     if (typeof metadata !== 'object' || metadata === null) {
       return
     }
-    tokens = extractTokenUsage(metadata as Record<string, unknown>) ?? tokens
+    turnTokens = extractTokenUsage(metadata as Record<string, unknown>) ?? turnTokens
   }
+
+  const onEvent = (chunk: ConversationStreamChunk) => {
+    if (chunk.type === 'tool-input') {
+      toolCalls += 1
+      toolCallCounts[chunk.toolName] = (toolCallCounts[chunk.toolName] ?? 0) + 1
+      const input = chunk.input as Record<string, unknown> | null
+      if (typeof input?.command === 'string') {
+        if (commands.length < MAX_TRANSCRIPT_COMMANDS) {
+          commands.push(
+            input.command.length > MAX_TRANSCRIPT_COMMAND_LENGTH
+              ? `${input.command.slice(0, MAX_TRANSCRIPT_COMMAND_LENGTH)}…`
+              : input.command
+          )
+        }
+        const usage = analyzeHonoCliCommand(input.command)
+        if (usage.calls > 0) {
+          if (honoCli.errors > 0) {
+            honoCli.recovered = true
+          }
+          honoCli.calls += usage.calls
+          honoCli.agentContext = honoCli.agentContext || usage.agentContext
+          for (const [key, count] of Object.entries(usage.commands)) {
+            honoCli.commands[key] = (honoCli.commands[key] ?? 0) + count
+          }
+          honoCliToolCalls.add(chunk.toolCallId)
+        }
+      }
+      if (options.onProgress) {
+        const hint = input?.path ?? input?.file_path ?? input?.command
+        options.onProgress({
+          toolName: chunk.toolName,
+          detail: typeof hint === 'string' ? formatProgressDetail(hint, workspace) : undefined,
+        })
+      }
+    } else if (chunk.type === 'tool-output' && honoCliToolCalls.has(chunk.toolCallId)) {
+      if (isCliErrorEnvelope(chunk.output)) {
+        honoCli.errors += 1
+      }
+    } else if (chunk.type === 'tool-output-error' && honoCliToolCalls.has(chunk.toolCallId)) {
+      honoCli.errors += 1
+    } else if (chunk.type === 'message-metadata' || chunk.type === 'message-started') {
+      noteMetadata((chunk as { metadata?: unknown }).metadata)
+    }
+  }
+
+  const metrics = (): RunMetrics => ({
+    durationMs: Date.now() - startedAt,
+    toolCalls,
+    toolCallCounts,
+    tokens,
+    honoCli: honoCli.calls > 0 ? honoCli : undefined,
+    commands: commands.length > 0 ? commands : undefined,
+  })
 
   await acquireRuntime()
   try {
     // A fresh conversation per run: init() without an id mints a new one.
+    // Follow-up messages continue that conversation, so the agent keeps
+    // its context (and its habits) between steps.
     const handle = init(AgentDxRunner)
     const initialData: RunnerInit = { model, instructions, cwd: workspace }
-    const receipt = await handle.dispatch({ message: prompt, initialData })
-    const reply = await handle.read(receipt, {
-      signal: AbortSignal.timeout(timeoutMs),
-      onEvent: (chunk) => {
-        if (chunk.type === 'tool-input') {
-          toolCalls += 1
-          toolCallCounts[chunk.toolName] = (toolCallCounts[chunk.toolName] ?? 0) + 1
-          const input = chunk.input as Record<string, unknown> | null
-          if (typeof input?.command === 'string') {
-            if (commands.length < MAX_TRANSCRIPT_COMMANDS) {
-              commands.push(
-                input.command.length > MAX_TRANSCRIPT_COMMAND_LENGTH
-                  ? `${input.command.slice(0, MAX_TRANSCRIPT_COMMAND_LENGTH)}…`
-                  : input.command
-              )
-            }
-            const usage = analyzeHonoCliCommand(input.command)
-            if (usage.calls > 0) {
-              if (honoCli.errors > 0) {
-                honoCli.recovered = true
-              }
-              honoCli.calls += usage.calls
-              honoCli.agentContext = honoCli.agentContext || usage.agentContext
-              for (const [key, count] of Object.entries(usage.commands)) {
-                honoCli.commands[key] = (honoCli.commands[key] ?? 0) + count
-              }
-              honoCliToolCalls.add(chunk.toolCallId)
-            }
-          }
-          if (options.onProgress) {
-            const hint = input?.path ?? input?.file_path ?? input?.command
-            options.onProgress({
-              toolName: chunk.toolName,
-              detail: typeof hint === 'string' ? formatProgressDetail(hint, workspace) : undefined,
-            })
-          }
-        } else if (chunk.type === 'tool-output' && honoCliToolCalls.has(chunk.toolCallId)) {
-          if (isCliErrorEnvelope(chunk.output)) {
-            honoCli.errors += 1
-          }
-        } else if (chunk.type === 'tool-output-error' && honoCliToolCalls.has(chunk.toolCallId)) {
-          honoCli.errors += 1
-        } else if (chunk.type === 'message-metadata' || chunk.type === 'message-started') {
-          noteMetadata((chunk as { metadata?: unknown }).metadata)
-        }
-      },
-    })
-    noteMetadata(reply.metadata)
-    return {
-      outcome: 'completed',
-      text: reply.text,
-      metrics: {
-        durationMs: Date.now() - startedAt,
-        toolCalls,
-        toolCallCounts,
-        tokens,
-        honoCli: honoCli.calls > 0 ? honoCli : undefined,
-        commands: commands.length > 0 ? commands : undefined,
-      },
+    let text = ''
+    for (const [turn, message] of [prompt, ...(options.followUps ?? [])].entries()) {
+      turnTokens = undefined
+      const receipt = await handle.dispatch(turn === 0 ? { message, initialData } : { message })
+      const reply = await handle.read(receipt, {
+        signal: AbortSignal.timeout(timeoutMs),
+        onEvent,
+      })
+      noteMetadata(reply.metadata)
+      tokens = addTokenUsage(tokens, turnTokens)
+      text = reply.text
     }
+    return { outcome: 'completed', text, metrics: metrics() }
   } catch (error) {
-    return {
-      outcome: 'failed',
-      text: '',
-      metrics: {
-        durationMs: Date.now() - startedAt,
-        toolCalls,
-        toolCallCounts,
-        tokens,
-        honoCli: honoCli.calls > 0 ? honoCli : undefined,
-        commands: commands.length > 0 ? commands : undefined,
-      },
-      error: errorMessage(error),
-    }
+    tokens = addTokenUsage(tokens, turnTokens)
+    return { outcome: 'failed', text: '', metrics: metrics(), error: errorMessage(error) }
   }
 }

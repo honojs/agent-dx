@@ -74,15 +74,16 @@ Run `agent-dx --list` for the up-to-date list. As of v0:
 
 **Practical** measures one `--task` at a time (× `--model`):
 
-| `--task`                   | Fixture          | Change requested                                                       |
-| -------------------------- | ---------------- | ---------------------------------------------------------------------- |
-| `add-user-route` (default) | `hono-basic`     | Add `GET /users/:id` returning the id as JSON                          |
-| `build-endpoints`          | `hono-fresh`     | Build a users CRUD from scratch and make sure it works                 |
-| `fix-404`                  | `hono-todos`     | Debug a 404 caused by a double-prefixed sub-app mount                  |
-| `fix-404-shadow`           | `hono-shop`      | Debug a 404 the obvious file cannot explain (feature-gate shadowing)   |
-| `refactor-routes`          | `hono-shop-flat` | Split a bloated single-file app into routers without changing behavior |
+| `--task`                    | Fixture          | Change requested                                                                                                       |
+| --------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `build-endpoints` (default) | `hono-fresh`     | Build a users CRUD from scratch and make sure it works                                                                 |
+| `build-shop`                | `hono-fresh`     | Build a shop API from scratch against an executable acceptance spec (request lines with `expect`) in the prompt        |
+| `session-users`             | `hono-fresh`     | Four change requests in one conversation; the final state must honor every step's contract                             |
+| `refactor-routes`           | `hono-shop-flat` | Split a bloated single-file app (27 routes, shadow-prone siblings, large lists) into routers without changing behavior |
+| `fix-404`                   | `hono-todos`     | Debug a 404 caused by a double-prefixed sub-app mount                                                                  |
+| `fix-404-shadow`            | `hono-shop`      | Debug a 404 the obvious file cannot explain (feature-gate shadowing)                                                   |
 
-Reports record the exact prompt used and a content hash of the fixture, and `agent-dx compare` refuses runs whose suite, task, fixture revision, runtime, or prompt differ — results from different measurements are never silently mixed.
+A task earns its place by experiment: it stays in the suite only while it separates conditions. Reports record the exact prompt used and a content hash of the fixture, and `agent-dx compare` refuses runs whose suite, task, fixture revision, runtime, or prompt differ — results from different measurements are never silently mixed.
 
 ## How to run an eval
 
@@ -99,7 +100,7 @@ pnpm dlx @hono/agent-dx --suite practical --runs 3
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
 ```
 
-Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--scenario minimal|routes|api|framework`, `--task add-user-route`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
+Useful options: `--model anthropic/claude-haiku-4-5`, `--runtime cloudflare-workers`, `--scenario minimal|routes|api|framework`, `--task build-endpoints`, `--variant baseline`, `--concurrency 10` (runs execute in parallel, 5 by default). Run `agent-dx --list` to see everything available.
 
 Each run is an agentic loop with many model round-trips, so a single run takes one to a few minutes; the prompt is printed at the start and tool calls are streamed to stderr as they happen (`--quiet` hides them). Pass `--keep` to keep every run's workspace under `agent-dx-runs/` so you can read the code the agent actually produced.
 
@@ -122,13 +123,13 @@ pnpm dlx @hono/agent-dx --suite adoption --runs 20 --report result.json
 
 The JSON report uses a schema shared by the CLI, CI, and the website. Reports are stored in the `agent-dx-results` R2 bucket (the eval workflow uploads them automatically; see `results/README.md` for manual uploads), and agent-dx.hono.dev is rendered from the bucket into static pages after every eval (`apps/web/scripts/ssg.mts`). Result data is never committed to git.
 
-To run a Hono CLI experiment in one command — the same task without and with the candidate CLI injected into the fixture (installed as a devDependency, with the CLI's onboarding line added to the fixture's AGENTS.md) — including how often the agent actually invoked the CLI:
+To run a Hono CLI experiment in one command — the same task without and with the candidate CLI injected into the fixture (installed as a devDependency, with a one-line verification policy for the CLI added to the fixture's AGENTS.md) — including how often the agent actually invoked the CLI:
 
 ```sh
 pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite practical --task fix-404
 ```
 
-Experiment conditions can also be composed per run, e.g. for a full onboarding matrix: `--hono-cli <spec>` installs the CLI into the fixture, `--onboarding none` leaves the AGENTS.md onboarding line out, and `--skill <dir>` injects a skill as `.agents/skills/<name>/` — the workspace-skill path real agent harnesses discover.
+Experiment conditions can also be composed per run, e.g. for a full onboarding matrix: `--hono-cli <spec>` installs the CLI into the fixture, `--onboarding none` leaves the AGENTS.md policy line out, and `--skill <dir>` injects a skill as `.agents/skills/<name>/` — the workspace-skill path real agent harnesses discover. The weekly matrix measures every task as `baseline` vs `cli + skill` (devDependency + policy line + skill).
 
 To compare two arbitrary runs manually:
 
@@ -142,7 +143,7 @@ pnpm dlx @hono/agent-dx compare baseline.json candidate.json
 ```text
 Hono Agent DX
 
-Suite: practical (add-user-route)
+Suite: practical (build-endpoints)
 Model: anthropic/claude-haiku-4-5
 
                     Baseline   Candidate   Change

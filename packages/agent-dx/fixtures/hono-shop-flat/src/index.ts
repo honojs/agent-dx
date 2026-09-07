@@ -10,11 +10,29 @@ const app = new Hono()
 app.use(logger())
 app.use(requestId())
 
+for (let i = 0; i < 40; i++) {
+  users.push({
+    id: 100 + i,
+    name: `User ${i}`,
+    email: `user${i}@example.com`,
+    role: i % 3 === 0 ? 'admin' : 'member',
+  } as (typeof users)[number])
+  products.push({
+    id: 200 + i,
+    name: `Product ${i}`,
+    price: 10 + i,
+    stock: 5 + (i % 7),
+    category: i % 2 ? 'tools' : 'toys',
+  } as (typeof products)[number])
+}
+
 app.get('/', (c) => c.json({ name: 'hono-shop-api', version: '0.1.0' }))
 app.get('/health', (c) => c.json({ ok: true }))
 
 // Users
 app.get('/api/users', (c) => c.json(users))
+
+app.get('/api/users/new', (c) => c.json({ name: '', email: '', role: 'member' }))
 
 app.get('/api/users/:id', (c) => {
   const user = users.find((u) => u.id === Number(c.req.param('id')))
@@ -103,6 +121,12 @@ app.get('/api/orders', (c) => {
     return c.json(orders.filter((o) => o.status === status))
   }
   return c.json(orders)
+})
+
+app.get('/api/orders/summary', (c) => {
+  const summary = { pending: 0, shipped: 0, delivered: 0 }
+  for (const order of orders) summary[order.status] += 1
+  return c.json(summary)
 })
 
 app.get('/api/orders/:id', (c) => {

@@ -76,15 +76,16 @@ pnpm build
 
 **Practical** は 1 回の実行につき 1 つの `--task`（× `--model`）を測ります：
 
-| `--task`                       | fixture          | 依頼する変更                                                                   |
-| ------------------------------ | ---------------- | ------------------------------------------------------------------------------ |
-| `add-user-route`（デフォルト） | `hono-basic`     | id を JSON で返す `GET /users/:id` の追加                                      |
-| `build-endpoints`              | `hono-fresh`     | ゼロからusers CRUDを作り、実際に動くことを確認する                             |
-| `fix-404`                      | `hono-todos`     | サブアプリ mount の二重 prefix が原因の 404 の修正                             |
-| `fix-404-shadow`               | `hono-shop`      | 一見無実のファイルでは説明できない 404 の修正（feature-gate による shadowing） |
-| `refactor-routes`              | `hono-shop-flat` | 肥大化した単一ファイルアプリを挙動を変えずにルーターへ分割する                 |
+| `--task`                        | fixture          | 依頼する変更                                                                                            |
+| ------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------- |
+| `build-endpoints`（デフォルト） | `hono-fresh`     | ゼロからusers CRUDを作り、実際に動くことを確認する                                                      |
+| `build-shop`                    | `hono-fresh`     | プロンプトに実行可能な受け入れ仕様（`expect` 付きのリクエスト行）を添えて、ゼロからショップ API を作る  |
+| `session-users`                 | `hono-fresh`     | 1 つの会話で 4 回の変更依頼。最終状態がすべてのステップの契約を満たしていなければならない               |
+| `refactor-routes`               | `hono-shop-flat` | 肥大化した単一ファイルアプリ（27 ルート、shadowing しやすい兄弟ルート、大きな一覧）を挙動を変えずに分割 |
+| `fix-404`                       | `hono-todos`     | サブアプリ mount の二重 prefix が原因の 404 の修正                                                      |
+| `fix-404-shadow`                | `hono-shop`      | 一見無実のファイルでは説明できない 404 の修正（feature-gate による shadowing）                          |
 
-レポートには実際に使ったプロンプト全文と fixture のコンテンツハッシュが記録され、`agent-dx compare` は suite・task・fixture リビジョン・runtime・プロンプトのいずれかが異なる実行の比較を拒否します — 異なる測定同士の結果が知らないうちに混ざることはありません。
+タスクは実験で居場所を勝ち取ります。条件間の差を生み続けるあいだだけ suite に残ります。レポートには実際に使ったプロンプト全文と fixture のコンテンツハッシュが記録され、`agent-dx compare` は suite・task・fixture リビジョン・runtime・プロンプトのいずれかが異なる実行の比較を拒否します — 異なる測定同士の結果が知らないうちに混ざることはありません。
 
 ## eval の実行方法
 
@@ -101,7 +102,7 @@ pnpm dlx @hono/agent-dx --suite practical --runs 3
 pnpm --filter @hono/agent-dx dev -- --suite adoption --runs 3
 ```
 
-主なオプション: `--model anthropic/claude-haiku-4-5`、`--runtime cloudflare-workers`、`--scenario minimal|routes|api|framework`、`--task add-user-route`、`--variant baseline`、`--concurrency 10`（run は並列実行され、デフォルトは 5 並列）。利用可能なものは `agent-dx --list` で確認できます。
+主なオプション: `--model anthropic/claude-haiku-4-5`、`--runtime cloudflare-workers`、`--scenario minimal|routes|api|framework`、`--task build-endpoints`、`--variant baseline`、`--concurrency 10`（run は並列実行され、デフォルトは 5 並列）。利用可能なものは `agent-dx --list` で確認できます。
 
 1 つの run はモデルとの往復を多数含む agentic loop なので、1 〜数分かかります。開始時にプロンプトが表示され、tool call は発生のたびに stderr にストリームされます（`--quiet` で非表示）。`--keep` を付けると各 run の workspace が `agent-dx-runs/` に保存され、エージェントが実際に書いたコードを読めます。
 
@@ -124,13 +125,13 @@ pnpm dlx @hono/agent-dx --suite adoption --runs 20 --report result.json
 
 JSON レポートは CLI・CI・Web サイトで共有されるスキーマを使います。レポートは `agent-dx-results` R2 バケットに保存され（eval ワークフローが自動でアップロードします。手動アップロードは `results/README.md` を参照）、agent-dx.hono.dev は eval のたびにバケットの内容から静的ページとして生成されます（`apps/web/scripts/ssg.mts`）。結果データを git にコミットすることはありません。
 
-Hono CLI の experiment はワンコマンドで実行できます — 同じタスクを「CLI なし」と「candidate の CLI を fixture に注入（devDependency としてインストールし、CLI のオンボーディング行を fixture の AGENTS.md に追記）」の 2 回走らせ、エージェントが実際に CLI を何回呼んだかまで含めて比較します：
+Hono CLI の experiment はワンコマンドで実行できます — 同じタスクを「CLI なし」と「candidate の CLI を fixture に注入（devDependency としてインストールし、CLI で検証するという 1 行のポリシーを fixture の AGENTS.md に追記）」の 2 回走らせ、エージェントが実際に CLI を何回呼んだかまで含めて比較します：
 
 ```sh
 pnpm dlx @hono/agent-dx --target cli --candidate @hono/cli@next --suite practical --task fix-404
 ```
 
-実験条件は run ごとに個別に組み合わせることもできます（オンボーディングのフルマトリクスなど）：`--hono-cli <spec>` は fixture に CLI をインストールし、`--onboarding none` は AGENTS.md のオンボーディング行を入れず、`--skill <dir>` はスキルを `.agents/skills/<name>/` として注入します — 実際のエージェントハーネスが発見する workspace skill の経路です。
+実験条件は run ごとに個別に組み合わせることもできます（オンボーディングのフルマトリクスなど）：`--hono-cli <spec>` は fixture に CLI をインストールし、`--onboarding none` は AGENTS.md のポリシー行を入れず、`--skill <dir>` はスキルを `.agents/skills/<name>/` として注入します — 実際のエージェントハーネスが発見する workspace skill の経路です。週次マトリクスは全タスクを `baseline` と `cli + skill`（devDependency + ポリシー行 + skill）で測ります。
 
 任意の 2 つの実行を手動で比較するには：
 
@@ -144,7 +145,7 @@ pnpm dlx @hono/agent-dx compare baseline.json candidate.json
 ```text
 Hono Agent DX
 
-Suite: practical (add-user-route)
+Suite: practical (build-endpoints)
 Model: anthropic/claude-haiku-4-5
 
                     Baseline   Candidate   Change

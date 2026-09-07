@@ -11,27 +11,29 @@ import { median } from '../../stats.js'
 import { TOOL_VERSION } from '../../version.js'
 import { createWorkspaceFrom, persistWorkspace, removeWorkspace } from '../../workspace.js'
 import type { PracticalTask } from './task.js'
-import { addUserRouteTask } from './tasks/add-user-route.js'
 import { buildEndpointsTask } from './tasks/build-endpoints.js'
+import { buildShopTask } from './tasks/build-shop.js'
 import { fix404Task } from './tasks/fix-404.js'
 import { fix404ShadowTask } from './tasks/fix-404-shadow.js'
 import { refactorRoutesTask } from './tasks/refactor-routes.js'
+import { sessionUsersTask } from './tasks/session-users.js'
 
 /**
- * Practical suite: hand the agent an existing Hono project and a small
- * change request, then grade the result with hidden deterministic checks.
+ * Practical suite: hand the agent an existing Hono project and a change
+ * request, then grade the result with hidden deterministic checks.
  *
  * New tasks are added by implementing `PracticalTask` and registering
- * them in `PRACTICAL_TASKS` (planned: routing, 404 debugging,
- * middleware scope, validation, RPC typing, performance).
+ * them in `PRACTICAL_TASKS`. A task earns its place by experiment: it
+ * stays only while it separates conditions (see AGENTS.md).
  */
 
 export const PRACTICAL_TASKS: Record<string, PracticalTask> = {
-  [addUserRouteTask.id]: addUserRouteTask,
   [buildEndpointsTask.id]: buildEndpointsTask,
+  [buildShopTask.id]: buildShopTask,
+  [sessionUsersTask.id]: sessionUsersTask,
+  [refactorRoutesTask.id]: refactorRoutesTask,
   [fix404Task.id]: fix404Task,
   [fix404ShadowTask.id]: fix404ShadowTask,
-  [refactorRoutesTask.id]: refactorRoutesTask,
 }
 
 const INSTRUCTIONS = [
@@ -39,6 +41,13 @@ const INSTRUCTIONS = [
   'Dependencies are already installed in node_modules.',
   'Make the requested change directly in the project files.',
   'Do not ask questions. When the change is complete, stop and summarize briefly.',
+].join('\n')
+
+const SESSION_INSTRUCTIONS = [
+  'You are an autonomous coding agent working in an existing project with a user who sends change requests one at a time.',
+  'Dependencies are already installed in node_modules.',
+  'Make each requested change directly in the project files.',
+  'Do not ask questions. When a change is complete, stop and summarize briefly; the next request follows.',
 ].join('\n')
 
 export interface PracticalSuiteOptions {
@@ -73,12 +82,16 @@ export interface PracticalSuiteOptions {
 }
 
 /**
- * Copy the fixture into a staging workspace and install its dependencies
- * once; each run then clones the prepared workspace so runs stay cheap
- * and identical.
+ * The one line that puts the CLI on the agent's path, appended to the
+ * fixture's AGENTS.md. Measured wording: a verification policy that
+ * answers "how do I check my work here?" is followed nearly every run,
+ * while a pointer ("run `hono agent-context`") is ignored.
  */
-const HONO_CLI_ONBOARDING =
-  'Working on this Hono app? Run `hono agent-context` first and follow it.'
+const HONO_CLI_ONBOARDING = [
+  'Verify with the Hono CLI, not with throwaway scripts.',
+  'Before changing existing routes, capture the current behavior with `npx hono snapshot --status-only` (it prints batch JSONL lines).',
+  'To check requests — spec lines from the request, or the snapshot — run `npx hono batch - --compact` (heredoc) until the summary shows "failed": 0.',
+].join(' ')
 
 interface PreparedFixture {
   prepared: string
@@ -86,6 +99,11 @@ interface PreparedFixture {
   honoCliVersion?: string
 }
 
+/**
+ * Copy the fixture into a staging workspace and install its dependencies
+ * once; each run then clones the prepared workspace so runs stay cheap
+ * and identical.
+ */
 async function prepareFixture(
   task: PracticalTask,
   options: PracticalSuiteOptions
@@ -158,8 +176,9 @@ export async function runPracticalSuite(options: PracticalSuiteOptions): Promise
       try {
         const outcome = await runAgent({
           model: options.model,
-          instructions: INSTRUCTIONS,
+          instructions: task.followUps ? SESSION_INSTRUCTIONS : INSTRUCTIONS,
           prompt: task.prompt,
+          followUps: task.followUps,
           workspace,
           timeoutMs: options.timeoutMs,
           onProgress: (progress) => options.onRunProgress?.(index, progress),
