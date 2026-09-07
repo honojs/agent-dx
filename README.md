@@ -8,21 +8,21 @@ Results are published at [agent-dx.hono.dev](https://agent-dx.hono.dev).
 
 Coding agents are becoming a primary way web apps and APIs get built. Hono Agent DX measures how well those agents work with Hono — and, more importantly, whether changes to the Hono CLI, Skills, Docs, or Core actually make the agent experience better.
 
-It measures two things:
+It answers three questions:
 
-### Adoption
+### Adoption — how much do coding agents adopt Hono?
 
-Do coding agents choose Hono on their own? We give an agent a **neutral prompt** (no framework is ever named) in an empty workspace, repeat it across many fresh conversations, and classify which framework it picked — Hono, a raw handler, Elysia, H3, Express, Fastify, itty-router, or something else. Classification is fully deterministic (static analysis of imports and dependencies); no LLM judging.
+We give an agent a **neutral prompt** (no framework is ever named), repeat it across many fresh conversations, and classify which framework it picked — Hono, a raw handler, Elysia, H3, Express, Fastify, itty-router, Oak, or something else. Classification is fully deterministic (static analysis of imports and dependencies); no LLM judging.
 
-Each measurement is a runtime × scenario pair — see [What you can measure](#what-you-can-measure).
+Each measurement is a runtime × scenario pair — see [What you can measure](#what-you-can-measure). The suite starts from an empty workspace; experiments also seed the workspace (a `package.json` with or without Hono) to see what the agent follows.
 
-### Practical
+### Value — how effective is using Hono?
 
-How effectively do coding agents use Hono? We hand the agent an existing Hono project and a small change request, then grade the modified project with **hidden deterministic checks** (runtime behavior via `app.request()` plus a TypeScript typecheck). The agent never sees the grader.
+Same task, same acceptance spec, same model: a project with no framework, where the agent writes a raw fetch handler, against a project with Hono in `package.json`. We compare success, tokens, duration, and the lines of code the agent had to write, grading both through the app's `fetch()` so the grader is framework-agnostic. Value is currently measured with experiment scripts, not a scheduled suite.
 
-### Experiments
+### Practical — on top of Hono, what else is effective?
 
-The main goal of this project: compare a **baseline** against a **candidate** — for example the Hono CLI with and without a change — and answer "did this change actually improve Agent DX?" with success rate, token usage, duration, and tool-call metrics.
+We hand the agent an existing Hono project and a change request, then grade the modified project with **hidden deterministic checks** (runtime behavior via `app.request()` plus a TypeScript typecheck). The agent never sees the grader. Every task runs with and without the rails — the Hono CLI, the Hono skill, an `AGENTS.md` line, an executable spec — so a **baseline** can be compared against a **candidate** (for example the Hono CLI before and after a change) on success rate, tokens, duration, and how the agent actually used the tools.
 
 Agents run on [Flue](https://flueframework.com), which gives us fresh conversations per run, local sandboxed execution, and multi-model support, with room to move runs into Cloudflare Sandbox later.
 
@@ -30,11 +30,11 @@ Agents run on [Flue](https://flueframework.com), which gives us fresh conversati
 
 Agent DX answers one question: **when a coding agent works with Hono, how reliably and how cheaply does it succeed — and what changes that?** We split it into three questions, each with its own instrument.
 
-| Question                                                          | What it asks                                                                                                                                                 | Primary metrics                                         | What moves it (measured)                                                                                                                                                                                                        |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Adoption** — is Hono chosen?                                    | Given a neutral prompt, does the agent reach for Hono at all?                                                                                                | Hono adoption rate per runtime × scenario × model       | Project state, not persuasion: a dependency in `package.json` is followed, templates are copied; prompt specificity raises it in steps                                                                                          |
-| **Value** — is Hono worth using?                                  | Same task, same spec: plain handler vs Hono — what changes?                                                                                                  | Success, tokens, duration, lines of code written        | Hono removes about a third of the code and 16–31% of the tokens without lowering success (currently measured with experiment scripts, not a suite)                                                                              |
-| **Practical** — can the agent use it well, and do the rails help? | Given a Hono project and a change request, does the agent deliver what was asked — with and without the Hono CLI, skill, `AGENTS.md`, or an executable spec? | Success (hidden deterministic checks), tokens, duration | Rails lift success on lean harnesses and cost on strong ones; an executable acceptance spec (`hono request --batch checks.jsonl` with `expect`) is the best-performing form; features not on a discovery surface are never used |
+| Question                                                          | What it asks                                                                                                                                                 | Primary metrics                                         | What moves it (measured)                                                                                                                                                                                                          |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Adoption** — is Hono chosen?                                    | Given a neutral prompt, does the agent reach for Hono at all?                                                                                                | Hono adoption rate per runtime × scenario × model       | Project state, not persuasion: a dependency in `package.json` is followed, templates are copied; prompt specificity raises it in steps                                                                                            |
+| **Value** — is Hono worth using?                                  | Same task, same spec: plain handler vs Hono — what changes?                                                                                                  | Success, tokens, duration, lines of code written        | Hono removes about a third of the code and 16–31% of the tokens without lowering success (currently measured with experiment scripts, not a suite)                                                                                |
+| **Practical** — can the agent use it well, and do the rails help? | Given a Hono project and a change request, does the agent deliver what was asked — with and without the Hono CLI, skill, `AGENTS.md`, or an executable spec? | Success (hidden deterministic checks), tokens, duration | Rails lift success on lean harnesses and cost on strong ones; an executable acceptance spec (JSONL lines with `expect`, run through `hono batch`) is the best-performing form; features not on a discovery surface are never used |
 
 The columns that matter are the same everywhere: **success rate** ("did the agent build what was asked?") is the goal; **tokens and duration** are the bill; **lines of code** is how much boilerplate the agent was made to write. Everything else — CLI usage rate, command mix, skill activation, error recovery, which framework was picked — is a **diagnostic** that explains a result and is never a target (architecture rule 8).
 
@@ -120,7 +120,7 @@ pnpm dlx @hono/agent-dx --suite adoption --model cloudflare-ai-gateway/claude-ha
 pnpm dlx @hono/agent-dx --suite adoption --runs 20 --report result.json
 ```
 
-The JSON report uses a schema shared by the CLI, CI, and the website. Reports are stored in the `agent-dx-results` R2 bucket (the eval workflow uploads them automatically; see `results/README.md` for manual uploads), and agent-dx.hono.dev renders everything in the bucket. Result data is never committed to git.
+The JSON report uses a schema shared by the CLI, CI, and the website. Reports are stored in the `agent-dx-results` R2 bucket (the eval workflow uploads them automatically; see `results/README.md` for manual uploads), and agent-dx.hono.dev is rendered from the bucket into static pages after every eval (`apps/web/scripts/ssg.mts`). Result data is never committed to git.
 
 To run a Hono CLI experiment in one command — the same task without and with the candidate CLI injected into the fixture (installed as a devDependency, with the CLI's onboarding line added to the fixture's AGENTS.md) — including how often the agent actually invoked the CLI:
 
@@ -156,7 +156,7 @@ Median duration          51s         39s     -24%
 ```text
 agent-dx/
 ├── apps/
-│   └── web/            # agent-dx.hono.dev — Worker rendering reports from R2
+│   └── web/            # agent-dx.hono.dev — static site rendered from the R2 reports (vite + hono/ssg)
 ├── packages/
 │   └── agent-dx/       # @hono/agent-dx — CLI, Flue runner, suites, graders, reporters
 │       ├── src/
@@ -177,7 +177,8 @@ See [AGENTS.md](./AGENTS.md) for development conventions and the pull request wo
 ## CI
 
 - `ci.yml` runs format check, lint, typecheck, tests, and builds on every push and pull request. No model APIs are called.
-- `eval.yml` runs real agent evals. It is manual (`workflow_dispatch`) or scheduled — never triggered automatically by pull requests — and uploads the JSON report as a workflow artifact and to the `agent-dx-results` R2 bucket.
+- `eval.yml` runs real agent evals — never triggered by pull requests. The weekly schedule runs the full matrix (adoption on every runtime × scenario for two models, and every practical task with and without the Hono CLI + skill), uploads the reports to the `agent-dx-results` R2 bucket, then re-renders and deploys the site. `workflow_dispatch` runs a single condition, or the whole matrix with the `matrix` input.
+- `site.yml` re-renders and deploys the site from the reports already in R2, without running any evals.
 
 ## Author
 
