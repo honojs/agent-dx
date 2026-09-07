@@ -1,0 +1,21 @@
+README.ja.md
+  s_b5227510c4b557::t_2f9f87772f41db 13,15,17,19,21,23,25,27,35-39,125,161,182-183
+README.md
+  s_b5227510c4b557::t_f186f9a7446ed8 11,13,15,17,19,21,23,25,33-37,123,159,180-181
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "eb62c0c147b1729d3162b94f094fd0624140df8f",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
