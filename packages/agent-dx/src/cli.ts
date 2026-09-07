@@ -35,7 +35,7 @@ Options:
                       (default: cloudflare-workers)
   --scenario <id>     Adoption scenario: ${Object.keys(ADOPTION_SCENARIOS).join(' | ')}
                       (default: minimal)
-  --task <id>         Practical task (default: add-user-route)
+  --task <id>         Practical task (default: build-endpoints)
   --hono-cli <spec>   Install this Hono CLI into the fixture (practical),
                       e.g. @hono/cli@next or a local path
   --onboarding <m>    agents-md | none — whether the CLI onboarding line is
@@ -229,7 +229,7 @@ async function main(): Promise<void> {
 
   const runtimeId = values.runtime ?? 'cloudflare-workers'
   const scenarioId = values.scenario ?? 'minimal'
-  const taskId = values.task ?? 'add-user-route'
+  const taskId = values.task ?? 'build-endpoints'
   const keepDir = values.keep
     ? join(
         process.cwd(),

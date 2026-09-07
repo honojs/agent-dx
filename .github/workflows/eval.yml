@@ -98,14 +98,16 @@ jobs:
               done
             done
             # Practical: every task, bare vs cli+skill (the comparison the
-            # suite exists for). The skill comes from honojs/skills.
+            # suite exists for): the CLI as a devDependency, its verification
+            # policy line in AGENTS.md, and the skill from honojs/skills.
             git clone --depth 1 https://github.com/honojs/skills /tmp/hono-skills
-            for task in add-user-route build-endpoints fix-404 fix-404-shadow refactor-routes; do
+            for task in build-endpoints build-shop session-users refactor-routes fix-404 fix-404-shadow; do
               echo "::group::practical $task baseline"
               node packages/agent-dx/dist/cli.js \
                 --suite practical \
                 --task "$task" \
                 --runs 5 \
+                --concurrency 5 \
                 --model "$MODEL" \
                 --report "reports/practical-$task-baseline.json" ||
                 echo "practical $task baseline failed"
@@ -115,9 +117,9 @@ jobs:
                 --suite practical \
                 --task "$task" \
                 --runs 5 \
+                --concurrency 5 \
                 --model "$MODEL" \
                 --hono-cli @hono/cli@next \
-                --onboarding none \
                 --skill /tmp/hono-skills/skills/hono \
                 --report "reports/practical-$task-cli-skill.json" ||
                 echo "practical $task cli+skill failed"

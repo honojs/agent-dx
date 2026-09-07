@@ -651,6 +651,16 @@ function practicalCondition(report: PracticalReport): string {
 
 const CONDITION_ORDER = ['baseline', 'cli', 'skill', 'cli + skill']
 
+// Build → evolve → refactor → debug: the order tasks are listed in the CLI.
+const TASK_ORDER = [
+  'build-endpoints',
+  'build-shop',
+  'session-users',
+  'refactor-routes',
+  'fix-404',
+  'fix-404-shadow',
+]
+
 const CONDITION_COLORS: Record<string, string> = {
   baseline: '#8b8d98',
   cli: '#5e6ad2',
@@ -682,23 +692,31 @@ const PracticalCell: FC<{ report?: PracticalReport }> = ({ report }) => {
 const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
   // Newest report per task × condition; the columns are the point:
   // does giving the agent the CLI or the skill change the outcome?
+  // Tasks come and go (a task earns its place by experiment), so only the
+  // tasks measured in the newest batch are shown; retired ones stay in R2.
   const latest = new Map<string, PracticalReport>()
-  const tasks: string[] = []
+  const newestByTask = new Map<string, number>()
   const conditions: string[] = []
+  let newest = 0
   for (const report of reports) {
     const condition = practicalCondition(report)
     const key = `${report.task} ${condition}`
     if (!latest.has(key)) {
       latest.set(key, report)
     }
-    if (!tasks.includes(report.task)) {
-      tasks.push(report.task)
-    }
+    const started = Date.parse(report.startedAt)
+    newest = Math.max(newest, started)
+    newestByTask.set(report.task, Math.max(newestByTask.get(report.task) ?? 0, started))
     if (!conditions.includes(condition)) {
       conditions.push(condition)
     }
   }
-  tasks.sort()
+  const tasks = ordered(
+    [...newestByTask.entries()]
+      .filter(([, started]) => newest - started < 3 * 24 * 60 * 60 * 1000)
+      .map(([task]) => task),
+    TASK_ORDER
+  )
   return (
     <section id='practical' class={sectionClass}>
       <h2>Practical</h2>

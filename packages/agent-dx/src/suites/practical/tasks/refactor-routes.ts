@@ -7,9 +7,12 @@ import type { PracticalTask } from '../task.js'
 /**
  * Task: split a bloated single-file app into routers without changing
  * behavior. The refactor itself is easy; the hard part is the promise
- * "no route changed" across ~25 endpoints — a verification-volume task,
- * which is the workload profile tools like `hono routes` and
- * `hono request` exist for.
+ * "no route changed" across ~27 endpoints — a verification-volume task,
+ * which is the workload profile tools like `hono snapshot` and
+ * `hono batch` exist for. Two static routes (`/api/users/new`,
+ * `/api/orders/summary`) sit before their `:id` siblings and the list
+ * endpoints return dozens of items, so a careless split shadows a route
+ * and an eyeball check does not scale.
  */
 
 const CHECK_SCRIPT = `
@@ -34,6 +37,11 @@ try {
       const res = await get(app, '/api/users/1')
       const body = await res.json()
       return res.status === 200 && body.id === 1
+    }],
+    ['GET /api/users/new is not shadowed by :id', async () => {
+      const res = await get(app, '/api/users/new')
+      const body = await res.json()
+      return res.status === 200 && body.role === 'member'
     }],
     ['GET /api/users/:id/orders works', async () => {
       const res = await get(app, '/api/users/1/orders')
@@ -63,6 +71,11 @@ try {
       const res = await get(app, '/api/orders?status=pending')
       const body = await res.json()
       return res.status === 200 && Array.isArray(body) && body.every((o) => o.status === 'pending')
+    }],
+    ['GET /api/orders/summary is not shadowed by :id', async () => {
+      const res = await get(app, '/api/orders/summary')
+      const body = await res.json()
+      return res.status === 200 && typeof body.pending === 'number'
     }],
     ['GET /api/orders/:id/items works', async () => {
       const res = await get(app, '/api/orders/2/items')
