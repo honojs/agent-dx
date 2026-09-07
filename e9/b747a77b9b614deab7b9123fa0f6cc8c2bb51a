@@ -1,0 +1,41 @@
+README.ja.md
+  s_b5227510c4b557::t_090f85014864d4 79-86,88,105,128,134,148
+README.md
+  s_b5227510c4b557::t_1ffec4375b719a 77-84,86,103,126,132,146
+packages/agent-dx/fixtures/hono-shop-flat/src/index.ts
+  s_b5227510c4b557::t_397fbcb72b1e4c 13-28,35-36,126-131
+packages/agent-dx/src/cli.ts
+  s_b5227510c4b557::t_60c05362e6d871 38,232
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_6fc6f644063a0a 2,28-32,35,209-225,234-235,250,253-305,309-310,313-323,325,327-328
+packages/agent-dx/src/suites/practical/tasks/session-users.ts
+  s_b5227510c4b557::t_28316816f7640a 6-10,16-17,19-21,23-44,55-66
+.github/workflows/eval.yml
+  s_b5227510c4b557::t_53c2f732a6710a 101-102,104,110,120
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_d80963639a074f 654-663,695-696,698,700,707-709,714-719
+packages/agent-dx/src/suites/practical/index.ts
+  s_b5227510c4b557::t_84a36427ca8861 15,19,22-23,26-27,32-34,46-52,85-88,90-94,102-106,179,181
+packages/agent-dx/src/suites/practical/task.ts
+  s_b5227510c4b557::t_12b64e9499f4ec 15-20
+packages/agent-dx/src/suites/practical/tasks/build-shop.ts
+  s_b5227510c4b557::t_f8953d3be00da0 1-85
+packages/agent-dx/src/suites/practical/tasks/refactor-routes.ts
+  s_b5227510c4b557::t_d81272e7c3dffb 10-15,41-45,75-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e9b747a77b9b614deab7b9123fa0f6cc8c2bb51a",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
