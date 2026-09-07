@@ -1,4 +1,4 @@
-import { compareReports, frameworkLabel } from '@hono/agent-dx/report'
+import { frameworkLabel } from '@hono/agent-dx/report'
 import {
   type AdoptionReport,
   type AgentDxReport,
@@ -399,7 +399,7 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
   }
   models.sort()
   return (
-    <section class={sectionClass}>
+    <section id='adoption' class={sectionClass}>
       <h2>Adoption</h2>
       <p class={ledeClass}>
         Given a neutral prompt — no framework named — does a coding agent choose Hono? Hono adoption
@@ -700,7 +700,7 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
   }
   tasks.sort()
   return (
-    <section class={sectionClass}>
+    <section id='practical' class={sectionClass}>
       <h2>Practical</h2>
       <p class={ledeClass}>
         Hand the agent a real Hono project and a change request, grade the result with hidden
@@ -758,72 +758,123 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
   )
 }
 
-/** Pair reports labeled baseline/candidate within the same suite. */
-function findExperiments(reports: AgentDxReport[]) {
-  const groups = new Map<string, AgentDxReport[]>()
-  for (const report of reports) {
-    if (!report.variant) {
-      continue
-    }
-    const subject = isAdoptionReport(report) ? report.runtime : report.task
-    const key = `${report.suite}:${subject}:${report.target ?? ''}`
-    groups.set(key, [...(groups.get(key) ?? []), report])
-  }
-  const experiments = []
-  for (const group of groups.values()) {
-    const baseline = group.find((r) => r.variant === 'baseline')
-    const candidate = group.find((r) => r.variant === 'candidate')
-    if (baseline && candidate) {
-      experiments.push(compareReports(baseline, candidate))
-    }
-  }
-  return experiments
-}
+const cardsClass = css`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 2rem;
+`
 
-const ExperimentsSection: FC<{ reports: AgentDxReport[] }> = ({ reports }) => {
-  const experiments = findExperiments(reports)
-  return (
-    <section class={sectionClass}>
-      <h2>Experiments</h2>
-      <p class={ledeClass}>
-        Do changes to Hono CLI, Skills, Docs, or Core improve Agent DX? Baseline vs candidate, same
-        task and fixture.
+const cardClass = css`
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  h2 {
+    font-size: 0.95rem;
+    margin: 0 0 0.3rem;
+    color: var(--accent);
+  }
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .answer {
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+`
+
+/** The three questions Agent DX answers, as the entry point of the page. */
+const Overview: FC = () => (
+  <nav class={cardsClass} aria-label='What we measure'>
+    <a class={cardClass} href='#adoption'>
+      <h2>Adoption</h2>
+      <p>Given a neutral prompt, does a coding agent reach for Hono at all?</p>
+      <p class='answer'>
+        Decided by project state, not persuasion — a dependency is followed, a template is copied.
       </p>
-      {experiments.length > 0 ? (
-        experiments.map((experiment) => (
-          <>
-            <h3>
-              {experiment.suite} ({experiment.subject})
-            </h3>
-            <p class={metaClass}>model: {experiment.model}</p>
-            <table class={tableClass}>
-              <thead>
-                <tr>
-                  <th />
-                  <th class='num'>Baseline</th>
-                  <th class='num'>Candidate</th>
-                  <th class='num'>Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {experiment.rows.map((row) => (
-                  <tr>
-                    <td>{row.label}</td>
-                    <td class='num'>{row.baseline}</td>
-                    <td class='num'>{row.candidate}</td>
-                    <td class='num'>{row.change}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        ))
-      ) : (
-        <p class={emptyClass}>No experiment results yet.</p>
-      )}
-    </section>
-  )
-}
+    </a>
+    <a class={cardClass} href='#value'>
+      <h2>Value</h2>
+      <p>Same task, same spec: a plain handler vs Hono — what changes?</p>
+      <p class='answer'>
+        About a third less code and 16–31% fewer tokens, with no loss in success.
+      </p>
+    </a>
+    <a class={cardClass} href='#practical'>
+      <h2>Practical</h2>
+      <p>
+        Given a Hono project and a change request, does the agent deliver what was asked — with and
+        without the rails?
+      </p>
+      <p class='answer'>
+        Rails lift success on lean agents and cost on strong ones; an executable spec performs best.
+      </p>
+    </a>
+  </nav>
+)
+
+/**
+ * Value: plain fetch handler vs Hono on identical tasks. Measured by
+ * experiment (not yet a scheduled suite), so the numbers are stated with
+ * their date and run count.
+ */
+const VALUE_RESULTS = [
+  {
+    task: 'shop API (products, cart, checkout)',
+    plain: { success: '2/10', tokens: '103k', seconds: 85, loc: 254 },
+    hono: { success: '4/10', tokens: '87k', seconds: 72, loc: 156 },
+  },
+  {
+    task: 'notes API with auth (login, bearer, CORS, JSON errors)',
+    plain: { success: '10/10', tokens: '134k', seconds: 103, loc: 195 },
+    hono: { success: '10/10', tokens: '93k', seconds: 82, loc: 129 },
+  },
+]
+
+const ValueSection: FC = () => (
+  <section id='value' class={sectionClass}>
+    <h2>Value</h2>
+    <p class={ledeClass}>
+      Is Hono worth using when an agent writes the code? Same task, same acceptance spec, same
+      model: a project with no framework (the agent writes a raw fetch handler) against a project
+      with Hono in <code>package.json</code>.
+    </p>
+    <table class={tableClass}>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th class='cell'>plain</th>
+          <th class='cell'>Hono</th>
+        </tr>
+      </thead>
+      <tbody>
+        {VALUE_RESULTS.map((row) => (
+          <tr>
+            <td>{row.task}</td>
+            {[row.plain, row.hono].map((cell, index) => (
+              <td class='cell'>
+                <span class={index === 1 ? pctClass : pctZeroClass}>{cell.success}</span>
+                <span class={whoClass}>
+                  {cell.tokens} tok · {cell.seconds}s · {cell.loc} lines
+                </span>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p class={metaClass}>
+      Experiment of 2026-09-06 · 10 runs per cell · claude-haiku-4-5 · success, median tokens,
+      median duration, median lines of code written. Not yet part of the weekly schedule.
+    </p>
+  </section>
+)
 
 export const Layout: FC<PropsWithChildren<{ head?: Child }>> = ({ head, children }) => (
   <html lang='en'>
@@ -857,8 +908,9 @@ export const Layout: FC<PropsWithChildren<{ head?: Child }>> = ({ head, children
 
 export const Home: FC<{ reports: AgentDxReport[] }> = ({ reports }) => (
   <>
+    <Overview />
     <AdoptionSection reports={reports.filter(isAdoptionReport)} />
+    <ValueSection />
     <PracticalSection reports={reports.filter(isPracticalReport)} />
-    <ExperimentsSection reports={reports} />
   </>
 )
