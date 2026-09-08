@@ -656,6 +656,7 @@ const MODEL_ORDER = ['claude-haiku-4-5', 'claude-sonnet-5', 'claude-opus-5']
 // Build → evolve → refactor → debug: the order tasks are listed in the CLI.
 const TASK_ORDER = [
   'build-endpoints',
+  'build-endpoints-workers',
   'build-shop',
   'session-users',
   'refactor-routes',

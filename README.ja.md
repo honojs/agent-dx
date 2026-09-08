@@ -79,6 +79,7 @@ pnpm build
 | `--task`                        | fixture          | 依頼する変更                                                                                            |
 | ------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------- |
 | `build-endpoints`（デフォルト） | `hono-fresh`     | ゼロからusers CRUDを作り、実際に動くことを確認する                                                      |
+| `build-endpoints-workers`       | `hono-workers`   | 同じ users CRUD を、`npm run dev` で `wrangler dev` が立つ素の create-hono Workers プロジェクトで       |
 | `build-shop`                    | `hono-fresh`     | プロンプトに実行可能な受け入れ仕様（`expect` 付きのリクエスト行）を添えて、ゼロからショップ API を作る  |
 | `session-users`                 | `hono-fresh`     | 1 つの会話で 4 回の変更依頼。最終状態がすべてのステップの契約を満たしていなければならない               |
 | `refactor-routes`               | `hono-shop-flat` | 肥大化した単一ファイルアプリ（27 ルート、shadowing しやすい兄弟ルート、大きな一覧）を挙動を変えずに分割 |
