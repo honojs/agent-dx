@@ -1,0 +1,39 @@
+.github/workflows/eval.yml
+  s_b5227510c4b557::t_4429f662962652 104
+README.ja.md
+  s_b5227510c4b557::t_8da5e11827edf2 82
+README.md
+  s_b5227510c4b557::t_e46f10bfcbd060 80
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_a0cf0a6d0819c2 659
+packages/agent-dx/fixtures/hono-workers/README.md
+  s_b5227510c4b557::t_f3587a70fcd80c 1-21
+packages/agent-dx/fixtures/hono-workers/package.json
+  s_b5227510c4b557::t_1f01731cb0a668 1-16
+packages/agent-dx/fixtures/hono-workers/src/index.ts
+  s_b5227510c4b557::t_46d076b15303f0 1-9
+packages/agent-dx/fixtures/hono-workers/tsconfig.json
+  s_b5227510c4b557::t_4107daf1ed66c7 1-12
+packages/agent-dx/fixtures/hono-workers/wrangler.jsonc
+  s_b5227510c4b557::t_92b82a525a1446 1-38
+packages/agent-dx/src/suites/practical/index.ts
+  s_b5227510c4b557::t_80afba6a06899c 15,33
+packages/agent-dx/src/suites/practical/tasks/build-endpoints-workers.ts
+  s_b5227510c4b557::t_14a841e11f0df8 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ebe538f9eca0c68cfd781d9e845c4a8615170da7",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
