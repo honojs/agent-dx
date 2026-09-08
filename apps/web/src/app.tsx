@@ -651,6 +651,8 @@ function practicalCondition(report: PracticalReport): string {
 
 const CONDITION_ORDER = ['baseline', 'cli', 'skill', 'cli + skill']
 
+const MODEL_ORDER = ['claude-haiku-4-5', 'claude-sonnet-5', 'claude-opus-5']
+
 // Build → evolve → refactor → debug: the order tasks are listed in the CLI.
 const TASK_ORDER = [
   'build-endpoints',
@@ -689,7 +691,7 @@ const PracticalCell: FC<{ report?: PracticalReport }> = ({ report }) => {
   )
 }
 
-const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
+const PracticalTable: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
   // Newest report per task × condition; the columns are the point:
   // does giving the agent the CLI or the skill change the outcome?
   // Tasks come and go (a task earns its place by experiment), so only the
@@ -718,6 +720,60 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
     TASK_ORDER
   )
   return (
+    <>
+      <GroupedBars
+        ariaLabel='Practical success rate per task and condition'
+        groups={tasks.map((task) => ({
+          label: task,
+          bars: ordered(conditions, CONDITION_ORDER).map((condition) => {
+            const report = latest.get(`${task} ${condition}`)
+            if (!report) {
+              return null
+            }
+            return {
+              label: `${task} · ${condition}`,
+              value: report.summary.successRate,
+              color: CONDITION_COLORS[condition] ?? '#888',
+            }
+          }),
+        }))}
+        legend={ordered(conditions, CONDITION_ORDER).map((condition) => ({
+          label: condition,
+          color: CONDITION_COLORS[condition] ?? '#888',
+        }))}
+      />
+      <table class={tableClass}>
+        <thead>
+          <tr>
+            <th>Task</th>
+            {ordered(conditions, CONDITION_ORDER).map((condition) => (
+              <th class='cell'>{condition}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.map((task) => (
+            <tr>
+              <td>{task}</td>
+              {ordered(conditions, CONDITION_ORDER).map((condition) => (
+                <PracticalCell report={latest.get(`${task} ${condition}`)} />
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )
+}
+
+const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
+  // One table per model: the rails' effect is model-dependent, so runs of
+  // different models are never mixed in a cell. The provider prefix is
+  // dropped so local (anthropic/) and CI (cloudflare-ai-gateway/) runs of
+  // the same model land in the same table.
+  const modelName = (report: PracticalReport): string => report.model.split('/').pop() ?? ''
+  const models = ordered([...new Set(reports.map(modelName))], MODEL_ORDER)
+  return (
     <section id='practical' class={sectionClass}>
       <h2>Practical</h2>
       <p class={ledeClass}>
@@ -725,50 +781,13 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
         deterministic checks. Success rate, median tokens, and CLI usage per task — with and without
         the Hono CLI and skill.
       </p>
-      {latest.size > 0 ? (
-        <>
-          <GroupedBars
-            ariaLabel='Practical success rate per task and condition'
-            groups={tasks.map((task) => ({
-              label: task,
-              bars: ordered(conditions, CONDITION_ORDER).map((condition) => {
-                const report = latest.get(`${task} ${condition}`)
-                if (!report) {
-                  return null
-                }
-                return {
-                  label: `${task} · ${condition}`,
-                  value: report.summary.successRate,
-                  color: CONDITION_COLORS[condition] ?? '#888',
-                }
-              }),
-            }))}
-            legend={ordered(conditions, CONDITION_ORDER).map((condition) => ({
-              label: condition,
-              color: CONDITION_COLORS[condition] ?? '#888',
-            }))}
-          />
-          <table class={tableClass}>
-            <thead>
-              <tr>
-                <th>Task</th>
-                {ordered(conditions, CONDITION_ORDER).map((condition) => (
-                  <th class='cell'>{condition}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map((task) => (
-                <tr>
-                  <td>{task}</td>
-                  {ordered(conditions, CONDITION_ORDER).map((condition) => (
-                    <PracticalCell report={latest.get(`${task} ${condition}`)} />
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
+      {models.length > 0 ? (
+        models.map((model) => (
+          <>
+            <h3>{model}</h3>
+            <PracticalTable reports={reports.filter((report) => modelName(report) === model)} />
+          </>
+        ))
       ) : (
         <p class={emptyClass}>No practical results yet.</p>
       )}
