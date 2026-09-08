@@ -101,7 +101,7 @@ jobs:
             # suite exists for): the CLI as a devDependency, its verification
             # policy line in AGENTS.md, and the skill from honojs/skills.
             git clone --depth 1 https://github.com/honojs/skills /tmp/hono-skills
-            for task in build-endpoints build-shop session-users refactor-routes fix-404 fix-404-shadow; do
+            for task in build-endpoints build-endpoints-workers build-shop session-users refactor-routes fix-404 fix-404-shadow; do
               echo "::group::practical $task baseline"
               node packages/agent-dx/dist/cli.js \
                 --suite practical \

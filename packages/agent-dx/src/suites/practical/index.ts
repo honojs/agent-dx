@@ -12,6 +12,7 @@ import { TOOL_VERSION } from '../../version.js'
 import { createWorkspaceFrom, persistWorkspace, removeWorkspace } from '../../workspace.js'
 import type { PracticalTask } from './task.js'
 import { buildEndpointsTask } from './tasks/build-endpoints.js'
+import { buildEndpointsWorkersTask } from './tasks/build-endpoints-workers.js'
 import { buildShopTask } from './tasks/build-shop.js'
 import { fix404Task } from './tasks/fix-404.js'
 import { fix404ShadowTask } from './tasks/fix-404-shadow.js'
@@ -29,6 +30,7 @@ import { sessionUsersTask } from './tasks/session-users.js'
 
 export const PRACTICAL_TASKS: Record<string, PracticalTask> = {
   [buildEndpointsTask.id]: buildEndpointsTask,
+  [buildEndpointsWorkersTask.id]: buildEndpointsWorkersTask,
   [buildShopTask.id]: buildShopTask,
   [sessionUsersTask.id]: sessionUsersTask,
   [refactorRoutesTask.id]: refactorRoutesTask,

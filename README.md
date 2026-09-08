@@ -77,6 +77,7 @@ Run `agent-dx --list` for the up-to-date list. As of v0:
 | `--task`                    | Fixture          | Change requested                                                                                                       |
 | --------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `build-endpoints` (default) | `hono-fresh`     | Build a users CRUD from scratch and make sure it works                                                                 |
+| `build-endpoints-workers`   | `hono-workers`   | The same users CRUD on a stock create-hono Workers project, where `npm run dev` starts `wrangler dev`                  |
 | `build-shop`                | `hono-fresh`     | Build a shop API from scratch against an executable acceptance spec (request lines with `expect`) in the prompt        |
 | `session-users`             | `hono-fresh`     | Four change requests in one conversation; the final state must honor every step's contract                             |
 | `refactor-routes`           | `hono-shop-flat` | Split a bloated single-file app (27 routes, shadow-prone siblings, large lists) into routers without changing behavior |
