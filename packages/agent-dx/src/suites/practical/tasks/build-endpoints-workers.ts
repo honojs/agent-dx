@@ -12,6 +12,7 @@ import { buildEndpointsTask } from './build-endpoints.js'
 export const buildEndpointsWorkersTask: PracticalTask = {
   ...buildEndpointsTask,
   id: 'build-endpoints-workers',
-  description: 'Build a users CRUD on a stock create-hono Workers project (wrangler dev available)',
+  description:
+    'The same users CRUD on a stock create-hono Workers project, where npm run dev starts wrangler dev — will the agent start a server to verify, and get its shell back?',
   fixture: 'hono-workers',
 }

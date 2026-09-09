@@ -686,6 +686,7 @@ const PracticalCell: FC<{ report?: PracticalReport }> = ({ report }) => {
         {report.summary.medianTokens
           ? `${Math.round(report.summary.medianTokens / 1000)}k tok`
           : '—'}
+        {` · ${Math.round(report.summary.medianDurationMs / 1000)}s`}
         {report.summary.honoCli ? ` · CLI ${percent(report.summary.honoCli.usageRate)}` : ''}
       </span>
     </td>
@@ -699,6 +700,7 @@ const PracticalTable: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
   // tasks measured in the newest batch are shown; retired ones stay in R2.
   const latest = new Map<string, PracticalReport>()
   const newestByTask = new Map<string, number>()
+  const descriptions = new Map<string, string>()
   const conditions: string[] = []
   let newest = 0
   for (const report of reports) {
@@ -706,6 +708,9 @@ const PracticalTable: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
     const key = `${report.task} ${condition}`
     if (!latest.has(key)) {
       latest.set(key, report)
+    }
+    if (report.taskDescription && !descriptions.has(report.task)) {
+      descriptions.set(report.task, report.taskDescription)
     }
     const started = Date.parse(report.startedAt)
     newest = Math.max(newest, started)
@@ -755,7 +760,12 @@ const PracticalTable: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
         <tbody>
           {tasks.map((task) => (
             <tr>
-              <td>{task}</td>
+              <td>
+                {task}
+                {descriptions.has(task) ? (
+                  <span class={whoClass}>{descriptions.get(task)}</span>
+                ) : null}
+              </td>
               {ordered(conditions, CONDITION_ORDER).map((condition) => (
                 <PracticalCell report={latest.get(`${task} ${condition}`)} />
               ))}
@@ -779,8 +789,8 @@ const PracticalSection: FC<{ reports: PracticalReport[] }> = ({ reports }) => {
       <h2>Practical</h2>
       <p class={ledeClass}>
         Hand the agent a real Hono project and a change request, grade the result with hidden
-        deterministic checks. Success rate, median tokens, and CLI usage per task — with and without
-        the Hono CLI and skill.
+        deterministic checks. Success rate, median tokens, median duration, and CLI usage per task —
+        with and without the Hono CLI and skill.
       </p>
       {models.length > 0 ? (
         models.map((model) => (

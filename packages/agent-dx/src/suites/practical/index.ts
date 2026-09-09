@@ -240,6 +240,7 @@ export async function runPracticalSuite(options: PracticalSuiteOptions): Promise
     startedAt,
     finishedAt: new Date().toISOString(),
     task: task.id,
+    taskDescription: task.description,
     fixtureHash,
     honoCli: options.honoCli,
     honoCliVersion,
