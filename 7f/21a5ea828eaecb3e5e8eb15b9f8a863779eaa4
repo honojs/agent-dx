@@ -1,0 +1,25 @@
+apps/web/src/app.tsx
+  s_b5227510c4b557::t_fd04ac3d1a4d40 689,703,712-714,763-768,792-793
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_946fe772dbbfbe 156-157
+packages/agent-dx/src/suites/practical/index.ts
+  s_b5227510c4b557::t_9b5152d235ebd0 243
+packages/agent-dx/src/suites/practical/tasks/build-endpoints-workers.ts
+  s_b5227510c4b557::t_c5ef462ac7a75d 15-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7f21a5ea828eaecb3e5e8eb15b9f8a863779eaa4",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
