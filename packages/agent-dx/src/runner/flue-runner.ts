@@ -52,6 +52,10 @@ export interface AgentRunOutcome {
 }
 
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000
+// A provider rate limit (429) before the agent has done anything is not a
+// result; wait and start the conversation again, a few times.
+const RATE_LIMIT_RETRIES = 3
+const RATE_LIMIT_BACKOFF_MS = [15_000, 45_000, 90_000]
 const MAX_TRANSCRIPT_COMMANDS = 100
 const MAX_TRANSCRIPT_COMMAND_LENGTH = 200
 
@@ -186,6 +190,12 @@ export function formatProgressDetail(hint: string, workspace: string): string | 
   return detail === '' ? undefined : detail
 }
 
+function isRateLimit(error: unknown): boolean {
+  return /\b429\b|rate.?limit/i.test(errorMessage(error))
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+
 /** Flatten an error's cause chain so run reports carry the real reason. */
 function errorMessage(error: unknown): string {
   const parts: string[] = []
@@ -294,6 +304,7 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
     }
   }
 
+  let rateLimitRetries = 0
   const metrics = (): RunMetrics => ({
     durationMs: Date.now() - startedAt,
     toolCalls,
@@ -301,30 +312,40 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunOutcom
     tokens,
     honoCli: honoCli.calls > 0 ? honoCli : undefined,
     commands: commands.length > 0 ? commands : undefined,
+    rateLimitRetries: rateLimitRetries > 0 ? rateLimitRetries : undefined,
   })
 
   await acquireRuntime()
-  try {
-    // A fresh conversation per run: init() without an id mints a new one.
-    // Follow-up messages continue that conversation, so the agent keeps
-    // its context (and its habits) between steps.
-    const handle = init(AgentDxRunner)
-    const initialData: RunnerInit = { model, instructions, cwd: workspace }
-    let text = ''
-    for (const [turn, message] of [prompt, ...(options.followUps ?? [])].entries()) {
-      turnTokens = undefined
-      const receipt = await handle.dispatch(turn === 0 ? { message, initialData } : { message })
-      const reply = await handle.read(receipt, {
-        signal: AbortSignal.timeout(timeoutMs),
-        onEvent,
-      })
-      noteMetadata(reply.metadata)
+  for (;;) {
+    try {
+      // A fresh conversation per run: init() without an id mints a new one.
+      // Follow-up messages continue that conversation, so the agent keeps
+      // its context (and its habits) between steps.
+      const handle = init(AgentDxRunner)
+      const initialData: RunnerInit = { model, instructions, cwd: workspace }
+      let text = ''
+      for (const [turn, message] of [prompt, ...(options.followUps ?? [])].entries()) {
+        turnTokens = undefined
+        const receipt = await handle.dispatch(turn === 0 ? { message, initialData } : { message })
+        const reply = await handle.read(receipt, {
+          signal: AbortSignal.timeout(timeoutMs),
+          onEvent,
+        })
+        noteMetadata(reply.metadata)
+        tokens = addTokenUsage(tokens, turnTokens)
+        text = reply.text
+      }
+      return { outcome: 'completed', text, metrics: metrics() }
+    } catch (error) {
+      // Only retry when the workspace is still untouched: a rate limit that
+      // hits mid-run would otherwise replay tool calls on modified files.
+      if (isRateLimit(error) && toolCalls === 0 && rateLimitRetries < RATE_LIMIT_RETRIES) {
+        await sleep(RATE_LIMIT_BACKOFF_MS[rateLimitRetries] ?? 90_000)
+        rateLimitRetries += 1
+        continue
+      }
       tokens = addTokenUsage(tokens, turnTokens)
-      text = reply.text
+      return { outcome: 'failed', text: '', metrics: metrics(), error: errorMessage(error) }
     }
-    return { outcome: 'completed', text, metrics: metrics() }
-  } catch (error) {
-    tokens = addTokenUsage(tokens, turnTokens)
-    return { outcome: 'failed', text: '', metrics: metrics(), error: errorMessage(error) }
   }
 }
