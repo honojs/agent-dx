@@ -1,0 +1,21 @@
+packages/agent-dx/src/runner/flue-runner.ts
+  s_b5227510c4b557::t_ccc3b23db20158 55-58,193-198,307,315,319-346,348
+packages/agent-dx/src/schema.ts
+  s_b5227510c4b557::t_693b9f2d971d42 44-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "890905df012e0621d91a14bfdff14f27d5cff86a",
+  "prompts": {},
+  "sessions": {
+    "s_b5227510c4b557": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e1fd6f3-217b-4cee-958a-5d31344bb443",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Yusuke Wada <yusuke@kamawada.com>"
+    }
+  }
+}
