@@ -41,6 +41,8 @@ export interface RunMetrics {
   tokens?: TokenUsage
   /** Hono CLI usage observed in bash tool calls. */
   honoCli?: HonoCliUsage
+  /** How many times the conversation was restarted after a provider rate limit (429) before any tool call. */
+  rateLimitRetries?: number
   /**
    * Bash commands the agent executed, in order (each entry truncated, list
    * capped). The last entry of a timed-out run is usually the command that
