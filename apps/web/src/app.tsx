@@ -137,6 +137,7 @@ const footerClass = css`
 `
 
 const RUNTIME_ORDER = ['cloudflare-workers', 'bun', 'node-js', 'deno']
+const MODEL_ORDER = ['claude-haiku-4-5', 'claude-sonnet-5', 'claude-opus-5']
 const SCENARIO_ORDER = ['minimal', 'routes', 'api', 'framework']
 
 function percent(ratio: number): string {
@@ -391,13 +392,10 @@ const AdoptionMatrix: FC<{ cells: AdoptionCells }> = ({ cells }) => (
 )
 
 const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
-  const models: string[] = []
-  for (const report of reports) {
-    if (!models.includes(report.model)) {
-      models.push(report.model)
-    }
-  }
-  models.sort()
+  // Group by model name, provider prefix dropped, so local (anthropic/) and
+  // CI (cloudflare-ai-gateway/) runs of the same model share one matrix.
+  const modelName = (report: AdoptionReport): string => report.model.split('/').pop() ?? ''
+  const models = ordered([...new Set(reports.map(modelName))], MODEL_ORDER)
   return (
     <section id='adoption' class={sectionClass}>
       <h2>Adoption</h2>
@@ -408,10 +406,10 @@ const AdoptionSection: FC<{ reports: AdoptionReport[] }> = ({ reports }) => {
       </p>
       {models.length > 0 ? (
         models.map((model) => {
-          const cells = collectCells(reports.filter((r) => r.model === model))
+          const cells = collectCells(reports.filter((r) => modelName(r) === model))
           return (
             <>
-              <h3>{model.split('/').pop()}</h3>
+              <h3>{model}</h3>
               <AdoptionBars cells={cells} />
               <AdoptionMatrix cells={cells} />
             </>
@@ -650,8 +648,6 @@ function practicalCondition(report: PracticalReport): string {
 }
 
 const CONDITION_ORDER = ['baseline', 'cli', 'skill', 'cli + skill']
-
-const MODEL_ORDER = ['claude-haiku-4-5', 'claude-sonnet-5', 'claude-opus-5']
 
 // Build → evolve → refactor → debug: the order tasks are listed in the CLI.
 const TASK_ORDER = [
