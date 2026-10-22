@@ -11,6 +11,7 @@ import { median } from '../../stats.js'
 import { TOOL_VERSION } from '../../version.js'
 import { createWorkspaceFrom, persistWorkspace, removeWorkspace } from '../../workspace.js'
 import type { PracticalTask } from './task.js'
+import { benchmarkTodosTask } from './tasks/benchmark-todos.js'
 import { buildEndpointsTask } from './tasks/build-endpoints.js'
 import { buildEndpointsWorkersTask } from './tasks/build-endpoints-workers.js'
 import { buildShopTask } from './tasks/build-shop.js'
@@ -36,6 +37,7 @@ export const PRACTICAL_TASKS: Record<string, PracticalTask> = {
   [refactorRoutesTask.id]: refactorRoutesTask,
   [fix404Task.id]: fix404Task,
   [fix404ShadowTask.id]: fix404ShadowTask,
+  [benchmarkTodosTask.id]: benchmarkTodosTask,
 }
 
 const INSTRUCTIONS = [
@@ -93,6 +95,7 @@ const HONO_CLI_ONBOARDING = [
   'Verify with the Hono CLI, not with throwaway scripts.',
   'Before changing existing routes, capture the current behavior with `npx hono snapshot --status-only` (it prints batch JSONL lines).',
   'To check requests — spec lines from the request, or the snapshot — run `npx hono batch - --compact` (heredoc) until the summary shows "failed": 0.',
+  'To check performance, measure with `npx hono benchmark` (see `npx hono benchmark --help`).',
 ].join(' ')
 
 interface PreparedFixture {
