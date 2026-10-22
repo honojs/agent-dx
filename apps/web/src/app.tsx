@@ -12,6 +12,7 @@ import type { Child, FC, PropsWithChildren } from 'hono/jsx'
 const bodyClass = css`
   color-scheme: light dark;
   --accent: #ff5b11;
+  --bg: #ffffff;
   --fg: #1c1917;
   --muted: #78716c;
   --line: #e7e5e4;
@@ -19,11 +20,13 @@ const bodyClass = css`
   --good: #16a34a;
   font-family: ui-sans-serif, system-ui, sans-serif;
   color: var(--fg);
+  background: var(--bg);
   max-width: 52rem;
   margin: 0 auto;
   padding: 2.5rem 1.25rem 5rem;
   line-height: 1.65;
   @media (prefers-color-scheme: dark) {
+    --bg: #0c0a09;
     --fg: #e7e5e4;
     --muted: #a8a29e;
     --line: #292524;
